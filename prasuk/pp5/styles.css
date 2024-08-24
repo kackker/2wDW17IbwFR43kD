@@ -1,69 +1,48 @@
-/* Basic reset for consistent styling */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #f0f0f0;
 }
 
-/* Style for the container */
-.container {
-  max-width: 600px;
-  margin: 50px auto;
-  padding: 20px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  background-color: #f9f9f9;
+.login-container {
+    text-align: center;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
 
-/* Style for the form */
 form {
-  display: flex;
-  flex-direction: column;
-}
-
-/* Style for form groups */
-.form-group {
-  margin-bottom: 15px;
+    margin-bottom: 20px;
 }
 
 label {
-  margin-bottom: 5px;
-  font-weight: bold;
-  display: block;
+    display: block;
+    margin-bottom: 8px;
 }
 
-input[type="email"],
 input[type="password"] {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 16px;
+    padding: 8px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-bottom: 10px;
 }
 
 button {
-  padding: 10px;
-  border: none;
-  border-radius: 4px;
-  background-color: #007bff;
-  color: #fff;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.3s;
+    padding: 10px 20px;
+    font-size: 16px;
+    color: #fff;
+    background-color: #007BFF;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
 }
 
 button:hover {
-  background-color: #0056b3;
-}
-
-/* Style for iframe container */
-#iframeContainer {
-  display: none;
-  margin-top: 20px;
-}
-
-iframe {
-  border: none;
-  border-radius: 4px;
+    background-color: #0056b3;
 }
