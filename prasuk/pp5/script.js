@@ -1,21 +1,27 @@
-document.addEventListener('DOMContentLoaded', function() {
-    const loginForm = document.getElementById('loginForm');
-    const iframeContainer = document.getElementById('iframe-container');
-    const myIframe = document.getElementById('myIframe');
+document.getElementById('loginForm').addEventListener('submit', function(event) {
+  event.preventDefault();
 
-    // เปลี่ยนรหัสผ่านนี้ให้เป็นรหัสผ่านที่ต้องการ
-    const correctPassword = '1234'; 
+  var password = document.getElementById('password').value;
 
-    loginForm.addEventListener('submit', function(event) {
-        event.preventDefault();
+  // Replace this URL with your Google Apps Script Web App URL
+  var scriptUrl = 'https://script.google.com/macros/s/AKfycbymITyEcnX2fWibMRJ9CYcEFQ1KWUlmpZsq99dYd1ep9SNLSMiRZy7SjNKyv37xt5CJiA/exec';
 
-        const password = document.getElementById('password').value;
-
-        if (password === correctPassword) {
-            iframeContainer.style.display = 'block';
-            myIframe.src = 'https://script.google.com/macros/s/AKfycbxyO3HlSpCmKu6aVi1MCw7ebAp_EazzhQvKCSz57XqJKg5l4UbZybLbfLoQQqk3DobR/exec'; // ใส่ URL ของ iframe ที่คุณต้องการแสดง
-        } else {
-            alert('รหัสผ่านไม่ถูกต้อง!');            
-        }
-    });
+  fetch(scriptUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ password: password }),
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      document.querySelector('.login-container').style.display = 'none';
+      document.getElementById('contentFrame').style.display = 'block';
+      document.getElementById('contentFrame').src = 'YOUR_IFRAME_SOURCE_URL';
+    } else {
+      document.getElementById('errorMessage').style.display = 'block';
+    }
+  })
+  .catch(error => console.error('Error:', error));
 });
