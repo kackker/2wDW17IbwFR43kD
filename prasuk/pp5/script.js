@@ -7,7 +7,7 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
   var scriptUrl = 'https://script.google.com/macros/s/AKfycbymITyEcnX2fWibMRJ9CYcEFQ1KWUlmpZsq99dYd1ep9SNLSMiRZy7SjNKyv37xt5CJiA/exec';
 
   fetch(scriptUrl, {
-    method: 'POST',
+    method: 'POST',      
     headers: {
       'Content-Type': 'application/json',
     },
