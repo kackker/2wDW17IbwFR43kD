@@ -3,7 +3,7 @@ document.getElementById('login-form').addEventListener('submit', async function(
     
     const password = document.getElementById('password').value;
     const errorMessage = document.getElementById('error-message');
-    const sheetURL = 'https://docs.google.com/spreadsheets/d/13H5PsR9twS63oYbn8udQ1mB1Y-rUNvdz-fiywRTjgGY/edit?usp=sharing'; // ใส่ URL ของ Google Sheets ที่เผยแพร่ไว้
+    const sheetURL = 'https://docs.google.com/spreadsheets/d/13H5PsR9twS63oYbn8udQ1mB1Y-rUNvdz-fiywRTjgGY/pubhtml'; // ใส่ URL ของ Google Sheets ที่เผยแพร่ไว้
 
     try {
         // ดึงข้อมูลรหัสผ่านจาก Google Sheets
