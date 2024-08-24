@@ -1,5 +1,5 @@
 document.getElementById('loginForm').addEventListener('submit', function(event) {
-  event.preventDefault();
+    event.preventDefault();
 
   var password = document.getElementById('password').value;
 
