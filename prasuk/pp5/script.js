@@ -1,27 +1,29 @@
-document.getElementById('loginForm').addEventListener('submit', function(event) {
+document.getElementById('login-form').addEventListener('submit', async function(event) {
     event.preventDefault();
+    
+    const password = document.getElementById('password').value;
+    const errorMessage = document.getElementById('error-message');
+    const sheetURL = 'https://docs.google.com/spreadsheets/d/13H5PsR9twS63oYbn8udQ1mB1Y-rUNvdz-fiywRTjgGY/edit?usp=sharing'; // ใส่ URL ของ Google Sheets ที่เผยแพร่ไว้
 
-  var password = document.getElementById('password').value;
+    try {
+        // ดึงข้อมูลรหัสผ่านจาก Google Sheets
+        const response = await fetch(sheetURL);
+        const data = await response.text();
 
-  // Replace this URL with your Google Apps Script Web App URL
-  var scriptUrl = 'https://script.google.com/macros/s/AKfycbymITyEcnX2fWibMRJ9CYcEFQ1KWUlmpZsq99dYd1ep9SNLSMiRZy7SjNKyv37xt5CJiA/exec';
+        // ค้นหาค่ารหัสผ่านในข้อมูล
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(data, 'text/xml');
+        const cellValue = xmlDoc.querySelector('entry gs\\:cell').getAttribute('inputValue');
 
-  fetch(scriptUrl, {
-    method: 'POST',      
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ password: password }),
-  })
-  .then(response => response.json())
-  .then(data => {
-    if (data.success) {
-      document.querySelector('.login-container').style.display = 'none';
-      document.getElementById('contentFrame').style.display = 'block';
-      document.getElementById('contentFrame').src = 'https://script.google.com/macros/s/AKfycbxyO3HlSpCmKu6aVi1MCw7ebAp_EazzhQvKCSz57XqJKg5l4UbZybLbfLoQQqk3DobR/exec';
-    } else {
-      document.getElementById('errorMessage').style.display = 'block';
+        if (password === cellValue) {
+            // แสดง iframe ถ้ารหัสผ่านถูกต้อง
+            document.getElementById('content-frame').src = 'https://script.google.com/macros/s/AKfycbxyO3HlSpCmKu6aVi1MCw7ebAp_EazzhQvKCSz57XqJKg5l4UbZybLbfLoQQqk3DobR/exec'; // ใส่ URL ของ iframe ที่ต้องการแสดง
+            document.getElementById('content-frame').style.display = 'block';
+            document.getElementById('login-container').style.display = 'none';
+        } else {
+            errorMessage.textContent = 'Invalid password. Please try again.';
+        }
+    } catch (error) {
+        errorMessage.textContent = 'Error accessing Google Sheets. Please try again later.';
     }
-  })
-  .catch(error => console.error('Error:', error));
 });
