@@ -1,5 +1,5 @@
 /* Reset some default styles */
-body, h1, h2, h3, p {
+body, h1, h2, p {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -24,7 +24,7 @@ body {
     text-align: center;
 }
 
-.login-container h2, #iframe-container h3 {
+.login-container h2 {
     margin-bottom: 20px;
     color: #333;
 }
