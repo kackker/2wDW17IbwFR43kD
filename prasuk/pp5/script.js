@@ -3,17 +3,16 @@ document.getElementById('login-form').addEventListener('submit', async function(
     
     const password = document.getElementById('password').value;
     const errorMessage = document.getElementById('error-message');
-    const sheetURL = 'https://docs.google.com/spreadsheets/d/13H5PsR9twS63oYbn8udQ1mB1Y-rUNvdz-fiywRTjgGY/pubhtml'; // ใส่ URL ของ Google Sheets ที่เผยแพร่ไว้
+    const sheetURL = 'https://docs.google.com/spreadsheets/d/13H5PsR9twS63oYbn8udQ1mB1Y-rUNvdz-fiywRTjgGY/export?format=csv'; // ใส่ URL ของ Google Sheets ในรูปแบบ CSV
 
     try {
         // ดึงข้อมูลรหัสผ่านจาก Google Sheets
         const response = await fetch(sheetURL);
         const data = await response.text();
 
-        // ค้นหาค่ารหัสผ่านในข้อมูล
-        const parser = new DOMParser();
-        const xmlDoc = parser.parseFromString(data, 'text/xml');
-        const cellValue = xmlDoc.querySelector('entry gs\\:cell').getAttribute('inputValue');
+        // แยกแถวและเซลล์จาก CSV
+        const rows = data.split('\n');
+        const cellValue = rows[0].split(',')[0]; // อ่านค่าจากเซลล์ A1
 
         if (password === cellValue) {
             // แสดง iframe ถ้ารหัสผ่านถูกต้อง
