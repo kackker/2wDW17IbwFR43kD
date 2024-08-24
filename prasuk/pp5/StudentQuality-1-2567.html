@@ -12,26 +12,26 @@
 </html>-->
 
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login to Access</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles.css">
+  <title>Login</title>
 </head>
 <body>
-    <div class="login-container">
-        <h1>กรุณาล็อกอิน</h1>
-        <form id="loginForm">
-            <label for="password">รหัสผ่าน:</label>
-            <input type="password" id="password" name="password" required>
-            <button type="submit">เข้าสู่ระบบ</button>
-        </form>
-        <div id="iframe-container" style="display:none;">
-            <iframe id="myIframe" src="" width="600" height="400"></iframe>
-        </div>
-    </div>
-    <script src="script.js"></script>
-</body>   
+  <div class="login-container">
+    <h2>Login</h2>
+    <form id="loginForm">
+      <input type="password" id="password" placeholder="Enter Password" required>
+      <button type="submit">Login</button>
+      <p id="errorMessage" style="display:none; color: red;">Invalid Password</p>
+    </form>
+  </div>
+
+  <iframe id="contentFrame" src="" style="display:none;" width="600" height="400"></iframe>
+
+  <script src="scripts.js"></script>
+</body>
 </html>
 
