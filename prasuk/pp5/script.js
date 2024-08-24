@@ -1,4 +1,4 @@
-document.getElementById('login-form').addEventListener('submit', function(e) {
+/*document.getElementById('login-form').addEventListener('submit', function(e) {
     e.preventDefault();  // ป้องกันการรีเฟรชหน้าหลังจากกดปุ่ม Submit
 
     var inputPassword = document.getElementById('password').value;
@@ -35,4 +35,43 @@ document.getElementById('login-form').addEventListener('submit', function(e) {
             console.error('Error:', error);
             alert("An error occurred while processing your request.");
         });
+});*/
+
+document.getElementById('login-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    var inputPassword = document.getElementById('password').value;
+    var hashedInputPassword = CryptoJS.SHA256(inputPassword).toString();
+
+    fetch('https://script.google.com/macros/s/AKfycbyxxxxx12345yyyyyZ/exec')
+        .then(response => response.json())
+        .then(data => {
+            console.log(data); // ตรวจสอบข้อมูลที่ได้รับ
+            var valid = false;
+            var iframeUrl = '';
+
+            for (var i = 0; i < data.length; i++) {
+                var storedHashedPassword = data[i].password;
+                var storedIframeUrl = data[i].iframeUrl;
+
+                if (hashedInputPassword === storedHashedPassword) {
+                    valid = true;
+                    iframeUrl = CryptoJS.enc.Hex.parse(storedIframeUrl).toString(CryptoJS.enc.Utf8);
+                    break;
+                }
+            }
+
+            if (valid) {
+                document.querySelector('.login-container').style.display = 'none';
+                document.getElementById('iframe-container').style.display = 'block';
+                document.getElementById('iframe').src = iframeUrl;
+            } else {
+                alert("รหัสผ่านไม่ถูกต้อง!");
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert("An error occurred while processing your request.");
+        });
 });
+
