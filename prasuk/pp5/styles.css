@@ -1,70 +1,69 @@
-/* ทำให้ฟอร์มล็อกอินอยู่กึ่งกลางของหน้า */
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
+/* Basic reset for consistent styling */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-.login-container {
-    background-color: #ffffff;
-    padding: 20px 40px;
-    border-radius: 10px;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-    text-align: center;
+/* Style for the container */
+.container {
+  max-width: 600px;
+  margin: 50px auto;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: #f9f9f9;
 }
 
-.login-container h2 {
-    margin-bottom: 20px;
-    color: #333;
+/* Style for the form */
+form {
+  display: flex;
+  flex-direction: column;
 }
 
-.login-container label {
-    font-size: 16px;
-    color: #555;
-    display: block;
-    margin-bottom: 10px;
+/* Style for form groups */
+.form-group {
+  margin-bottom: 15px;
 }
 
-.login-container input[type="password"] {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 20px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 16px;
+label {
+  margin-bottom: 5px;
+  font-weight: bold;
+  display: block;
 }
 
-.login-container button {
-    width: 100%;
-    padding: 10px;
-    background-color: #007bff;
-    border: none;
-    border-radius: 5px;
-    color: white;
-    font-size: 16px;
-    cursor: pointer;
+input[type="email"],
+input[type="password"] {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
 }
 
-.login-container button:hover {
-    background-color: #0056b3;
+button {
+  padding: 10px;
+  border: none;
+  border-radius: 4px;
+  background-color: #007bff;
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
 }
 
-/* iframe container styling */
-#iframe-container {
-    text-align: center;
-    padding: 20px;
+button:hover {
+  background-color: #0056b3;
 }
 
-#iframe-container h3 {
-    color: #333;
-    margin-bottom: 20px;
+/* Style for iframe container */
+#iframeContainer {
+  display: none;
+  margin-top: 20px;
 }
 
 iframe {
-    border: 1px solid #ccc;
-    border-radius: 10px;
+  border: none;
+  border-radius: 4px;
 }
