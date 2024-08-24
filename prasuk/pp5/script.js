@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const myIframe = document.getElementById('myIframe');
 
     // เปลี่ยนรหัสผ่านนี้ให้เป็นรหัสผ่านที่ต้องการ
-    const correctPassword = 'your_password_here'; 
+    const correctPassword = '1234'; 
 
     loginForm.addEventListener('submit', function(event) {
         event.preventDefault();
