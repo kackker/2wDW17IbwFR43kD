@@ -25,8 +25,16 @@ document.getElementById('login-form').addEventListener('submit', function(e) {
 
             if (valid) {
                 document.querySelector('.login-container').style.display = 'none';  // ซ่อนฟอร์มล็อกอิน
-                document.getElementById('iframe-container').style.display = 'block';  // แสดง iframe
-                document.getElementById('iframe').src = iframeUrl;  // โหลด URL ของ iframe
+                document.getElementById('iframe-container').style.display = 'block';  // แสดง container ที่มี iframe และ loading
+
+                // แสดง iframe เมื่อโหลดเสร็จแล้ว
+                var iframe = document.getElementById('iframe');
+                iframe.src = iframeUrl;  // โหลด URL ของ iframe
+
+                iframe.onload = function() {
+                    document.getElementById('loading').style.display = 'none';  // ซ่อน loading
+                    iframe.style.display = 'block';  // แสดง iframe
+                };
             } else {
                 alert("รหัสผ่านไม่ถูกต้อง!");  // แจ้งเตือนหากรหัสผ่านไม่ถูกต้อง
             }
