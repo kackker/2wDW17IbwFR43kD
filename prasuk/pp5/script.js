@@ -1,28 +1,22 @@
-document.getElementById('login-form').addEventListener('submit', async function(event) {
-    event.preventDefault();
-    
-    const password = document.getElementById('password').value;
-    const errorMessage = document.getElementById('error-message');
-    const sheetURL = 'https://docs.google.com/spreadsheets/d/13H5PsR9twS63oYbn8udQ1mB1Y-rUNvdz-fiywRTjgGY/export?format=csv'; // ใส่ URL ของ Google Sheets ในรูปแบบ CSV
+document.getElementById('login-form').addEventListener('submit', function(e) {
+    e.preventDefault();  // ป้องกันการรีเฟรชหน้าหลังจากกดปุ่ม Submit
 
-    try {
-        // ดึงข้อมูลรหัสผ่านจาก Google Sheets
-        const response = await fetch(sheetURL);
-        const data = await response.text();
+    var inputPassword = document.getElementById('password').value;
 
-        // แยกแถวและเซลล์จาก CSV
-        const rows = data.split('\n');
-        const cellValue = rows[0].split(',')[0]; // อ่านค่าจากเซลล์ A1
+    // ดึงข้อมูลจาก Google Sheets
+    fetch('https://script.google.com/macros/s/AKfycbymITyEcnX2fWibMRJ9CYcEFQ1KWUlmpZsq99dYd1ep9SNLSMiRZy7SjNKyv37xt5CJiA/exec')
+        .then(response => response.json())
+        .then(data => {
+            var sheetPassword = data.password;
 
-        if (password === cellValue) {
-            // แสดง iframe ถ้ารหัสผ่านถูกต้อง
-            document.getElementById('content-frame').src = 'https://script.google.com/macros/s/AKfycbxyO3HlSpCmKu6aVi1MCw7ebAp_EazzhQvKCSz57XqJKg5l4UbZybLbfLoQQqk3DobR/exec'; // ใส่ URL ของ iframe ที่ต้องการแสดง
-            document.getElementById('content-frame').style.display = 'block';
-            document.getElementById('login-container').style.display = 'none';
-        } else {
-            errorMessage.textContent = 'Invalid password. Please try again.';
-        }
-    } catch (error) {
-        errorMessage.textContent = 'Error accessing Google Sheets. Please try again later.';
-    }
+            // ตรวจสอบรหัสผ่าน
+            if(inputPassword === sheetPassword) {
+                alert("Login successful!");
+                document.querySelector('.login-container').style.display = 'none';  // ซ่อนฟอร์มล็อกอิน
+                document.getElementById('iframe-container').style.display = 'block';  // แสดง iframe
+            } else {
+                alert("Invalid password!");  // แจ้งเตือนหากรหัสผ่านไม่ถูกต้อง
+            }
+        })
+        .catch(error => console.error('Error:', error));
 });
