@@ -33,6 +33,6 @@ document.getElementById('login-form').addEventListener('submit', function(e) {
         })
         .catch(error => {
             console.error('Error:', error);
-            alert("An error occurred while processing your request.");
+            alert("เกิดข้อผิดพลาดขณะประมวลผลคำขอของคุณ.");
         });
 });
