@@ -9,7 +9,6 @@ document.getElementById('login-form').addEventListener('submit', function(e) {
         .then(response => response.json())
         .then(data => {
             var sheetPassword = data.password;
-
             // ตรวจสอบรหัสผ่าน
             if(inputPassword === sheetPassword) {
                 alert("Login successful!");
