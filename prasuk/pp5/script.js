@@ -11,11 +11,11 @@ document.getElementById('login-form').addEventListener('submit', function(e) {
 
             // ตรวจสอบรหัสผ่าน
             if(inputPassword === sheetPassword) {
-                alert("Login successful!");
+                alert("เข้าระบบ สำเร็จแล้ว! กรูณากด OK!");
                 document.querySelector('.login-container').style.display = 'none';  // ซ่อนฟอร์มล็อกอิน
                 document.getElementById('iframe-container').style.display = 'block';  // แสดง iframe
             } else {
-                alert("Invalid password!");  // แจ้งเตือนหากรหัสผ่านไม่ถูกต้อง
+                alert("รหัสผ่านไม่ถูกต้อง!");  // แจ้งเตือนหากรหัสผ่านไม่ถูกต้อง
             }
         })
         .catch(error => console.error('Error:', error));
