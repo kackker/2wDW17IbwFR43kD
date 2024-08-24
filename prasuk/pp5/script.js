@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
             iframeContainer.style.display = 'block';
             myIframe.src = 'https://script.google.com/macros/s/AKfycbxyO3HlSpCmKu6aVi1MCw7ebAp_EazzhQvKCSz57XqJKg5l4UbZybLbfLoQQqk3DobR/exec'; // ใส่ URL ของ iframe ที่คุณต้องการแสดง
         } else {
-            alert('รหัสผ่านไม่ถูกต้อง!');
+            alert('รหัสผ่านไม่ถูกต้อง!');            
         }
     });
 });
