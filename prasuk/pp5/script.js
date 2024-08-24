@@ -15,9 +15,7 @@ document.getElementById('login-form').addEventListener('submit', function(e) {
                 document.querySelector('.login-container').style.display = 'none';  // ซ่อนฟอร์มล็อกอิน
                 document.getElementById('iframe-container').style.display = 'block';  // แสดง iframe
             } else {
-                 alert("Login successful!");
-                document.querySelector('.login-container').style.display = 'none';  // ซ่อนฟอร์มล็อกอิน
-                document.getElementById('iframe-container').style.display = 'block';  // แสดง iframe
+                  alert("Invalid password!");  // แจ้งเตือนหากรหัสผ่านไม่ถูกต้อง
             }
         })
         .catch(error => console.error('Error:', error));
