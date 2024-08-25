@@ -13,8 +13,8 @@ document.getElementById('login-form').addEventListener('submit', function(e) {
 
             // ตรวจสอบรหัสผ่าน
             for (var i = 0; i < data.length; i++) {
-                var storedHashedPassword = data[i].password;
-                var storedEncodedIframeUrl = data[i].iframeUrl;
+                var storedHashedPassword = data[i].a;
+                var storedEncodedIframeUrl = data[i].b;
 
                 if (hashedInputPassword === storedHashedPassword) {
                     valid = true;
