@@ -14,14 +14,14 @@ document.getElementById('login-form').addEventListener('submit', function(e) {
 
             // ตรวจสอบรหัสผ่าน
             for (var i = 0; i < data.length; i++) {
-                var storedHashedPassword = data[i].a;
-                var storedEncryptedIframeUrl = data[i].b;
-                var storedDecryptionKey = data[i].c;
+                var storedHashedPassword = data[i].password;
+                var storedEncryptedIframeUrl = data[i].iframeUrl;
+                var storedDecryptionKey = data[i].decryptionKey;
 
                 if (hashedInputPassword === storedHashedPassword) {
                     valid = true;
                     iframeUrl = storedEncryptedIframeUrl;
-                    decryptionKey = storedDecryptionKey;
+                    decryptionKey = storedDecryptionKey; // รับกุญแจการถอดรหัส
                     break;
                 }
             }
@@ -30,7 +30,7 @@ document.getElementById('login-form').addEventListener('submit', function(e) {
                 document.querySelector('.login-container').style.display = 'none'; // ซ่อนฟอร์มล็อกอิน
                 document.getElementById('iframe-container').style.display = 'block'; // แสดง container ที่มี iframe และ loading
 
-                // ถอดรหัส URL
+                // ถอดรหัส URL ด้วย AES
                 var decryptedIframeUrl = CryptoJS.AES.decrypt(iframeUrl, decryptionKey).toString(CryptoJS.enc.Utf8);
 
                 // แสดง iframe เมื่อโหลดเสร็จแล้ว
@@ -48,6 +48,5 @@ document.getElementById('login-form').addEventListener('submit', function(e) {
         .catch(error => {
             console.error('Error:', error);
             alert("เกิดข้อผิดพลาดขณะประมวลผลคำขอของคุณ.");
-        });    
+        });
 });
-
