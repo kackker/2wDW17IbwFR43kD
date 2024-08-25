@@ -9,18 +9,16 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 var valid = false;
-                var iframeUrl = '';
+                var encryptedIframeUrl = '';
                 var decryptionKey = '';
 
                 for (var i = 0; i < data.length; i++) {
                     var storedHashedPassword = data[i].password;
-                    var storedEncryptedIframeUrl = data[i].iframeUrl;
-                    var storedDecryptionKey = data[i].decryptionKey;
+                    encryptedIframeUrl = data[i].iframeUrl;
+                    decryptionKey = data[i].key;
 
                     if (hashedInputPassword === storedHashedPassword) {
                         valid = true;
-                        iframeUrl = storedEncryptedIframeUrl;
-                        decryptionKey = storedDecryptionKey;
                         break;
                     }
                 }
@@ -29,7 +27,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     document.querySelector('.login-container').style.display = 'none';
                     document.getElementById('iframe-container').style.display = 'block';
 
-                    var decryptedIframeUrl = CryptoJS.AES.decrypt(iframeUrl, decryptionKey).toString(CryptoJS.enc.Utf8);
+                    // ถอดรหัส URL ของ iframe
+                    var decryptedIframeUrl = CryptoJS.AES.decrypt(encryptedIframeUrl, decryptionKey).toString(CryptoJS.enc.Utf8);
 
                     var iframe = document.getElementById('iframe');
                     iframe.src = decryptedIframeUrl;
