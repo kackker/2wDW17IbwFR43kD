@@ -15,8 +15,7 @@ body {
     margin: 0;
 }
 
-.login-container, #iframe-container {
-    position: fixed;
+.login-container, #iframe-container {    
     top: 5%;
 
     background: #fff;
