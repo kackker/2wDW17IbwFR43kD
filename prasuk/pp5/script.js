@@ -44,5 +44,3 @@ document.getElementById('login-form').addEventListener('submit', function(e) {
             alert("เกิดข้อผิดพลาดขณะประมวลผลคำขอของคุณ.");
         });    
 });
-
-document.title = document.getElementById("iframe").title;
