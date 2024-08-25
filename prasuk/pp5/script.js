@@ -14,9 +14,9 @@ document.getElementById('login-form').addEventListener('submit', function(e) {
 
             // ตรวจสอบรหัสผ่าน
             for (var i = 0; i < data.length; i++) {
-                var storedHashedPassword = data[i].password;
-                var storedEncryptedIframeUrl = data[i].iframeUrl;
-                var storedDecryptionKey = data[i].decryptionKey;
+                var storedHashedPassword = data[i].a;
+                var storedEncryptedIframeUrl = data[i].b;
+                var storedDecryptionKey = data[i].c;
 
                 if (hashedInputPassword === storedHashedPassword) {
                     valid = true;
