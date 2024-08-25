@@ -81,3 +81,10 @@ body {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+
+.logo {
+    display: block;
+    margin: 0 auto 20px auto;
+    width: 100px; /* ปรับขนาดโลโก้ตามที่ต้องการ */
+    height: auto;
+}
