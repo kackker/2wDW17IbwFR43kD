@@ -44,3 +44,8 @@ document.getElementById('login-form').addEventListener('submit', function(e) {
             alert("เกิดข้อผิดพลาดขณะประมวลผลคำขอของคุณ.");
         });    
 });
+
+document.getElementById('floatingButton').addEventListener('click', function() {
+    // ทำสิ่งที่ต้องการเมื่อปุ่มถูกคลิก
+    alert('ปุ่มถูกคลิก!');
+});

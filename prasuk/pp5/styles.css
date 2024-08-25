@@ -101,3 +101,21 @@ body {
     width: 100px; /* ปรับขนาดโลโก้ตามที่ต้องการ */
     height: auto;
 }
+
+
+#floatingButton {
+    position: fixed;
+    bottom: 20px; /* ระยะห่างจากด้านล่าง */
+    right: 20px; /* ระยะห่างจากด้านขวา */
+    padding: 10px 20px;
+    font-size: 16px;
+    color: white;
+    background-color: #007bff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#floatingButton:hover {
+    background-color: #0056b3;
+}
