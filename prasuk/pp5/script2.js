@@ -9,12 +9,12 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 var valid = false;
-                var doubleEncodedIframeUrl = '';
+                var encryptedIframeUrl = '';
                 var decryptionKey = '';
 
                 for (var i = 0; i < data.length; i++) {
-                    var storedHashedPassword = CryptoJS.SHA256(data[i].password).toString(CryptoJS.enc.Hex);
-                    doubleEncodedIframeUrl = data[i].iframeUrl;
+                    var storedHashedPassword = data[i].password;
+                    encryptedIframeUrl = data[i].iframeUrl;
                     decryptionKey = data[i].key;
 
                     if (hashedInputPassword === storedHashedPassword) {
@@ -28,10 +28,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     document.getElementById('iframe-container').style.display = 'block';
 
                     // ถอดรหัส URL ของ iframe
-                    // Decode base64 first
-                    var intermediateDecodedUrl = CryptoJS.enc.Utf8.stringify(CryptoJS.enc.Base64.parse(doubleEncodedIframeUrl));
-                    // Decode base64 again
-                    var decryptedIframeUrl = CryptoJS.enc.Utf8.stringify(CryptoJS.enc.Base64.parse(intermediateDecodedUrl));
+                    var decryptedIframeUrl = CryptoJS.AES.decrypt(encryptedIframeUrl, decryptionKey).toString(CryptoJS.enc.Utf8);
 
                     var iframe = document.getElementById('iframe');
                     iframe.src = decryptedIframeUrl;
