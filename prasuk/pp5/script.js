@@ -45,7 +45,4 @@ document.getElementById('login-form').addEventListener('submit', function(e) {
         });    
 });
 
-document.getElementById('floatingButton').addEventListener('click', function() {
-    // ทำสิ่งที่ต้องการเมื่อปุ่มถูกคลิก
-    alert('ปุ่มถูกคลิก!');
-});
+
