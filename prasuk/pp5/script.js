@@ -13,9 +13,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 var decryptionKey = '';
 
                 for (var i = 0; i < data.length; i++) {
-                    var storedHashedPassword = data[i].password;
-                    encryptedIframeUrl = data[i].iframeUrl;
-                    decryptionKey = data[i].key;
+                    var storedHashedPassword = data[i].a;
+                    encryptedIframeUrl = data[i].b;
+                    decryptionKey = data[i].c;
 
                     if (hashedInputPassword === storedHashedPassword) {
                         valid = true;
