@@ -29,6 +29,17 @@
     </div>
     
     <script src="https://webapp.eduinthai.com/prasuk/pp5/script.js"></script>
+    
+    <script>
+        function sendHeight() {
+            var height = document.body.scrollHeight;
+            window.parent.postMessage(height, '*');
+        }
+    
+        window.onload = sendHeight;
+        window.onresize = sendHeight;
+    </script>
+    
 </body>
 </html>
 
