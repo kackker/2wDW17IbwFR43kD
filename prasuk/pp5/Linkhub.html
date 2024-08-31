@@ -1,5 +1,3 @@
-
-<!---->
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -8,6 +6,46 @@
     <title>Eduinthai Linkhub</title>
     <link rel="stylesheet" href="https://webapp.eduinthai.com/prasuk/pp5/styles.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <style>
+        /* CSS สำหรับหน้ากำลังโหลด */
+        #iframe-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        #loading {
+            text-align: center;
+        }
+
+        #loading .loader {
+            border: 16px solid #f3f3f3; /* สีพื้นหลัง */
+            border-top: 16px solid #3498db; /* สีของแถบหมุน */
+            border-radius: 50%;
+            width: 120px;
+            height: 120px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #loading p {
+            font-size: 18px;
+            color: #333;
+            margin: 0;
+        }
+    </style>
 </head>
 <body>      
 
@@ -22,14 +60,16 @@
         </form>
     </div>
     
-    <div id="iframe-container" style="display:none;">
+    <div id="iframe-container">
         <!-- อนิเมชันการโหลด -->
-        <div id="loading" class="loader"></div>
+        <div id="loading">
+            <div class="loader"></div>
+            <p>กำลังโหลดข้อมูล...</p>
+        </div>
         <iframe style="position: Absolute;top: 0;left: 0;width: 100%;height: 100%;border: 0; display:none;" id="iframe"></iframe>
     </div>
     
     <script src="https://webapp.eduinthai.com/prasuk/pp5/script.js"></script>
-
     
     <script>
         function sendHeight() {
@@ -42,15 +82,22 @@
             observer.observe(document.body, { childList: true, subtree: true });
         }
         
+        function handleSubmit(event) {
+            event.preventDefault(); // ป้องกันการรีเฟรชหน้าเมื่อฟอร์มถูกส่ง
+            document.querySelector('.login-container').style.display = 'none'; // ซ่อนฟอร์มล็อกอิน
+            document.querySelector('#iframe-container').style.display = 'flex'; // แสดงหน้ากำลังโหลด
+        }
+        
         window.addEventListener('load', () => {
             sendHeight();
             setupObserver();
+            
+            const form = document.getElementById('login-form');
+            form.addEventListener('submit', handleSubmit);
         });
         
         window.addEventListener('resize', sendHeight);
-        </script>
-                
+    </script>                
     
 </body>
 </html>
-
