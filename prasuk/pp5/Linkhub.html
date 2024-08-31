@@ -29,6 +29,7 @@
     </div>
     
     <script src="https://webapp.eduinthai.com/prasuk/pp5/script.js"></script>
+
     
     <script>
         function sendHeight() {
@@ -36,10 +37,19 @@
             window.parent.postMessage(height, '*');
         }
         
-        window.addEventListener('load', sendHeight);
+        function setupObserver() {
+            const observer = new MutationObserver(sendHeight);
+            observer.observe(document.body, { childList: true, subtree: true });
+        }
+        
+        window.addEventListener('load', () => {
+            sendHeight();
+            setupObserver();
+        });
+        
         window.addEventListener('resize', sendHeight);
         </script>
-        
+                
     
 </body>
 </html>
