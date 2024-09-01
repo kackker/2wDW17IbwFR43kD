@@ -5,68 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Eduinthai Linkhub</title>
     <link rel="stylesheet" href="https://webapp.eduinthai.com/prasuk/pp5/styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <style>
         body {
-            font-family: 'Sarabun', sans-serif; /* Change to Sarabun font */
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
             margin: 0;
-            overflow: hidden; /* Prevent scrollbars from appearing */
-        }
-        .wave {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(to right, #74ebd5, #9face6);
-            overflow: hidden;
-            z-index: -1; /* Place behind other elements */
-        }
-        .wave::before,
-        .wave::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            width: 200%;
-            height: 100px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 50%;
-            animation: wave-animation 10s linear infinite;
-        }
-        .wave::after {
-            animation-delay: -5s; /* Delay for second wave */
-        }
-        @keyframes wave-animation {
-            0% {
-                transform: translateX(-50%) translateY(0);
-            }
-            50% {
-                transform: translateX(-50%) translateY(-20px);
-            }
-            100% {
-                transform: translateX(-50%) translateY(0);
-            }
         }
         .login-container {
-            position: absolute; /* Change to absolute positioning */
-            top: 50px; /* 50px from the top */
-            left: 50%; /* Center horizontally */
-            transform: translateX(-50%); /* Adjust for horizontal centering */
             background: white;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             text-align: center;
-            width: 320px;
-            transition: transform 0.3s;
-            animation: fadeIn 0.5s ease;
-            z-index: 1; /* Place above the wave */
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
         }
         .logo {
             width: 150px;
@@ -75,40 +30,30 @@
         h2 {
             margin-bottom: 20px;
             color: #333;
-            font-size: 24px;
         }
         label {
             display: block;
             margin-bottom: 8px;
             color: #555;
-            font-weight: bold;
         }
         input[type="password"] {
             width: 100%;
-            padding: 12px;
+            padding: 10px;
             border: 1px solid #ccc;
-            border-radius: 6px;
+            border-radius: 4px;
             margin-bottom: 20px;
-            transition: border-color 0.3s, box-shadow 0.3s;
-        }
-        input[type="password"]:focus {
-            border-color: #3498db;
-            box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
-            outline: none;
         }
         button {
             background-color: #3498db;
             color: white;
             border: none;
-            padding: 12px 20px;
-            border-radius: 6px;
+            padding: 10px 15px;
+            border-radius: 4px;
             cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s, transform 0.2s;
+            transition: background-color 0.3s;
         }
         button:hover {
             background-color: #2980b9;
-            transform: translateY(-2px);
         }
         #iframe-container {
             position: fixed;
@@ -143,15 +88,9 @@
             color: #333;
             margin: 0;
         }
-        @media (max-width: 400px) {
-            .login-container {
-                width: 90%;
-            }
-        }
     </style>
 </head>
 <body>      
-    <div class="wave"></div>
     <div class="login-container">
         <img src="/pic/Linkhub.png" alt="Logo" class="logo">    
         <h2>กรุณาใส่รหัสผ่าน</h2>
