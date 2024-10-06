@@ -16,6 +16,27 @@ document.getElementById('login-form').addEventListener('submit', function(e) {
     .then(encodedIframeUrl => {
         if (encodedIframeUrl === 'Invalid Password') {
             alert("รหัสผ่านไม่ถูกต้อง!");
+
+            
+
+                // โหลดเฉพาะส่วนของ DOM ใหม่
+    var background = document.querySelector('.background');
+    var loginContainer = document.querySelector('.login-container');
+
+    // รีเฟรชส่วนของ DOM โดยการลบและเพิ่มกลับมาใหม่
+    if (background && loginContainer) {
+        var parentBackground = background.parentNode;
+        var parentLogin = loginContainer.parentNode;
+
+        var newBackground = background.cloneNode(true);
+        var newLoginContainer = loginContainer.cloneNode(true);
+
+        parentBackground.replaceChild(newBackground, background);
+        parentLogin.replaceChild(newLoginContainer, loginContainer);
+    }
+
+
+
         } else {
             document.querySelector('.login-container').style.display = 'none';  // ซ่อนฟอร์มล็อกอิน
             document.getElementById('iframe-container').style.display = 'block';  // แสดง container ที่มี iframe และ loading
