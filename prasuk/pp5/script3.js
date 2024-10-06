@@ -22,6 +22,7 @@ document.getElementById('login-form').addEventListener('submit', function(e) {
             document.getElementById('loading').style.display = 'none';  // ซ่อน loading
             document.querySelector('#iframe-container').style.display = 'none'; // แสดงหน้าจอโหลด
         } else {
+            document.getElementById('loading').style.display = 'block';  // ซ่อน loading
             document.querySelector('.login-container').style.display = 'none';  // ซ่อนฟอร์มล็อกอิน
             document.getElementById('iframe-container').style.display = 'block';  // แสดง container ที่มี iframe และ loading
 
