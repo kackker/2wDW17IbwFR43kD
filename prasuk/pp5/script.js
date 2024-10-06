@@ -19,6 +19,7 @@ document.getElementById('login-form').addEventListener('submit', function(e) {
             document.getElementById('password').value = '';  // ล้างค่ารหัสผ่าน
             document.querySelector('.login-container').style.display = 'block';  // แสดงฟอร์มล็อกอินอีกครั้ง
             document.querySelector('.background').style.display = 'block';
+            document.getElementById('loading').style.display = 'none';  // ซ่อน loading
         } else {
             document.querySelector('.login-container').style.display = 'none';  // ซ่อนฟอร์มล็อกอิน
             document.getElementById('iframe-container').style.display = 'block';  // แสดง container ที่มี iframe และ loading
