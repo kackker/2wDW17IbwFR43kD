@@ -122,8 +122,7 @@
             z-index: 1000; /* วางอยู่ด้านบนสุด */
         }
         /* ข้อความโหลด */
-        #loading {
-            position: fixed;
+        #loading {            
             top: 10%;
             left: 50%;
             transform: translate(-50%, -50%);
@@ -163,8 +162,7 @@
             100% { transform: rotate(360deg); } /* หมุนครบ 360 องศา */
         }
         /* ข้อความโหลด */
-        #loading p {
-            position: fixed;
+        #loading p {            
             top: 10%;
             left: 50%;
             transform: translate(-50%, -50%);
@@ -192,9 +190,9 @@
         </form>
     </div>
     <div id="iframe-container"> <!-- คอนเทนเนอร์สำหรับ iframe -->
-        <div> <!--<div id="loading">--> <!-- ข้อความโหลด -->
+        <div id="loading"> <!-- ข้อความโหลด -->
             <div class="loader"></div> <!-- ลูปโหลด -->
-            <!--<p>กำลังโหลดข้อมูล...</p>-->
+            <p>กำลังโหลดข้อมูล...</p>
         </div>
         <iframe style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; display: none;" id="iframe"></iframe>
     </div>        
