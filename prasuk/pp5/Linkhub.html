@@ -122,14 +122,16 @@
             z-index: 1000; /* วางอยู่ด้านบนสุด */
         }
         /* ข้อความโหลด */
-        #loading {            
+        #loading {
+            
             top: 10%;
             left: 50%;
             transform: translate(-50%, -50%);
             text-align: center; /* จัดกลางข้อความ */
         }
         /* กำหนดลูปโหลด */
-        #loading .loader {            
+        #loading .loader {   
+            position: fixed;         
             top: 10%;
             left: 50%;
             transform: translate(-50%, -50%);            
@@ -144,6 +146,7 @@
 
     /* อนิเมชันการโหลด */
     .loader {
+    position: fixed;
     top: 10%;
     left: 50%;
     transform: translate(-50%, -50%);
@@ -162,7 +165,8 @@
             100% { transform: rotate(360deg); } /* หมุนครบ 360 องศา */
         }
         /* ข้อความโหลด */
-        #loading p {            
+        #loading p {
+            
             top: 10%;
             left: 50%;
             transform: translate(-50%, -50%);
