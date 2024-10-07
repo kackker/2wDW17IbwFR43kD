@@ -130,8 +130,7 @@
             text-align: center; /* จัดกลางข้อความ */
         }
         /* กำหนดลูปโหลด */
-        #loading .loader {
-            position: fixed;
+        #loading .loader {            
             top: 10%;
             left: 50%;
             transform: translate(-50%, -50%);            
@@ -143,6 +142,21 @@
             animation: spin 1s linear infinite; /* อนิเมชันหมุน */
             margin-bottom: 20px; /* ระยะห่างด้านล่าง */
         }
+
+    /* อนิเมชันการโหลด */
+    .loader {
+    top: 10%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: 16px solid #f3f3f3; /* ขอบ */
+    border-top: 16px solid #3498db; /* ขอบด้านบน */
+    border-radius: 50%; /* มุมโค้ง */
+    width: 80px; /* ความกว้าง */
+    height: 80px; /* ความสูง */
+    animation: spin 1s linear infinite; /* อนิเมชันหมุน */
+    margin-bottom: 20px; /* ระยะห่างด้านล่าง */
+    }
+
         /* อนิเมชันหมุน */
         @keyframes spin {
             0% { transform: rotate(0deg); } /* เริ่มต้นที่ 0 องศา */
