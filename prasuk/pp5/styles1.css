@@ -82,6 +82,7 @@ body {
 /* อนิเมชันการโหลด */
 .loader {
     top: 10%;
+    left: 50%;
     border: 16px solid #f3f3f3; /* ขอบ */
     border-top: 16px solid #3498db; /* ขอบด้านบน */
     border-radius: 50%; /* มุมโค้ง */
