@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <base target="_top">
+  <link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css" />
+  <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+  <script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+  <!-- APPLE APP -->
+  <meta name="apple-mobile-web-app-title" content="ตักศิลา">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-transparent">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+
+  <link rel="apple-touch-icon" href="./img/logo_256.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="./img/logo_256.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="./img/logo_256.png">
+  <link rel="apple-touch-icon" sizes="167x167" href="./img/logo_256.png">
+
+  <link href="./img/logo_256.png"
+    media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)"
+    rel="apple-touch-startup-image">
+  <link href="./img//img/logo_256.png"
+    media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)"
+    rel="apple-touch-startup-image">
+  <link href="./img/logo_256.png"
+    media="(device-width: 621px) and (device-height: 1104px) and (-webkit-device-pixel-ratio: 3)"
+    rel="apple-touch-startup-image">
+  <link href="./img/logo_256.png"
+    media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)"
+    rel="apple-touch-startup-image">
+  <link href="./img/logo_256.png"
+    media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)"
+    rel="apple-touch-startup-image">
+  <link href="./img/logo_256.png"
+    media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3)"
+    rel="apple-touch-startup-image">
+  <link href="./img/logo_256.png"
+    media="(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2)"
+    rel="apple-touch-startup-image">
+  <link href="./img/logo_256.png"
+    media="(device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2)"
+    rel="apple-touch-startup-image">
+  <link href="./img/387logo_256.png"
+    media="(device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2)"
+    rel="apple-touch-startup-image">
+  <link href="./img/logo_256.png"
+    media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2)"
+    rel="apple-touch-startup-image">
+
+  <!--  FAVICON -->
+  <link rel="icon" type="image/png" sizes="96x96" href="./img/logo_256.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="./img/logo_256.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="./img/logo_256.png">
+  <link rel="shortcut icon" type="image/x-icon" href="./img/logo_256.png">
+  <link rel="icon" type="image/x-icon" href="./img/logo_256.png">
+
+
+</head>
+
+<body>
+  <div data-role="page">
+<!--     <div data-role="header" id="header" data-position="fixed" data-theme="b">
+      <h1>ข้อมูลนักเรียน</h1>
+      <a href="#" class="ui-btn ui-btn-right ui-shadow ui-corner-all ui-icon-refresh ui-btn-icon-notext"></a>
+      <a href="#" class="ui-btn ui-btn-left ui-shadow ui-corner-all ui-icon-home ui-btn-icon-notext"
+        onclick="goHome()"></a>
+    </div> -->
+    <div data-role="main" class="ui-content">
+      <ul data-role="listview" data-filter="true" data-filter-placeholder="ค้นหา..." data-inset="true"></ul>
+      <div data-role="popup" id="popDialog" data-overlay-theme="b" style="width:640px; max-width:100%;">
+        <div data-role="header" data-theme="b">
+          <h1 id="studentid"></h1>
+          <a href="#" class="ui-btn ui-btn-right ui-shadow ui-corner-all ui-icon-delete ui-btn-icon-notext"
+            data-rel="back"></a>
+        </div>
+        <div data-role="main" class="ui-content">
+          <a id="outlink1" href="" target="_blank"><img id="studentimg" src="#" height="100px" style="display:block;margin-left:auto;margin-right:auto;"/></a>
+          <br />
+<!--           <h3>รวมคู่มือและปัญหาการใช้งาน</h3> -->
+          <table>
+            <tbody>
+              <tr>
+                <td align="right"><b>เรื่อง: </b></td>
+                <td id="studentname"></td>
+              </tr>
+              <tr>
+                <td align="right"><b>หมวด:</b></td>
+                <td id="studentclass"></td>
+              </tr>
+              <tr>
+                <td align="right"><b>รายละเอียด:</b></td>
+                <td id="studentclassteacher"></td>
+              </tr>
+<!--               <tr>
+                <td align="right"><b>คณิตศาสตร์:</b></td>
+                <td id="studentthailng">คะแนน</td>
+              </tr>
+              <tr>
+                <td align="right"><b>อังกฤษ:</b></td>
+                <td id="studentmaths"></td>
+              </tr>
+              <tr>
+                <td align="right"><b>คอมพิวเตอร์:</b></td>
+                <td id="studentenglish"></td>
+              </tr>
+              <tr>
+                <td align="right"><b>วิทยาศาสตร์:</b></td>
+                <td id="studentscience"></td>
+              </tr> 
+              <tr>
+                <td align="right"><b>ลิ้งค์:</b></td>
+                <td id="studenttotal"></td>
+              </tr> -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+<!--     <div data-role="footer" data-position="fixed" data-theme="b">
+      <h1>อับดุลเลาะ ดอเลาะแม Cr. อ.ธีรพงศ์ พรหมวัง</h4>
+    </div> -->
+  </div>
+
+  <script src="script.js"></script>
+  <!--   <script src="https://replit.com/public/js/replit-badge.js" theme="blue" defer></script>  -->
+
+</body>
+
+</html>
