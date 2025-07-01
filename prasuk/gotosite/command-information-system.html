@@ -1,0 +1,794 @@
+
+
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบแสดงข้อมูลหนังสือคำสั่ง v16</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .card-shadow {
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+        .loading {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .file-link {
+            transition: all 0.3s ease;
+        }
+        .file-link:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .search-card {
+            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.95);
+        }
+        .result-card {
+            backdrop-filter: blur(15px);
+            background: rgba(255, 255, 255, 0.92);
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .floating-action {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+        }
+        .stats-card {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border: 1px solid rgba(102, 126, 234, 0.2);
+        }
+
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1001;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+        .notification.show {
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Notification -->
+    <div id="notification" class="notification bg-white rounded-lg shadow-lg p-4 max-w-sm">
+        <div class="flex items-center">
+            <div id="notificationIcon" class="text-2xl mr-3"></div>
+            <div>
+                <div id="notificationTitle" class="font-semibold text-gray-800"></div>
+                <div id="notificationMessage" class="text-sm text-gray-600"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header with Version -->
+        <div class="text-center mb-12">
+            <div class="flex items-center justify-center mb-4">
+                <h1 class="text-4xl md:text-5xl font-bold text-white">
+                    📋 ระบบแสดงข้อมูลหนังสือคำสั่ง
+                </h1>
+                <span class="ml-4 bg-white/20 text-white px-3 py-1 rounded-full text-sm font-medium">
+                    v17.0
+                </span>
+            </div>
+            <p class="text-white/80 text-lg mb-4">ค้นหาและแสดงข้อมูลหนังสือคำสั่งจากระบบ</p>
+            
+            <!-- Quick Stats -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-8">
+                <div class="stats-card rounded-xl p-4 text-white">
+                    <div class="text-2xl font-bold" id="totalRecords">-</div>
+                    <div class="text-sm opacity-80">รายการทั้งหมด</div>
+                </div>
+                <div class="stats-card rounded-xl p-4 text-white">
+                    <div class="text-2xl font-bold" id="todayRecords">-</div>
+                    <div class="text-sm opacity-80">วันนี้</div>
+                </div>
+                <div class="stats-card rounded-xl p-4 text-white">
+                    <div class="text-2xl font-bold" id="thisMonthRecords">-</div>
+                    <div class="text-sm opacity-80">เดือนนี้</div>
+                </div>
+                <div class="stats-card rounded-xl p-4 text-white">
+                    <div class="text-2xl font-bold" id="lastSearchTime">-</div>
+                    <div class="text-sm opacity-80">ค้นหาล่าสุด</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Form -->
+        <div class="search-card rounded-2xl p-6 mb-8 card-shadow">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-semibold gradient-text flex items-center">
+                    <i class="fas fa-search mr-3"></i> ค้นหาข้อมูล
+                </h2>
+
+            </div>
+
+            <!-- Basic Search -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-hashtag mr-1"></i> เลขที่
+                    </label>
+                    <input type="text" id="docNumber" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="ระบุเลขที่คำสั่ง">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-map-marker-alt mr-1"></i> ที่
+                    </label>
+                    <input type="text" id="at" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="ระบุที่">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-calendar-alt mr-1"></i> ลงวันที่
+                    </label>
+                    <input type="date" id="dateInput" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" onchange="formatThaiDate()">
+                    <input type="hidden" id="date">
+                    <div id="dateDisplay" class="mt-2 text-sm text-gray-600"></div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-file-alt mr-1"></i> เรื่อง
+                    </label>
+                    <input type="text" id="subject" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="ระบุเรื่อง">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-tasks mr-1"></i> การปฏิบัติ
+                    </label>
+                    <input type="text" id="action" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="ระบุการปฏิบัติ">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-building mr-1"></i> งานฝ่าย
+                    </label>
+                    <select id="department" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white">
+                        <option value="">-- เลือกงานฝ่าย --</option>
+                        <option value="-">-</option>
+                        <option value="ไม่ระบุ">ไม่ระบุ</option>
+                        <option value="บริหารงานวิชาการ">บริหารงานวิชาการ</option>
+                        <option value="บริหารงานงบประมาณ">บริหารงานงบประมาณ</option>
+                        <option value="บริหารงานบุคคล">บริหารงานบุคคล</option>
+                        <option value="บริหารงานทั่วไป">บริหารงานทั่วไป</option>
+                    </select>
+                </div>
+            </div>
+
+
+
+            <!-- Search Buttons -->
+            <div class="flex flex-col sm:flex-row gap-4 mt-6">
+                <button onclick="searchData()" class="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:from-purple-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 flex items-center justify-center">
+                    <i class="fas fa-search mr-2"></i> ค้นหา
+                </button>
+                <button onclick="loadAllData()" class="flex-1 bg-gradient-to-r from-green-500 to-teal-500 text-white px-6 py-3 rounded-lg font-medium hover:from-green-600 hover:to-teal-600 transition-all duration-300 transform hover:scale-105 flex items-center justify-center">
+                    <i class="fas fa-list mr-2"></i> แสดงทั้งหมด
+                </button>
+                <button onclick="saveSearch()" class="flex-1 bg-gradient-to-r from-orange-500 to-red-500 text-white px-6 py-3 rounded-lg font-medium hover:from-orange-600 hover:to-red-600 transition-all duration-300 transform hover:scale-105 flex items-center justify-center">
+                    <i class="fas fa-bookmark mr-2"></i> บันทึกการค้นหา
+                </button>
+                <button onclick="clearForm()" class="flex-1 bg-gradient-to-r from-gray-500 to-gray-600 text-white px-6 py-3 rounded-lg font-medium hover:from-gray-600 hover:to-gray-700 transition-all duration-300 transform hover:scale-105 flex items-center justify-center">
+                    <i class="fas fa-eraser mr-2"></i> ล้างข้อมูล
+                </button>
+            </div>
+
+            <!-- Saved Searches -->
+            <div id="savedSearches" class="mt-6 hidden">
+                <h3 class="text-lg font-medium text-gray-800 mb-3">
+                    <i class="fas fa-history mr-2"></i> การค้นหาที่บันทึกไว้
+                </h3>
+                <div id="savedSearchList" class="flex flex-wrap gap-2"></div>
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div id="loading" class="hidden text-center py-8">
+            <div class="search-card rounded-2xl p-8 card-shadow loading">
+                <div class="text-4xl mb-4">⏳</div>
+                <p class="text-gray-600 text-lg">กำลังโหลดข้อมูล...</p>
+                <div class="mt-4">
+                    <div class="bg-gray-200 rounded-full h-2 w-64 mx-auto">
+                        <div id="loadingProgress" class="bg-purple-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div id="results" class="space-y-6"></div>
+
+        <!-- Pagination -->
+        <div id="pagination" class="hidden mt-8 flex justify-center">
+            <div class="flex items-center space-x-2">
+                <button onclick="previousPage()" class="px-4 py-2 bg-white rounded-lg shadow hover:bg-gray-50 disabled:opacity-50" id="prevBtn">
+                    <i class="fas fa-chevron-left"></i> ก่อนหน้า
+                </button>
+                <div id="pageNumbers" class="flex space-x-1"></div>
+                <button onclick="nextPage()" class="px-4 py-2 bg-white rounded-lg shadow hover:bg-gray-50 disabled:opacity-50" id="nextBtn">
+                    ถัดไป <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Action Button -->
+    <div class="floating-action">
+        <button onclick="scrollToTop()" class="bg-purple-600 text-white p-4 rounded-full shadow-lg hover:bg-purple-700 transition-all duration-300 transform hover:scale-110">
+            <i class="fas fa-arrow-up"></i>
+        </button>
+    </div>
+
+    <script>
+        const API_URL = 'https://script.google.com/macros/s/AKfycbzgym5UHFqErRVI68Dm8qbcLoYk5n4p5T4rAEfZ9RVO8s9GDi0mKZEf-Sma5Yk33SelWw/exec';
+        
+        let currentData = [];
+        let currentPage = 1;
+        let itemsPerPage = 50;
+        let savedSearches = JSON.parse(localStorage.getItem('savedSearches') || '[]');
+        
+        // โหลดข้อมูลทั้งหมดเมื่อเริ่มต้น
+        window.onload = function() {
+            loadSavedSearches();
+            loadAllData();
+            updateStats();
+            populateYearOptions();
+        };
+
+        function showNotification(title, message, type = 'info') {
+            const notification = document.getElementById('notification');
+            const icon = document.getElementById('notificationIcon');
+            const titleEl = document.getElementById('notificationTitle');
+            const messageEl = document.getElementById('notificationMessage');
+            
+            const icons = {
+                success: '✅',
+                error: '❌',
+                warning: '⚠️',
+                info: 'ℹ️'
+            };
+            
+            icon.textContent = icons[type] || icons.info;
+            titleEl.textContent = title;
+            messageEl.textContent = message;
+            
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 4000);
+        }
+
+        function updateStats() {
+            // อัพเดทสถิติ (จำลอง)
+            document.getElementById('totalRecords').textContent = currentData.length || '-';
+            document.getElementById('lastSearchTime').textContent = new Date().toLocaleTimeString('th-TH');
+        }
+
+
+
+
+
+        function showLoading() {
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('results').innerHTML = '';
+            
+            // จำลอง progress bar
+            let progress = 0;
+            const progressBar = document.getElementById('loadingProgress');
+            const interval = setInterval(() => {
+                progress += Math.random() * 30;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                }
+                progressBar.style.width = progress + '%';
+            }, 200);
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('loadingProgress').style.width = '0%';
+        }
+
+        function searchData() {
+            // ข้อมูลการค้นหาพื้นฐาน
+            const docNumber = document.getElementById('docNumber').value.trim();
+            const at = document.getElementById('at').value.trim();
+            const date = document.getElementById('date').value.trim();
+            const subject = document.getElementById('subject').value.trim();
+            const action = document.getElementById('action').value.trim();
+            const department = document.getElementById('department').value.trim();
+
+            // ตรวจสอบว่ามีการกรอกข้อมูลในช่องใดช่องหนึ่งหรือไม่
+            if (!docNumber && !at && !date && !subject && !action && !department) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: '⚠️ กรุณาระบุเงื่อนไขการค้นหา',
+                    text: 'กรุณากรอกข้อมูลในช่องใดช่องหนึ่งเพื่อค้นหา',
+                    confirmButtonColor: '#8B5CF6'
+                });
+                return;
+            }
+
+            currentPage = 1; // รีเซ็ตหน้าเมื่อค้นหาใหม่
+            showLoading();
+
+            const params = new URLSearchParams();
+            
+            // เพิ่มพารามิเตอร์การค้นหาพื้นฐาน
+            if (docNumber) params.append('docNumber', docNumber);
+            if (at) params.append('at', at);
+            if (date) {
+                console.log('ส่งวันที่:', date); // Debug log
+                params.append('date', date);
+            }
+            if (subject) params.append('subject', subject);
+            if (action) params.append('action', action);
+            if (department) params.append('department', department);
+
+
+
+            console.log('URL ที่ส่ง:', params.toString()); // Debug log
+            fetchData(params.toString());
+        }
+
+        function loadAllData() {
+            currentPage = 1; // รีเซ็ตหน้าเมื่อโหลดข้อมูลใหม่
+            showLoading();
+            fetchData('showAll=true');
+        }
+
+        function fetchData(params) {
+            const callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
+            
+            window[callbackName] = function(data) {
+                hideLoading();
+                currentData = data || [];
+                displayResults(currentData);
+                updateStats();
+                showNotification('สำเร็จ', `พบข้อมูล ${currentData.length} รายการ`, 'success');
+                delete window[callbackName];
+                document.body.removeChild(script);
+            };
+
+            const script = document.createElement('script');
+            let url = `${API_URL}?callback=${callbackName}`;
+            if (params && params.trim() !== '') {
+                url += `&${params}`;
+            }
+            
+            script.src = url;
+            
+            script.onerror = function() {
+                hideLoading();
+                showNotification('เกิดข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อกับระบบได้', 'error');
+                delete window[callbackName];
+                document.body.removeChild(script);
+            };
+            
+            document.body.appendChild(script);
+        }
+
+        function displayResults(data) {
+            const resultsDiv = document.getElementById('results');
+            
+            if (!data || data.length === 0) {
+                resultsDiv.innerHTML = `
+                    <div class="result-card rounded-2xl p-8 card-shadow text-center">
+                        <div class="text-6xl mb-4">📋</div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">ไม่พบข้อมูลคำสั่งในระบบ</h3>
+                        <p class="text-gray-600">ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา</p>
+                    </div>
+                `;
+                document.getElementById('pagination').classList.add('hidden');
+                return;
+            }
+
+            // เรียงลำดับข้อมูลตามเลขที่คำสั่ง (มากไปน้อย)
+            data.sort((a, b) => {
+                const valueA = parseInt(a.docNumber) || 0;
+                const valueB = parseInt(b.docNumber) || 0;
+                return valueB - valueA;
+            });
+
+            // คำนวณการแบ่งหน้า
+            const totalPages = Math.ceil(data.length / itemsPerPage);
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const currentPageData = data.slice(startIndex, endIndex);
+
+            let html = `
+                <div class="result-card rounded-2xl p-6 mb-6 card-shadow">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-2xl font-semibold gradient-text flex items-center">
+                            <i class="fas fa-chart-bar mr-3"></i> ผลการค้นหา (${data.length} รายการ)
+                        </h2>
+                        <div class="flex items-center gap-4">
+                            <div class="text-sm text-gray-600">
+                                <i class="fas fa-eye mr-1"></i> หน้า ${currentPage}/${totalPages} | แสดง ${startIndex + 1}-${Math.min(endIndex, data.length)} จาก ${data.length} รายการ
+                            </div>
+                            <div class="text-sm text-gray-600">
+                                <i class="fas fa-clock mr-1"></i> อัพเดทล่าสุด: ${new Date().toLocaleString('th-TH')}
+                            </div>
+                            <button onclick="refreshData()" class="bg-blue-100 text-blue-700 px-3 py-1 rounded-lg hover:bg-blue-200 transition-colors">
+                                <i class="fas fa-sync-alt mr-1"></i> รีเฟรช
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            currentPageData.forEach((item, index) => {
+                const actualIndex = startIndex + index;
+                const hasFiles = [item.fileRetirement, item.fileDoc1, item.fileDoc2, item.fileDoc3, item.fileDoc4]
+                    .filter(file => file && file.trim() !== '' && file.startsWith('https://drive.google.com/')).length > 0;
+
+                html += `
+                    <div class="result-card rounded-2xl p-6 card-shadow hover:shadow-xl transition-all duration-300 transform hover:scale-[1.01]">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-xl font-semibold text-purple-800 flex items-center">
+                                <i class="fas fa-file-alt mr-2"></i> คำสั่งที่ ${actualIndex + 1}
+                            </h3>
+                            <div class="flex items-center gap-2">
+                                <span class="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                                    เลขที่ ${item.docNumber || '-'}
+                                </span>
+                                ${hasFiles ? '<span class="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs"><i class="fas fa-paperclip mr-1"></i>มีไฟล์</span>' : ''}
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <div class="space-y-4">
+                                <div class="flex items-start">
+                                    <span class="text-gray-600 font-medium w-24 flex-shrink-0 flex items-center">
+                                        <i class="fas fa-map-marker-alt mr-2 text-purple-500"></i> ที่:
+                                    </span>
+                                    <span class="text-gray-800">${item.at || '-'}</span>
+                                </div>
+                                <div class="flex items-start">
+                                    <span class="text-gray-600 font-medium w-24 flex-shrink-0 flex items-center">
+                                        <i class="fas fa-calendar-alt mr-2 text-purple-500"></i> วันที่:
+                                    </span>
+                                    <span class="text-gray-800">${item.date || '-'}</span>
+                                </div>
+                                <div class="flex items-start">
+                                    <span class="text-gray-600 font-medium w-24 flex-shrink-0 flex items-center">
+                                        <i class="fas fa-user mr-2 text-purple-500"></i> จาก:
+                                    </span>
+                                    <span class="text-gray-800">${item.from || '-'}</span>
+                                </div>
+                                <div class="flex items-start">
+                                    <span class="text-gray-600 font-medium w-24 flex-shrink-0 flex items-center">
+                                        <i class="fas fa-users mr-2 text-purple-500"></i> ถึง:
+                                    </span>
+                                    <span class="text-gray-800">${item.to || '-'}</span>
+                                </div>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="flex items-start">
+                                    <span class="text-gray-600 font-medium w-28 flex-shrink-0 flex items-center">
+                                        <i class="fas fa-file-alt mr-2 text-purple-500"></i> เรื่อง:
+                                    </span>
+                                    <span class="text-gray-800">${item.subject || '-'}</span>
+                                </div>
+                                <div class="flex items-start">
+                                    <span class="text-gray-600 font-medium w-28 flex-shrink-0 flex items-center">
+                                        <i class="fas fa-tasks mr-2 text-purple-500"></i> การปฏิบัติ:
+                                    </span>
+                                    <span class="text-gray-800">${item.action || '-'}</span>
+                                </div>
+                                <div class="flex items-start">
+                                    <span class="text-gray-600 font-medium w-28 flex-shrink-0 flex items-center">
+                                        <i class="fas fa-building mr-2 text-purple-500"></i> งานฝ่าย:
+                                    </span>
+                                    <span class="text-gray-800">${item.department || '-'}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="border-t pt-4">
+                            ${(() => {
+                                const fileLinks = [
+                                    createFileLink('🗂️ ไฟล์เกษียณ', item.fileRetirement),
+                                    createFileLink('📄 ไฟล์เอกสาร', item.fileDoc1),
+                                    createFileLink('📄 ไฟล์เอกสาร 2', item.fileDoc2),
+                                    createFileLink('📄 ไฟล์เอกสาร 3', item.fileDoc3),
+                                    createFileLink('📄 ไฟล์เอกสาร 4', item.fileDoc4)
+                                ].filter(link => link !== '');
+                                
+                                if (fileLinks.length === 0) {
+                                    return `
+                                        <h4 class="text-lg font-medium text-gray-800 mb-3 flex items-center">
+                                            <i class="fas fa-paperclip mr-2"></i> ไฟล์เอกสาร
+                                        </h4>
+                                        <div class="bg-gray-100 p-4 rounded-lg text-center">
+                                            <i class="fas fa-folder-open text-gray-400 text-2xl mb-2"></i>
+                                            <p class="text-gray-500">ไม่มีไฟล์เอกสาร</p>
+                                        </div>
+                                    `;
+                                }
+                                
+                                return `
+                                    <h4 class="text-lg font-medium text-gray-800 mb-3 flex items-center">
+                                        <i class="fas fa-paperclip mr-2"></i> ไฟล์เอกสาร (${fileLinks.length} ไฟล์)
+                                    </h4>
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                                        ${fileLinks.join('')}
+                                    </div>
+                                `;
+                            })()}
+                        </div>
+                    </div>
+                `;
+            });
+
+            resultsDiv.innerHTML = html;
+            
+            // แสดงการแบ่งหน้า
+            if (totalPages > 1) {
+                displayPagination(totalPages);
+            } else {
+                document.getElementById('pagination').classList.add('hidden');
+            }
+        }
+
+        function displayPagination(totalPages) {
+            const paginationDiv = document.getElementById('pagination');
+            const pageNumbers = document.getElementById('pageNumbers');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            
+            paginationDiv.classList.remove('hidden');
+            
+            // ปุ่มก่อนหน้า
+            prevBtn.disabled = currentPage === 1;
+            prevBtn.className = currentPage === 1 ? 
+                'px-4 py-2 bg-gray-200 text-gray-400 rounded-lg cursor-not-allowed' :
+                'px-4 py-2 bg-white rounded-lg shadow hover:bg-gray-50';
+            
+            // ปุ่มถัดไป
+            nextBtn.disabled = currentPage === totalPages;
+            nextBtn.className = currentPage === totalPages ? 
+                'px-4 py-2 bg-gray-200 text-gray-400 rounded-lg cursor-not-allowed' :
+                'px-4 py-2 bg-white rounded-lg shadow hover:bg-gray-50';
+            
+            // หมายเลขหน้า
+            let pageNumbersHtml = '';
+            const maxVisiblePages = 5;
+            let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+            let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+            
+            if (endPage - startPage + 1 < maxVisiblePages) {
+                startPage = Math.max(1, endPage - maxVisiblePages + 1);
+            }
+            
+            if (startPage > 1) {
+                pageNumbersHtml += `<button onclick="goToPage(1)" class="px-3 py-2 bg-white rounded-lg shadow hover:bg-gray-50">1</button>`;
+                if (startPage > 2) {
+                    pageNumbersHtml += `<span class="px-2 py-2 text-gray-500">...</span>`;
+                }
+            }
+            
+            for (let i = startPage; i <= endPage; i++) {
+                const isActive = i === currentPage;
+                pageNumbersHtml += `
+                    <button onclick="goToPage(${i})" class="${isActive ? 
+                        'px-3 py-2 bg-purple-600 text-white rounded-lg' : 
+                        'px-3 py-2 bg-white rounded-lg shadow hover:bg-gray-50'}">${i}</button>
+                `;
+            }
+            
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    pageNumbersHtml += `<span class="px-2 py-2 text-gray-500">...</span>`;
+                }
+                pageNumbersHtml += `<button onclick="goToPage(${totalPages})" class="px-3 py-2 bg-white rounded-lg shadow hover:bg-gray-50">${totalPages}</button>`;
+            }
+            
+            pageNumbers.innerHTML = pageNumbersHtml;
+        }
+
+        function goToPage(page) {
+            currentPage = page;
+            displayResults(currentData);
+            scrollToTop();
+        }
+
+        function previousPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                displayResults(currentData);
+                scrollToTop();
+            }
+        }
+
+        function nextPage() {
+            const totalPages = Math.ceil(currentData.length / itemsPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                displayResults(currentData);
+                scrollToTop();
+            }
+        }
+
+        function createFileLink(label, url) {
+            if (!url || url.trim() === '' || !url.startsWith('https://drive.google.com/')) {
+                return '';
+            }
+            
+            return `
+                <a href="#" onclick="openFilePreview('${url}')" class="file-link bg-gradient-to-r from-blue-500 to-purple-500 text-white p-4 rounded-lg text-center block hover:from-blue-600 hover:to-purple-600 transition-all duration-300">
+                    <div class="flex items-center justify-center mb-2">
+                        <i class="fas fa-file-alt text-xl"></i>
+                    </div>
+                    <div class="font-medium text-sm">${label}</div>
+                    <div class="text-xs mt-1 opacity-90">คลิกเพื่อดูไฟล์</div>
+                </a>
+            `;
+        }
+
+        function openFilePreview(url) {
+            window.open(url, '_blank');
+            showNotification('เปิดไฟล์', 'กำลังเปิดไฟล์ในแท็บใหม่', 'info');
+        }
+
+        function formatThaiDate() {
+            const dateInput = document.getElementById('dateInput');
+            const dateDisplay = document.getElementById('dateDisplay');
+            const hiddenDate = document.getElementById('date');
+            
+            if (dateInput.value) {
+                const date = new Date(dateInput.value);
+                
+                const thaiMonths = [
+                    'ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.',
+                    'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'
+                ];
+                
+                const day = date.getDate();
+                const month = thaiMonths[date.getMonth()];
+                const year = date.getFullYear() + 543;
+                
+                const thaiDateFormat = `วันที่ ${day} ${month} ${year}`;
+                
+                dateDisplay.innerHTML = `<i class="fas fa-calendar-check mr-1"></i> ${thaiDateFormat}`;
+                dateDisplay.className = 'mt-2 text-sm text-purple-600 font-medium';
+                
+                hiddenDate.value = thaiDateFormat;
+            } else {
+                dateDisplay.textContent = '';
+                hiddenDate.value = '';
+            }
+        }
+
+        function populateYearOptions() {
+            // ฟังก์ชันนี้ไม่ใช้แล้ว แต่เก็บไว้เพื่อไม่ให้เกิด error
+        }
+
+
+
+        function convertThaiDateToISO(thaiDate) {
+            // แปลงวันที่ไทย "วันที่ 30 มิ.ย. 2568" เป็น ISO format
+            if (!thaiDate || !thaiDate.includes('วันที่')) return '';
+            
+            const thaiMonths = {
+                'ม.ค.': '01', 'ก.พ.': '02', 'มี.ค.': '03', 'เม.ย.': '04',
+                'พ.ค.': '05', 'มิ.ย.': '06', 'ก.ค.': '07', 'ส.ค.': '08',
+                'ก.ย.': '09', 'ต.ค.': '10', 'พ.ย.': '11', 'ธ.ค.': '12'
+            };
+            
+            // แยกส่วนของวันที่
+            const parts = thaiDate.replace('วันที่ ', '').split(' ');
+            if (parts.length !== 3) return '';
+            
+            const day = parts[0].padStart(2, '0');
+            const month = thaiMonths[parts[1]];
+            const year = (parseInt(parts[2]) - 543).toString();
+            
+            if (!month) return '';
+            
+            return `${year}-${month}-${day}`;
+        }
+
+        function saveSearch() {
+            const searchData = {
+                docNumber: document.getElementById('docNumber').value,
+                at: document.getElementById('at').value,
+                date: document.getElementById('date').value,
+                subject: document.getElementById('subject').value,
+                action: document.getElementById('action').value,
+                department: document.getElementById('department').value,
+                timestamp: new Date().toLocaleString('th-TH'),
+                name: `การค้นหา ${new Date().toLocaleString('th-TH')}`
+            };
+
+            savedSearches.unshift(searchData);
+            if (savedSearches.length > 10) savedSearches.pop(); // เก็บแค่ 10 รายการล่าสุด
+            
+            localStorage.setItem('savedSearches', JSON.stringify(savedSearches));
+            loadSavedSearches();
+            showNotification('บันทึกแล้ว', 'บันทึกการค้นหาเรียบร้อย', 'success');
+        }
+
+        function loadSavedSearches() {
+            const savedSearchList = document.getElementById('savedSearchList');
+            const savedSearchesDiv = document.getElementById('savedSearches');
+            
+            if (savedSearches.length === 0) {
+                savedSearchesDiv.classList.add('hidden');
+                return;
+            }
+            
+            savedSearchesDiv.classList.remove('hidden');
+            savedSearchList.innerHTML = savedSearches.map((search, index) => `
+                <button onclick="loadSavedSearch(${index})" class="bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-lg text-sm transition-colors">
+                    <i class="fas fa-bookmark mr-1"></i> ${search.name}
+                </button>
+            `).join('');
+        }
+
+        function loadSavedSearch(index) {
+            const search = savedSearches[index];
+            document.getElementById('docNumber').value = search.docNumber || '';
+            document.getElementById('at').value = search.at || '';
+            document.getElementById('date').value = search.date || '';
+            document.getElementById('subject').value = search.subject || '';
+            document.getElementById('action').value = search.action || '';
+            document.getElementById('department').value = search.department || '';
+            
+            showNotification('โหลดแล้ว', 'โหลดการค้นหาที่บันทึกไว้เรียบร้อย', 'success');
+        }
+
+
+
+        function refreshData() {
+            showNotification('รีเฟรช', 'กำลังโหลดข้อมูลใหม่...', 'info');
+            loadAllData();
+        }
+
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function clearForm() {
+            document.getElementById('docNumber').value = '';
+            document.getElementById('at').value = '';
+            document.getElementById('dateInput').value = '';
+            document.getElementById('date').value = '';
+            document.getElementById('dateDisplay').textContent = '';
+            document.getElementById('subject').value = '';
+            document.getElementById('action').value = '';
+            document.getElementById('department').selectedIndex = 0;
+            
+
+            
+            showNotification('ล้างข้อมูล', 'ล้างข้อมูลในฟอร์มเรียบร้อย', 'success');
+        }
+
+
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'95878091916e9c38',t:'MTc1MTM4OTY3My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
