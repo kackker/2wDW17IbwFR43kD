@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>คิดสนุก จัดกลุ่มหรรษา</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;600&family=Kanit:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
+    <style>
+        :root {
+            --blue: #82c9ff;
+            --yellow: #ffde7d;
+            --green: #77e1a7;
+            --orange: #ffab73;
+            --pink: #ff9bce;
+            --purple: #c3a6ff;
+            --font-family: 'Mitr', 'Kanit', sans-serif;
+            --text-dark: #3d4a5c;
+            --text-light: #ffffff;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: var(--font-family);
+            margin: 0;
+            background-image: url('https://eduinthai.com/webapp/wp-content/uploads/2025/07/Gemini_Generated_Image_33vtaq33vtaq33vt-scaled.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: var(--text-dark);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px 10px;
+            box-sizing: border-box;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1100px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .content-box {
+            background-color: transparent;
+            border-radius: 25px;
+            padding: clamp(20px, 4vw, 40px);
+            display: none;
+            position: relative;
+        }
+        
+        .content-box.active {
+            display: block;
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        
+        .content-box.fade-out {
+            animation: fadeOut 0.3s ease-out forwards;
+        }
+
+        /* --- Start Screen --- */
+        .start-screen-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        #start-screen .logo {
+            max-width: 130px;
+            height: auto;
+            filter: drop-shadow(0 4px 4px rgba(0,0,0,0.1));
+        }
+
+        .title-container {
+            position: relative;
+            display: inline-block;
+            padding: 10px 30px;
+            border: 4px dashed var(--pink);
+            border-radius: 30px;
+            animation: bounceIn 0.8s ease-out;
+        }
+
+        h1 {
+            font-size: clamp(2.5rem, 6vw, 3.5rem);
+            margin: 0;
+            font-weight: 600;
+            background: linear-gradient(45deg, var(--purple), var(--pink), var(--orange), var(--yellow), var(--green), var(--blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-fill-color: transparent;
+            animation: gradient-animation 5s ease infinite;
+            background-size: 300% 300%;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+        }
+        
+        #start-screen .instructions {
+            background-color: rgba(227, 242, 253, 0.9);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 0 auto 25px auto;
+            text-align: left;
+            display: inline-block;
+            font-size: clamp(1rem, 2.5vw, 1.1rem);
+            border: 2px solid var(--blue);
+            box-shadow: var(--shadow);
+        }
+
+        #start-screen .instructions h3 {
+            margin-top: 0;
+            color: #1e88e5;
+            font-size: clamp(1.2rem, 3vw, 1.4rem);
+        }
+        
+        .start-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .input-group i {
+            position: absolute;
+            left: 25px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #bdc3c7;
+            z-index: 2;
+            font-size: 1.2rem;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 18px 20px 18px 60px;
+            border-radius: 30px;
+            border: 2px solid #e0e0e0;
+            background-color: #fff;
+            color: var(--text-dark);
+            font-family: var(--font-family);
+            font-size: clamp(1rem, 2.5vw, 1.1rem);
+            box-sizing: border-box;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--blue);
+            box-shadow: 0 0 0 4px rgba(130, 201, 255, 0.4);
+        }
+
+        .game-btn, .action-btn {
+            padding: 18px 45px;
+            font-size: clamp(1.4rem, 4vw, 1.8rem);
+            font-weight: 600;
+            color: var(--text-light);
+            border: none;
+            border-radius: 35px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        #start-btn { background: linear-gradient(45deg, var(--green), var(--blue)); box-shadow: 0 5px 0 #3c9d74; }
+        #start-btn:hover { transform: translateY(-2px); box-shadow: 0 7px 0 #3c9d74; }
+        #start-btn:active { transform: translateY(2px); box-shadow: 0 3px 0 #3c9d74; }
+        
+        #stats-btn { background: linear-gradient(45deg, var(--orange), var(--pink)); box-shadow: 0 5px 0 #c0392b; }
+        #stats-btn:hover { transform: translateY(-2px); box-shadow: 0 7px 0 #c0392b; }
+        #stats-btn:active { transform: translateY(2px); box-shadow: 0 3px 0 #c0392b; }
+
+        /* --- Level Select Screen --- */
+        #level-select-screen h2 {
+            font-size: clamp(2rem, 5vw, 2.8rem);
+            margin-bottom: 30px;
+        }
+        .level-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+        }
+        .level-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .level-btn {
+            padding: 30px 20px;
+            font-size: 1.8rem;
+            font-weight: 600;
+            border-radius: 20px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--text-light);
+            background-color: var(--blue);
+            box-shadow: 0 5px 0 #2980b9;
+            position: relative;
+        }
+        .level-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 0 #2980b9; }
+        .level-btn:active { transform: translateY(2px); box-shadow: 0 3px 0 #2980b9; }
+        .level-btn:disabled {
+            background-color: #bdc3c7;
+            box-shadow: 0 5px 0 #7f8c8d;
+            cursor: not-allowed;
+            color: #95a5a6;
+        }
+        .level-btn:disabled .fa-lock {
+            display: block;
+        }
+        .level-btn .fa-lock {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 4rem;
+            opacity: 0.2;
+        }
+        .level-btn i {
+            display: block;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        .summary-btn {
+            padding: 8px 15px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 15px;
+            border: none;
+            cursor: pointer;
+            color: var(--text-light);
+            background-color: var(--green);
+            box-shadow: 0 3px 0 #229954;
+            transition: all 0.2s ease;
+        }
+        .summary-btn:hover { transform: translateY(-2px); }
+        .summary-btn:active { transform: translateY(1px); }
+
+        /* --- Game Screen --- */
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .player-info, .game-progress {
+            font-size: clamp(0.9rem, 2.2vw, 1rem);
+            background-color: rgba(255,255,255,0.8);
+            padding: 10px 15px;
+            border-radius: 12px;
+            font-weight: 600;
+            box-shadow: var(--shadow);
+        }
+        
+        .score-display {
+            font-size: clamp(1.2rem, 3.5vw, 1.5rem);
+            font-weight: 600;
+            color: var(--text-light);
+            background-color: var(--orange);
+            padding: 10px 20px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+        }
+
+        .question-area {
+            background-color: rgba(255,255,255,0.8);
+            padding: 25px;
+            border-radius: 20px;
+            margin-bottom: 25px;
+        }
+
+        .question-area h2 {
+            margin: 0 0 15px 0;
+            font-size: clamp(1.5rem, 4vw, 2rem);
+        }
+        
+        .question-image {
+            width: 100%;
+            max-width: 500px;
+            height: auto;
+            max-height: 200px;
+            object-fit: contain;
+            border-radius: 15px;
+        }
+
+        .game-main {
+            display: flex;
+            gap: 25px;
+            flex-direction: column;
+        }
+        
+        @media (min-width: 992px) { .game-main { flex-direction: row; } }
+
+        #options-container {
+            flex: 1;
+            background-color: rgba(255,255,255,0.6);
+            padding: 20px;
+            border-radius: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            align-content: center;
+            min-height: 150px;
+            border: 3px dashed rgba(255,255,255,0.8);
+        }
+
+        #drop-zones-container {
+            flex: 2;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        
+        @media (min-width: 768px) { #drop-zones-container { grid-template-columns: repeat(3, 1fr); } }
+
+        .draggable-item {
+            padding: 15px 25px;
+            background-color: #fff;
+            color: var(--text-dark);
+            border: none;
+            border-radius: 15px;
+            cursor: grab;
+            transition: all 0.3s ease;
+            font-size: clamp(1.1rem, 3vw, 1.3rem);
+            user-select: none;
+            font-weight: 600;
+            box-shadow: 0 4px 0 #e0e0e0;
+        }
+        
+        .draggable-item:active {
+            cursor: grabbing;
+            opacity: 0.8;
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .draggable-item.dropped {
+            animation: pop 0.3s ease-out;
+        }
+
+        .drop-zone {
+            padding: 20px;
+            border-radius: 20px;
+            min-height: 150px;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .drop-zone h3 {
+            margin: 0 0 10px 0;
+            color: var(--text-light);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+            font-size: clamp(1.2rem, 3vw, 1.5rem);
+        }
+        
+        .drop-zone h3 i {
+            margin-right: 12px;
+            font-size: 1.2em;
+        }
+
+        .drop-zone.drag-over {
+            transform: scale(1.05);
+            animation: pulse-glow 1.5s infinite ease-in-out;
+        }
+
+        #dz-needs { background-color: var(--blue); }
+        #dz-does { background-color: var(--yellow); }
+        #dz-gets { background-color: var(--green); }
+        
+        .game-controls {
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .game-btn {
+            padding: 15px 35px;
+            font-size: clamp(1.1rem, 3vw, 1.3rem);
+            font-weight: 600;
+            color: var(--text-light);
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+        }
+        .game-btn:hover { transform: translateY(-3px); }
+        .game-btn:active { transform: translateY(1px); }
+        
+        #check-answer-btn { background-color: #27ae60; box-shadow: 0 4px 0 #229954; }
+        #clear-btn { background-color: #e74c3c; box-shadow: 0 4px 0 #c0392b; }
+
+        /* --- Summary & Stats Screen --- */
+        #summary-screen h1, #stats-screen h1 {
+            text-align: center;
+            color: var(--orange);
+            font-size: clamp(2.2rem, 5vw, 3rem);
+        }
+        
+        .summary-box, .stats-box {
+            background-color: rgba(255,255,255,0.8);
+            padding: 25px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .summary-item {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        
+        .summary-item h3 {
+            margin: 0 0 8px 0;
+            font-size: clamp(1.1rem, 2.5vw, 1.3rem);
+        }
+        
+        .summary-item p {
+            margin: 0;
+            font-size: clamp(1.5rem, 4vw, 2rem);
+            font-weight: 600;
+        }
+
+        #answers-key { margin-top: 20px; }
+        
+        .answer-item {
+            background-color: #fff;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .answer-item h3 {
+            margin-top: 0;
+            color: var(--text-dark);
+            font-size: clamp(1.2rem, 3vw, 1.5rem);
+        }
+        
+        .answer-item ul { list-style: none; padding: 0; }
+        
+        .answer-item li {
+            padding: 12px 15px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            font-size: clamp(1rem, 2.5vw, 1.2rem);
+            font-weight: 600;
+        }
+        
+        .summary-controls { text-align: center; margin-top: 25px; }
+        
+        #restart-btn { background-color: var(--orange); box-shadow: 0 4px 0 #d35400; }
+        #back-to-menu-from-levels, #back-to-menu-from-stats { background-color: var(--purple); box-shadow: 0 4px 0 #8e44ad; }
+
+
+        /* Stats Table */
+        .stats-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .stats-table th, .stats-table td {
+            padding: 12px;
+            text-align: left;
+        }
+        .stats-table thead {
+            background-color: var(--blue);
+            color: white;
+        }
+        .stats-table tbody tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        .stats-table tbody tr:hover {
+            background-color: #eaf2f8;
+        }
+
+
+        /* Sound Control Button */
+        #mute-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background-color: var(--pink);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: transform 0.2s ease, background-color 0.2s ease;
+            z-index: 1000;
+        }
+        #mute-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        /* Animated Characters */
+        .animated-character {
+            position: absolute;
+            pointer-events: none;
+        }
+        .cloud-character {
+            width: 120px;
+            height: 70px;
+            background: #fff;
+            border-radius: 50px;
+            top: 10%;
+            left: 5%;
+            animation: floatAnimation 10s infinite ease-in-out;
+            opacity: 0.8;
+        }
+        .cloud-character::before, .cloud-character::after {
+            content: '';
+            position: absolute;
+            background: #fff;
+            border-radius: 50%;
+        }
+        .cloud-character::before { width: 70px; height: 70px; top: -35px; left: 15px; }
+        .cloud-character::after { width: 90px; height: 90px; top: -45px; right: 5px; }
+
+        .sun-character {
+            width: 80px;
+            height: 80px;
+            background: var(--yellow);
+            border-radius: 50%;
+            top: 5%;
+            right: 5%;
+            animation: spin 20s infinite linear;
+            box-shadow: 0 0 20px var(--yellow);
+        }
+        
+        .star-character {
+            font-size: 5rem;
+            color: var(--yellow);
+            top: 15%;
+            left: 10%;
+            animation: twinkle-star 2s infinite ease-in-out;
+            text-shadow: 0 0 10px white;
+        }
+        
+        .creator-info {
+            margin-top: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 15px;
+            border-radius: 15px;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .creator-info img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid var(--pink);
+            box-shadow: var(--shadow);
+        }
+
+        .creator-text {
+            text-align: left;
+            font-size: 0.9rem;
+            color: var(--text-dark);
+        }
+
+        .creator-text p {
+            margin: 2px 0;
+        }
+
+        /* Animation Keyframes */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(-20px); }
+        }
+        
+        @keyframes bounceIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        @keyframes pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 15px currentColor; }
+            50% { box-shadow: 0 0 25px currentColor; }
+        }
+        
+        @keyframes floatAnimation {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(20px, -10px); }
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        @keyframes twinkle-star {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+        }
+
+        @media (max-width: 768px) {
+            .animated-character {
+                display: none;
+            }
+        }
+
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- All content goes here -->
+    </div>
+
+    <div id="mute-btn">
+        <i class="fas fa-volume-up"></i>
+    </div>
+
+    <script>
+        // --- HTML Content Injection ---
+        const container = document.querySelector('.container');
+        container.innerHTML = `
+        <!-- Start Screen -->
+        <div id="start-screen" class="content-box active">
+            <div class="animated-character cloud-character"></div>
+            <div class="start-screen-header">
+                <img src="https://webapp.eduinthai.com/pic/Prasuk.png" alt="โลโก้" class="logo">
+                <div class="title-container">
+                    <h1>คิดสนุก จัดกลุ่มหรรษา</h1>
+                </div>
+            </div>
+            <div class="instructions">
+                <h3><i class="fas fa-gamepad"></i> มาเล่นกันเถอะ!</h3>
+                <p>1. เขียนชื่อของหนูเลย</p>
+                <p>2. ลากคำตอบไปวางในช่องให้ถูกนะ</p>
+                <p>3. พอวางครบแล้ว กดปุ่ม "ตรวจคำตอบ" สีเขียว</p>
+            </div>
+            <form id="player-form">
+                <div class="input-group">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="name" placeholder="ชื่อ-สกุล" required>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-school"></i>
+                    <input type="text" id="class" placeholder="ชั้น" required>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-hashtag"></i>
+                    <input type="text" id="number" placeholder="เลขที่" required>
+                </div>
+                <div class="start-buttons">
+                    <button type="submit" id="start-btn" class="action-btn"><i class="fas fa-play-circle"></i> เริ่มเล่นเกม!</button>
+                    <button type="button" id="stats-btn" class="action-btn"><i class="fas fa-chart-bar"></i> ดูสถิติ</button>
+                </div>
+            </form>
+            <div class="creator-info">
+                <img src="https://eduinthai.com/webapp/wp-content/uploads/2022/08/Untitled-1.jpg" alt="ผู้จัดทำ">
+                <div class="creator-text">
+                    <p><strong>ผู้จัดทำ</strong></p>
+                    <p>นายกานตพงศ์ สุวรรณทา</p>
+                    <p>โรงเรียนบ้านประสุข</p>
+                    <p>สพป.นครราชสีมา เขต 7</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Level Select Screen -->
+        <div id="level-select-screen" class="content-box">
+            <h2><i class="fas fa-map-signs"></i> เลือกด่านเลย!</h2>
+            <div class="level-grid"></div>
+            <div class="summary-controls">
+                <button id="back-to-menu-from-levels" class="game-btn"><i class="fas fa-arrow-left"></i> กลับหน้าแรก</button>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-screen" class="content-box">
+            <div class="animated-character sun-character"></div>
+            <div class="game-header">
+                <div id="player-info-display" class="player-info"></div>
+                <div id="game-progress" class="game-progress"></div>
+                <div id="score-display" class="score-display">คะแนน: 0</div>
+            </div>
+            <div class="question-area">
+                <h2 id="question-title"></h2>
+                <img id="question-image" src="" alt="ภาพประกอบคำถาม" class="question-image">
+            </div>
+            <div class="game-main">
+                <div id="options-container"></div>
+                <div id="drop-zones-container">
+                    <div class="drop-zone" id="dz-needs" data-category="needs">
+                        <h3><i class="fas fa-box-open"></i> สิ่งที่ต้องใช้</h3>
+                    </div>
+                    <div class="drop-zone" id="dz-does" data-category="does">
+                        <h3><i class="fas fa-cogs"></i> สิ่งนี้ทำอะไร</h3>
+                    </div>
+                    <div class="drop-zone" id="dz-gets" data-category="gets">
+                        <h3><i class="fas fa-gift"></i> สิ่งที่ได้</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="game-controls">
+                <button id="clear-btn" class="game-btn"><i class="fas fa-undo"></i> วางใหม่</button>
+                <button id="check-answer-btn" class="game-btn"><i class="fas fa-check-circle"></i> ตรวจคำตอบ</button>
+            </div>
+        </div>
+
+        <!-- Summary Screen -->
+        <div id="summary-screen" class="content-box">
+            <div class="animated-character star-character"><i class="fas fa-star"></i></div>
+            <h1><i class="fas fa-trophy"></i> เก่งมากๆ เลย!</h1>
+            <div class="summary-box">
+                <h2 id="summary-player-info"></h2>
+                <div class="summary-grid">
+                    <div class="summary-item" style="color: #27ae60;">
+                        <h3>ตอบถูกทั้งหมด</h3>
+                        <p id="summary-correct">0</p>
+                    </div>
+                    <div class="summary-item" style="color: #e74c3c;">
+                        <h3>ตอบผิดทั้งหมด</h3>
+                        <p id="summary-incorrect">0</p>
+                    </div>
+                    <div class="summary-item" style="color: #3498db;">
+                        <h3>คะแนนรวม</h3>
+                        <p id="summary-score">0</p>
+                    </div>
+                </div>
+            </div>
+            <div id="answers-key" class="summary-box">
+                <h2><i class="fas fa-key"></i> มาดูเฉลยกันนะ</h2>
+                <div id="answers-container"></div>
+            </div>
+            <div class="summary-controls">
+                <button id="restart-btn" class="game-btn"><i class="fas fa-redo"></i> เล่นอีกครั้ง</button>
+            </div>
+        </div>
+        
+        <!-- Stats Screen -->
+        <div id="stats-screen" class="content-box">
+             <h1><i class="fas fa-medal"></i> ตารางผู้เล่นเก่งที่สุด</h1>
+             <div class="stats-box">
+                <table class="stats-table">
+                    <thead>
+                        <tr>
+                            <th>อันดับ</th>
+                            <th>ชื่อ-สกุล</th>
+                            <th>ชั้น/เลขที่</th>
+                            <th>คะแนนรวม</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Stats rows will be injected here -->
+                    </tbody>
+                </table>
+             </div>
+             <div class="summary-controls">
+                <button id="back-to-menu-from-stats" class="game-btn"><i class="fas fa-arrow-left"></i> กลับหน้าแรก</button>
+            </div>
+        </div>
+        `;
+
+        // --- Google Sheet URL ---
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzeNsBvrb8m3XxobibcTKAulLn0J8enCvcrSJ3NK2DD0NREiIpkKOd6F4JUCi1dSTmG/exec';
+
+        // --- Sound Effects & BGM ---
+        const sfx = {
+            click: new Tone.Synth({ oscillator: { type: "triangle" }, envelope: { attack: 0.005, decay: 0.1, sustain: 0.02, release: 0.1 } }).toDestination(),
+            drag: new Tone.Synth({ oscillator: { type: 'sine' }, envelope: { attack: 0.001, decay: 0.1, sustain: 0, release: 0.1 } }).toDestination(),
+            drop: new Tone.PluckSynth({ attackNoise: 1, dampening: 4000, resonance: 0.7 }).toDestination(),
+            correct: new Tone.Sequence((time, note) => {
+                const synth = new Tone.Synth({ oscillator: { type: 'triangle' } }).toDestination();
+                synth.triggerAttackRelease(note, '16n', time);
+            }, ["C5", "E5", "G5", "C6"], "16n"),
+            incorrect: new Tone.Synth({ oscillator: { type: 'square' }, envelope: { attack: 0.01, decay: 0.4, sustain: 0, release: 0.1 } }).toDestination()
+        };
+        sfx.click.volume.value = -10;
+        sfx.drag.volume.value = -15;
+        sfx.incorrect.volume.value = -15;
+
+        const bgmSynth = new Tone.FMSynth({
+            harmonicity: 3,
+            modulationIndex: 10,
+            oscillator: { type: "sine" },
+            envelope: { attack: 0.01, decay: 0.2, sustain: 0.3, release: 0.5 },
+            modulation: { type: "triangle" },
+            modulationEnvelope: { attack: 0.01, decay: 0.2, sustain: 0.3, release: 0.5 }
+        }).toDestination();
+        bgmSynth.volume.value = -14; // Louder BGM
+
+        const melody = [ "C5", "E5", "G5", "E5", "D5", "F5", "A5", "F5" ];
+        let noteIndex = 0;
+        const bgmLoop = new Tone.Loop(time => {
+            const note = melody[noteIndex % melody.length];
+            bgmSynth.triggerAttackRelease(note, '8n', time);
+            noteIndex++;
+        }, '4n').start(0);
+
+        let audioInitialized = false;
+        async function initAudio() {
+            if (audioInitialized) return;
+            await Tone.start();
+            Tone.Transport.start();
+            audioInitialized = true;
+        }
+
+        function playSound(sound) {
+            if (!audioInitialized) return;
+            switch(sound) {
+                case 'click': sfx.click.triggerAttackRelease('E5', '16n'); break;
+                case 'drag': sfx.drag.triggerAttackRelease('G5', '32n'); break;
+                case 'drop': sfx.drop.triggerAttack('C4'); break;
+                case 'correct': sfx.correct.start(0).stop('0:0:4'); break;
+                case 'incorrect': sfx.incorrect.triggerAttackRelease('F#3', '8n'); break;
+            }
+        }
+
+        // --- DATA ---
+        const allGameData = {
+            1: [ /* Level 1 Questions */
+                { title: "พัดลม", image: "https://placehold.jp/3d4070/ffffff/600x200.png?text=พัดลม&font=Mitr", answers: [ { text: "ไฟฟ้า", category: "needs" }, { text: "ใบพัดหมุน", category: "does" }, { text: "ลมเย็น", category: "gets" } ] },
+                { title: "การแปรงฟัน", image: "https://placehold.jp/f77fbe/ffffff/600x200.png?text=แปรงฟัน&font=Mitr", answers: [ { text: "ยาสีฟัน", category: "needs" }, { text: "ขัดถูฟัน", category: "does" }, { text: "ฟันสะอาด", category: "gets" } ] },
+                { title: "การวาดรูป", image: "https://placehold.jp/8e5a9a/ffffff/600x200.png?text=วาดรูป&font=Mitr", answers: [ { text: "สีเทียน", category: "needs" }, { text: "ระบายสี", category: "does" }, { text: "รูปสวยๆ", category: "gets" } ] },
+                { title: "การดื่มน้ำ", image: "https://placehold.jp/4a8fbd/ffffff/600x200.png?text=ดื่มน้ำ&font=Mitr", answers: [ { text: "แก้วน้ำ", category: "needs" }, { text: "ยกดื่ม", category: "does" }, { text: "หายกระหาย", category: "gets" } ] },
+                { title: "การใส่รองเท้า", image: "https://placehold.jp/f4a261/ffffff/600x200.png?text=ใส่รองเท้า&font=Mitr", answers: [ { text: "เท้า", category: "needs" }, { text: "สวมใส่", category: "does" }, { text: "เท้าไม่เจ็บ", category: "gets" } ] }
+            ],
+            2: [ /* Level 2 Questions */
+                { title: "การรดน้ำต้นไม้", image: "https://placehold.jp/2a9d8f/ffffff/600x200.png?text=รดน้ำต้นไม้&font=Mitr", answers: [ { text: "บัวรดน้ำ", category: "needs" }, { text: "เทน้ำใส่ต้นไม้", category: "does" }, { text: "ต้นไม้สดชื่น", category: "gets" } ] },
+                { title: "การทำอาหาร", image: "https://placehold.jp/e74c3c/ffffff/600x200.png?text=ทำอาหาร&font=Mitr", answers: [ { text: "กระทะ", category: "needs" }, { text: "ทอดไข่", category: "does" }, { text: "ไข่ดาว", category: "gets" } ] },
+                { title: "การซักผ้า", image: "https://placehold.jp/9b59b6/ffffff/600x200.png?text=ซักผ้า&font=Mitr", answers: [ { text: "ผ้าสกปรก", category: "needs" }, { text: "เครื่องหมุนๆ", category: "does" }, { text: "ผ้าสะอาด", category: "gets" } ] },
+                { title: "การเปิดไฟ", image: "https://placehold.jp/f1c40f/ffffff/600x200.png?text=เปิดไฟ&font=Mitr", answers: [ { text: "สวิตช์ไฟ", category: "needs" }, { text: "กดสวิตช์", category: "does" }, { text: "ห้องสว่าง", category: "gets" } ] },
+                { title: "การเล่นชิงช้า", image: "https://placehold.jp/3498db/ffffff/600x200.png?text=เล่นชิงช้า&font=Mitr", answers: [ { text: "แรงผลัก", category: "needs" }, { text: "แกว่งไปมา", category: "does" }, { text: "ความสนุก", category: "gets" } ] }
+            ],
+            3: [ /* Level 3 Questions */
+                { title: "โทรทัศน์", image: "https://placehold.jp/1abc9c/ffffff/600x200.png?text=โทรทัศน์&font=Mitr", answers: [ { text: "รีโมท", category: "needs" }, { text: "แสดงภาพและเสียง", category: "does" }, { text: "การ์ตูนสนุกๆ", category: "gets" } ] },
+                { title: "ตู้เย็น", image: "https://placehold.jp/34495e/ffffff/600x200.png?text=ตู้เย็น&font=Mitr", answers: [ { text: "อาหาร", category: "needs" }, { text: "ทำความเย็น", category: "does" }, { text: "อาหารไม่บูด", category: "gets" } ] },
+                { title: "กรรไกร", image: "https://placehold.jp/e67e22/ffffff/600x200.png?text=กรรไกร&font=Mitr", answers: [ { text: "กระดาษ", category: "needs" }, { text: "ตัด", category: "does" }, { text: "กระดาษขาด", category: "gets" } ] },
+                { title: "โทรศัพท์", image: "https://placehold.jp/8e44ad/ffffff/600x200.png?text=โทรศัพท์&font=Mitr", answers: [ { text: "นิ้วมือ", category: "needs" }, { text: "โทรคุย", category: "does" }, { text: "ได้ยินเสียงเพื่อน", category: "gets" } ] },
+                { title: "รถของเล่น", image: "https://placehold.jp/c0392b/ffffff/600x200.png?text=รถของเล่น&font=Mitr", answers: [ { text: "มือ", category: "needs" }, { text: "เข็นไปข้างหน้า", category: "does" }, { text: "รถวิ่งได้", category: "gets" } ] }
+            ],
+            4: [ /* Level 4 Questions */
+                 { title: "การปั่นจักรยาน", image: "https://placehold.jp/27ae60/ffffff/600x200.png?text=ปั่นจักรยาน&font=Mitr", answers: [ { text: "แรงถีบ", category: "needs" }, { text: "ล้อหมุน", category: "does" }, { text: "จักรยานเคลื่อนที่", category: "gets" } ] },
+                 { title: "การเป่าลูกโป่ง", image: "https://placehold.jp/d35400/ffffff/600x200.png?text=เป่าลูกโป่ง&font=Mitr", answers: [ { text: "ลมปาก", category: "needs" }, { text: "เป่าลมเข้า", category: "does" }, { text: "ลูกโป่งพอง", category: "gets" } ] },
+                 { title: "การเหลาดินสอ", image: "https://placehold.jp/2c3e50/ffffff/600x200.png?text=เหลาดินสอ&font=Mitr", answers: [ { text: "กบเหลาดินสอ", category: "needs" }, { text: "หมุนดินสอ", category: "does" }, { text: "ดินสอแหลม", category: "gets" } ] },
+                 { title: "การเล่นว่าว", image: "https://placehold.jp/7f8c8d/ffffff/600x200.png?text=เล่นว่าว&font=Mitr", answers: [ { text: "ลม", category: "needs" }, { text: "ดึงเชือก", category: "does" }, { text: "ว่าวลอยบนฟ้า", category: "gets" } ] },
+                 { title: "การตากผ้า", image: "https://placehold.jp/16a085/ffffff/600x200.png?text=ตากผ้า&font=Mitr", answers: [ { text: "แดด", category: "needs" }, { text: "ระเหยน้ำ", category: "does" }, { text: "ผ้าแห้ง", category: "gets" } ] }
+            ],
+            5: [ /* Level 5 Questions */
+                 { title: "การทำไอศกรีม", image: "https://placehold.jp/ff69b4/ffffff/600x200.png?text=ทำไอศกรีม&font=Mitr", answers: [ { text: "น้ำหวาน", category: "needs" }, { text: "แช่แข็ง", category: "does" }, { text: "ไอศกรีมแท่ง", category: "gets" } ] },
+                 { title: "การหุงข้าว", image: "https://placehold.jp/6a0dad/ffffff/600x200.png?text=หุงข้าว&font=Mitr", answers: [ { text: "หม้อหุงข้าว", category: "needs" }, { text: "ต้มข้าว", category: "does" }, { text: "ข้าวสุก", category: "gets" } ] },
+                 { title: "การกวาดบ้าน", image: "https://placehold.jp/cd7f32/ffffff/600x200.png?text=กวาดบ้าน&font=Mitr", answers: [ { text: "ไม้กวาด", category: "needs" }, { text: "กวาดฝุ่น", category: "does" }, { text: "พื้นสะอาด", category: "gets" } ] },
+                 { title: "การส่งจดหมาย", image: "https://placehold.jp/00ffff/ffffff/600x200.png?text=ส่งจดหมาย&font=Mitr", answers: [ { text: "ตู้ไปรษณีย์", category: "needs" }, { text: "หย่อนจดหมาย", category: "does" }, { text: "จดหมายถึงเพื่อน", category: "gets" } ] },
+                 { title: "การปลูกต้นไม้", image: "https://placehold.jp/228b22/ffffff/600x200.png?text=ปลูกต้นไม้&font=Mitr", answers: [ { text: "เมล็ดพืช", category: "needs" }, { text: "ฝังดิน รดน้ำ", category: "does" }, { text: "ต้นไม้งอก", category: "gets" } ] }
+            ]
+        };
+
+        // --- DOM Elements ---
+        const startScreen = document.getElementById('start-screen');
+        const levelSelectScreen = document.getElementById('level-select-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const summaryScreen = document.getElementById('summary-screen');
+        const statsScreen = document.getElementById('stats-screen');
+        const playerForm = document.getElementById('player-form');
+        const optionsContainer = document.getElementById('options-container');
+        const dropZones = document.querySelectorAll('.drop-zone');
+        const checkAnswerBtn = document.getElementById('check-answer-btn');
+        const clearBtn = document.getElementById('clear-btn');
+        const scoreDisplay = document.getElementById('score-display');
+        const restartBtn = document.getElementById('restart-btn');
+        const muteBtn = document.getElementById('mute-btn');
+        const muteIcon = muteBtn.querySelector('i');
+        const statsBtn = document.getElementById('stats-btn');
+        const backToMenuFromLevelsBtn = document.getElementById('back-to-menu-from-levels');
+        const backToMenuFromStatsBtn = document.getElementById('back-to-menu-from-stats');
+        const gameProgress = document.getElementById('game-progress');
+
+        // --- Game State ---
+        let player = {};
+        let score = 0;
+        let currentLevel = 1;
+        let currentQuestionInLevelIndex = 0;
+        let questionsForCurrentLevel = [];
+        let levelScores = {};
+
+        // --- Functions ---
+        
+        function switchScreen(hideScreen, showScreen) {
+            hideScreen.classList.add('fade-out');
+            setTimeout(() => {
+                hideScreen.classList.remove('active');
+                hideScreen.classList.remove('fade-out');
+                showScreen.classList.add('active');
+            }, 300);
+        }
+        
+        function shuffle(array) {
+            let newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        function startGame(event) {
+            event.preventDefault();
+            playSound('click');
+            
+            const name = document.getElementById('name').value.trim();
+            const p_class = document.getElementById('class').value.trim();
+            const number = document.getElementById('number').value.trim();
+
+            if (!name || !p_class || !number) {
+                Swal.fire({ icon: 'warning', title: 'หนูๆ ยังไม่ได้เขียนชื่อเลย', text: 'เขียนชื่อ ชั้น แล้วก็เลขที่ก่อนนะ', confirmButtonText: 'โอเค' });
+                return;
+            }
+
+            player = { name, class: p_class, number };
+            document.getElementById('player-info-display').innerText = `ผู้เล่น: ${player.name} ชั้น ${player.class} เลขที่ ${player.number}`;
+            
+            setupLevelSelect();
+            switchScreen(startScreen, levelSelectScreen);
+        }
+        
+        function setupLevelSelect() {
+            const playerIdentifier = `${player.name}-${player.class}-${player.number}`;
+            let playerData = JSON.parse(localStorage.getItem(playerIdentifier)) || { maxLevel: 1, scores: {} };
+            const maxLevel = playerData.maxLevel;
+
+            const levelGrid = document.querySelector('.level-grid');
+            levelGrid.innerHTML = '';
+            for (let i = 1; i <= 5; i++) {
+                const levelContainer = document.createElement('div');
+                levelContainer.className = 'level-container';
+                
+                const levelBtn = document.createElement('button');
+                levelBtn.className = 'level-btn';
+                levelBtn.dataset.level = i;
+                levelBtn.innerHTML = `<i class="fas fa-star"></i>ด่านที่ ${i}<i class="fas fa-lock"></i>`;
+                
+                if (i > maxLevel) {
+                    levelBtn.disabled = true;
+                }
+
+                levelBtn.addEventListener('click', () => selectLevel(i));
+                levelContainer.appendChild(levelBtn);
+
+                if (playerData.scores[i] !== undefined) {
+                    const summaryBtn = document.createElement('button');
+                    summaryBtn.className = 'summary-btn';
+                    summaryBtn.innerHTML = `<i class="fas fa-poll"></i> ดูสรุปคะแนน`;
+                    summaryBtn.addEventListener('click', () => showLevelSummary(i));
+                    levelContainer.appendChild(summaryBtn);
+                }
+
+                levelGrid.appendChild(levelContainer);
+            }
+        }
+        
+        function showLevelSummary(level) {
+            playSound('click');
+            const playerIdentifier = `${player.name}-${player.class}-${player.number}`;
+            let playerData = JSON.parse(localStorage.getItem(playerIdentifier)) || { maxLevel: 1, scores: {} };
+            const levelScore = playerData.scores[level] || 0;
+            Swal.fire({
+                icon: 'info',
+                title: `สรุปคะแนนด่านที่ ${level}`,
+                text: `หนูได้ ${levelScore} คะแนนในด่านนี้ค่ะ`,
+                confirmButtonText: 'เยี่ยมเลย!'
+            });
+        }
+        
+        function selectLevel(level) {
+            playSound('click');
+            currentLevel = level;
+            currentQuestionInLevelIndex = 0;
+            score = 0;
+            
+            questionsForCurrentLevel = shuffle(allGameData[currentLevel]);
+            
+            switchScreen(levelSelectScreen, gameScreen);
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            if (currentQuestionInLevelIndex >= questionsForCurrentLevel.length) {
+                endLevel();
+                return;
+            }
+            
+            clearBoard();
+            
+            gameProgress.innerText = `ด่านที่ ${currentLevel} - ข้อที่ ${currentQuestionInLevelIndex + 1}/${questionsForCurrentLevel.length}`;
+            scoreDisplay.innerText = `คะแนน: ${score}`;
+            
+            const question = questionsForCurrentLevel[currentQuestionInLevelIndex];
+            document.getElementById('question-title').innerText = `นี่คืออะไรเอ่ย: ${question.title}`;
+            const questionImage = document.getElementById('question-image');
+            questionImage.src = question.image;
+            questionImage.onerror = () => {
+                questionImage.alt = 'รูปหายไปไหนนะ';
+                questionImage.src = 'https://placehold.co/600x200/333/FFF?text=Image+Not+Found';
+            };
+
+            const answers = shuffle([...question.answers]);
+            answers.forEach((answer, index) => {
+                const item = document.createElement('div');
+                item.classList.add('draggable-item');
+                item.draggable = true;
+                item.innerText = answer.text;
+                item.dataset.id = `item-${index}`;
+                item.dataset.category = answer.category;
+                item.addEventListener('dragstart', dragStart);
+                optionsContainer.appendChild(item);
+            });
+        }
+        
+        function checkAnswer() {
+            playSound('click');
+            const totalDropped = document.querySelectorAll('.drop-zone .draggable-item').length;
+            if (totalDropped < 3) {
+                Swal.fire({ icon: 'info', title: 'เอ๊ะ! ยังไม่ครบนะ', text: 'ลากคำตอบไปวางให้ครบทุกช่องก่อนนะจ๊ะ', confirmButtonText: 'ได้เลย' });
+                return;
+            }
+            
+            let isCorrect = true;
+            dropZones.forEach(zone => {
+                const items = zone.querySelectorAll('.draggable-item');
+                const zoneCategory = zone.dataset.category;
+                if (items.length !== 1 || items[0].dataset.category !== zoneCategory) {
+                    isCorrect = false;
+                }
+            });
+
+            if (isCorrect) {
+                playSound('correct');
+                score += 10;
+                Swal.fire({ icon: 'success', title: 'เก่งมาก!', text: 'ตอบถูกแล้วจ้า!', timer: 1500, showConfirmButton: false, imageUrl: 'https://i.gifer.com/7efs.gif', imageHeight: 120 });
+            } else {
+                playSound('incorrect');
+                Swal.fire({ icon: 'error', title: 'อุ๊ย! ลองอีกทีนะ', text: 'ไม่เป็นไรนะ สู้ๆ!', timer: 1500, showConfirmButton: false });
+            }
+            
+            currentQuestionInLevelIndex++;
+            setTimeout(loadQuestion, 1500);
+        }
+        
+        function endLevel() {
+            saveProgress();
+            Swal.fire({
+                icon: 'success',
+                title: `ยินดีด้วย!`,
+                text: `หนูผ่านด่านที่ ${currentLevel} แล้ว ได้คะแนน ${score} คะแนน`,
+                confirmButtonText: 'ไปหน้าเลือกด่าน!'
+            }).then(() => {
+                setupLevelSelect();
+                switchScreen(gameScreen, levelSelectScreen);
+            });
+        }
+        
+        function clearBoard() {
+            optionsContainer.innerHTML = '';
+            dropZones.forEach(zone => {
+                const h3 = zone.querySelector('h3').outerHTML;
+                zone.innerHTML = h3;
+            });
+        }
+        
+        function resetCurrentAnswers() {
+            playSound('click');
+            const items = document.querySelectorAll('.drop-zone .draggable-item');
+            items.forEach(item => {
+                optionsContainer.appendChild(item);
+            });
+        }
+        
+        function saveProgress() {
+            const playerIdentifier = `${player.name}-${player.class}-${player.number}`;
+            let playerData = JSON.parse(localStorage.getItem(playerIdentifier)) || { maxLevel: 1, scores: {} };
+            
+            if (currentLevel === playerData.maxLevel && currentLevel < 5) {
+                playerData.maxLevel = currentLevel + 1;
+            }
+            
+            if (!playerData.scores[currentLevel] || score > playerData.scores[currentLevel]) {
+                playerData.scores[currentLevel] = score;
+                sendScoreToGoogleSheet(currentLevel, score);
+            }
+
+            localStorage.setItem(playerIdentifier, JSON.stringify(playerData));
+            saveLeaderboard(playerData);
+        }
+
+        function sendScoreToGoogleSheet(level, score) {
+            const data = {
+                name: player.name,
+                p_class: player.class,
+                number: player.number,
+                level: level,
+                score: score
+            };
+
+            fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                cache: 'no-cache',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            }).then(res => console.log("Score sent to Google Sheet"))
+              .catch(err => console.error("Error sending score:", err));
+        }
+        
+        function saveLeaderboard(playerData) {
+            let leaderboard = JSON.parse(localStorage.getItem('gameLeaderboard')) || [];
+            const playerIdentifier = `${player.name}-${player.class}-${player.number}`;
+            
+            const totalScore = Object.values(playerData.scores).reduce((sum, score) => sum + score, 0);
+
+            const playerIndex = leaderboard.findIndex(p => p.id === playerIdentifier);
+            if(playerIndex > -1) {
+                leaderboard[playerIndex].totalScore = totalScore;
+            } else {
+                leaderboard.push({
+                    id: playerIdentifier,
+                    name: player.name,
+                    classInfo: `${player.class}/${player.number}`,
+                    totalScore: totalScore
+                });
+            }
+            localStorage.setItem('gameLeaderboard', JSON.stringify(leaderboard));
+        }
+        
+        async function displayLeaderboard() {
+            const tableBody = document.querySelector('#stats-screen tbody');
+            tableBody.innerHTML = '<tr><td colspan="4">กำลังโหลดข้อมูลสถิติ...</td></tr>';
+
+            try {
+                const response = await fetch(SCRIPT_URL);
+                const leaderboard = await response.json();
+                
+                tableBody.innerHTML = '';
+                
+                if (leaderboard.error) {
+                    tableBody.innerHTML = `<tr><td colspan="4">เกิดข้อผิดพลาด: ${leaderboard.error}</td></tr>`;
+                    return;
+                }
+
+                if (leaderboard.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="4">ยังไม่มีใครเล่นเลย มาเป็นคนแรกสิ!</td></tr>';
+                    return;
+                }
+
+                leaderboard.slice(0, 10).forEach((player, index) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td>${player.name}</td>
+                        <td>${player.classInfo}</td>
+                        <td>${player.totalScore}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            } catch (error) {
+                tableBody.innerHTML = `<tr><td colspan="4">ไม่สามารถโหลดข้อมูลสถิติได้ กรุณาตรวจสอบการเชื่อมต่อค่ะ</td></tr>`;
+                console.error('Error fetching leaderboard:', error);
+            }
+        }
+
+
+        // --- Drag and Drop Handlers ---
+        let draggedItem = null;
+
+        function dragStart(e) {
+            playSound('drag');
+            draggedItem = e.target;
+            setTimeout(() => e.target.style.display = 'none', 0);
+        }
+
+        function dragEnd(e) {
+            setTimeout(() => {
+                if (draggedItem) {
+                    draggedItem.style.display = 'block';
+                    draggedItem = null;
+                }
+            }, 0);
+        }
+
+        dropZones.forEach(zone => {
+            zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+            zone.addEventListener('dragleave', e => { zone.classList.remove('drag-over'); });
+            zone.addEventListener('drop', e => {
+                e.preventDefault();
+                zone.classList.remove('drag-over');
+                if (draggedItem && zone.children.length < 2) { 
+                    if(e.target.classList.contains('drop-zone') || e.target.closest('.drop-zone')) {
+                        playSound('drop');
+                        zone.appendChild(draggedItem);
+                        draggedItem.classList.add('dropped');
+                        setTimeout(() => {
+                            if (draggedItem) draggedItem.classList.remove('dropped');
+                        }, 300);
+                    }
+                }
+            });
+        });
+        
+        document.addEventListener('dragend', (e) => {
+            if (draggedItem) {
+                draggedItem.style.display = 'block';
+                draggedItem = null;
+            }
+        });
+
+        // --- Event Listeners ---
+        document.body.addEventListener('click', initAudio, { once: true });
+        playerForm.addEventListener('submit', startGame);
+        checkAnswerBtn.addEventListener('click', checkAnswer);
+        clearBtn.addEventListener('click', resetCurrentAnswers);
+        
+        statsBtn.addEventListener('click', () => {
+            playSound('click');
+            displayLeaderboard();
+            switchScreen(startScreen, statsScreen);
+        });
+        
+        backToMenuFromLevelsBtn.addEventListener('click', () => {
+             playSound('click');
+             switchScreen(levelSelectScreen, startScreen);
+        });
+        
+        backToMenuFromStatsBtn.addEventListener('click', () => {
+             playSound('click');
+             switchScreen(statsScreen, startScreen);
+        });
+        
+        muteBtn.addEventListener('click', () => {
+            isMuted = !isMuted;
+            Tone.Destination.mute = isMuted;
+            if (isMuted) {
+                muteIcon.classList.remove('fa-volume-up');
+                muteIcon.classList.add('fa-volume-mute');
+            } else {
+                playSound('click');
+                muteIcon.classList.remove('fa-volume-mute');
+                muteIcon.classList.add('fa-volume-up');
+            }
+        });
+
+    </script>
+</body>
+</html>
