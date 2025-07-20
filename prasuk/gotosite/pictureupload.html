@@ -1,0 +1,339 @@
+<!-- File: index.html (Standalone Frontend - New Logo & Background) -->
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <title>ระบบอัปโหลดรูปภาพ</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #007bff;
+      --primary-hover: #0056b3;
+      --success-color: #28a745;
+      --error-color: #dc3545;
+      --card-bg: rgba(255, 255, 255, 0.95); /* Slightly more opaque */
+      --text-primary: #333;
+      --text-secondary: #555;
+      --border-color: #ced4da;
+    }
+
+    body {
+      font-family: 'Sarabun', sans-serif;
+      /* --- CHANGE HERE: Updated background image --- */
+      background-image: url('https://lh3.googleusercontent.com/d/1SQSiBTo7LRD2JQYCkXmrvrh9qoavrymO');
+      background-size: cover;
+      background-position: center center;
+      background-attachment: fixed;
+      background-repeat: no-repeat;
+      
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 1rem;
+    }
+
+    .container {
+      background-color: var(--card-bg);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      padding: 2.5rem;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+      width: 100%;
+      max-width: 520px;
+      text-align: center;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+    }
+    
+    /* --- CHANGE HERE: Added Logo styles --- */
+    .logo-container {
+        margin-bottom: 1.5rem;
+    }
+    .logo {
+        max-height: 80px; /* Adjust size as needed */
+        width: auto;
+    }
+
+    h1 {
+      color: var(--text-primary);
+      margin-bottom: 2rem;
+      font-weight: 700;
+      font-size: 1.8rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+      text-align: left;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 0.6rem;
+      color: var(--text-secondary);
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      box-sizing: border-box;
+      background-color: #fff;
+      font-size: 1rem;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+    }
+    
+    input[type="file"] {
+        font-size: 0.9rem;
+    }
+
+    /* Image Preview */
+    .image-preview-container {
+        margin-top: 1rem;
+        display: none;
+        width: 100px;
+        height: 100px;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid var(--border-color);
+    }
+    #imagePreview {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 0.9rem;
+      background-color: var(--primary-color);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+      margin-top: 1rem;
+    }
+
+    .btn-submit:disabled {
+      background-color: #a0c3ff;
+      cursor: not-allowed;
+    }
+
+    .btn-submit:hover:not(:disabled) {
+      background-color: var(--primary-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
+    }
+
+    #status {
+      margin-top: 1.5rem;
+      padding: 1rem;
+      border-radius: 8px;
+      display: none;
+      word-wrap: break-word;
+      text-align: left;
+      line-height: 1.7;
+    }
+    #status.success { display: block; background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb;}
+    #status.error { display: block; background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb;}
+    
+    .result-link {
+        display: block;
+        background-color: #e9ecef;
+        padding: 0.75rem;
+        border-radius: 6px;
+        font-family: monospace;
+        font-size: 0.9rem;
+        margin: 0.5rem 0 1rem 0;
+    }
+    
+    .copy-btn {
+        padding: 8px 16px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        background-color: var(--success-color);
+        color: #fff;
+        border-radius: 8px;
+        transition: all 0.2s ease-in-out;
+    }
+    .copy-btn:hover {
+        background-color: #218838;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- --- CHANGE HERE: Added Logo --- -->
+    <div class="logo-container">
+        <img src="https://lh3.googleusercontent.com/d/1t5CnSSaUjegXd1h0_uuujDRCwKPImzlB" alt="Logo" class="logo">
+    </div>
+    <h1>ระบบฝากรูปภาพ</h1>
+    <form id="uploadForm">
+      <div class="form-group">
+        <label for="description" class="form-label">คำอธิบายภาพ (ไม่บังคับ)</label>
+        <input type="text" id="description" name="description" class="form-control">
+      </div>
+      <div class="form-group">
+        <label for="file" class="form-label">เลือกไฟล์รูปภาพ</label>
+        <input type="file" id="file" name="file" class="form-control" accept="image/*" required>
+        <div class="image-preview-container" id="imagePreviewContainer">
+            <img src="" alt="Image Preview" id="imagePreview"/>
+        </div>
+      </div>
+      <button type="submit" id="submitButton" class="btn-submit">อัปโหลด</button>
+    </form>
+    <div id="status"></div>
+  </div>
+
+  <script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwglNluoB8f5Sp3yfEKILGqm1KmuY1loBKtERFf4Nq9UVjxF7zmsd6NK86t4mf8GW6mMw/exec";
+
+    const uploadForm = document.getElementById('uploadForm');
+    const submitButton = document.getElementById('submitButton');
+    const statusDiv = document.getElementById('status');
+    const fileInput = document.getElementById('file');
+    const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+    const imagePreview = document.getElementById('imagePreview');
+
+    fileInput.addEventListener('change', function() {
+        statusDiv.style.display = 'none';
+
+        if (fileInput.files.length > 0) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                imagePreview.src = e.target.result;
+                imagePreviewContainer.style.display = 'block';
+            };
+            reader.readAsDataURL(fileInput.files[0]);
+        } else {
+            imagePreviewContainer.style.display = 'none';
+        }
+    });
+
+    uploadForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      if (fileInput.files.length === 0) {
+        alert('กรุณาเลือกไฟล์ก่อนค่ะ');
+        return;
+      }
+
+      const file = fileInput.files[0];
+      const reader = new FileReader();
+
+      statusDiv.style.display = 'block';
+      statusDiv.className = '';
+      statusDiv.textContent = 'กำลังอัปโหลด กรุณารอสักครู่...';
+      submitButton.disabled = true;
+
+      reader.onload = function(event) {
+        const fileData = event.target.result.split(',')[1];
+        
+        const descriptionValue = document.getElementById('description').value.trim() || "รูปภาพ";
+
+        const formObject = {
+          fileName: file.name,
+          mimeType: file.type,
+          description: descriptionValue,
+          fileData: fileData
+        };
+
+        fetch(SCRIPT_URL, {
+          method: 'POST',
+          mode: 'cors',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(formObject)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`เกิดข้อผิดพลาดจากเซิร์ฟเวอร์: ${response.status} ${response.statusText}`);
+            }
+            const clonedResponse = response.clone();
+            return response.json().catch(() => {
+                return clonedResponse.text().then(text => {
+                    throw new Error(`การตอบกลับจากเซิร์ฟเวอร์ไม่ถูกต้อง (อาจต้อง Deploy สคริปต์ใหม่): ${text.substring(0, 200)}...`);
+                });
+            });
+        })
+        .then(data => {
+          if (data.success) {
+            onUploadSuccess(data.url);
+          } else {
+            throw new Error(data.error || 'เกิดข้อผิดพลาดที่ไม่รู้จักในสคริปต์');
+          }
+        })
+        .catch(error => {
+          onUploadFailure(error);
+        });
+      };
+      reader.readAsDataURL(file);
+    });
+
+    function onUploadSuccess(fileUrl) {
+      statusDiv.className = 'success';
+      statusDiv.innerHTML = `
+        <strong>อัปโหลดสำเร็จ!</strong>
+        <div class="result-link">${fileUrl}</div>
+        <button type="button" id="copyButton" class="copy-btn">คัดลอกลิงก์</button>
+      `;
+      
+      document.getElementById('copyButton').addEventListener('click', function() {
+        const tempTextArea = document.createElement('textarea');
+        tempTextArea.value = fileUrl;
+        tempTextArea.style.position = 'absolute';
+        tempTextArea.style.left = '-9999px';
+        document.body.appendChild(tempTextArea);
+        tempTextArea.select();
+        try {
+            document.execCommand('copy');
+            const copyBtn = document.getElementById('copyButton');
+            copyBtn.textContent = 'คัดลอกแล้ว!';
+            setTimeout(() => { copyBtn.textContent = 'คัดลอกลิงก์'; }, 2000);
+        } catch (err) {
+            console.error('ไม่สามารถคัดลอกลิงก์ได้:', err);
+            alert('ขออภัยค่ะ ไม่สามารถคัดลอกลิงก์ได้โดยอัตโนมัติ');
+        }
+        document.body.removeChild(tempTextArea);
+      });
+
+      submitButton.disabled = false;
+    }
+
+    function onUploadFailure(error) {
+      statusDiv.className = 'error';
+      
+      let errorMessage = error.message;
+      if (errorMessage.includes("Failed to fetch") || errorMessage.includes("NetworkError") || errorMessage.includes("CORS")) {
+        errorMessage = `ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้ ปัญหานี้มักเกิดจากการตั้งค่าการ Deploy ไม่ถูกต้อง <br><br>
+                        <strong>สิ่งที่ต้องตรวจสอบ:</strong><br>
+                        1. ไปที่โปรเจกต์ Apps Script แล้วกด "Deploy" > "Manage deployments" <br>
+                        2. กดไอคอนรูปดินสอ (Edit) <br>
+                        3. เปลี่ยน "Version" เป็น <strong>"New version"</strong> <br>
+                        4. ตรวจสอบว่า "Who has access" เป็น <strong>"Anyone"</strong> <br>
+                        5. กดปุ่ม "Deploy" แล้วลองใช้งานอีกครั้ง`;
+      }
+      
+      statusDiv.innerHTML = `<strong>เกิดข้อผิดพลาด:</strong><br>${errorMessage}`;
+      submitButton.disabled = false;
+    }
+  </script>
+</body>
+</html>
