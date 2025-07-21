@@ -1212,7 +1212,7 @@
                     return;
                 }
 
-                leaderboardList.slice(0, 20).forEach((p, index) => {
+                leaderboardList.slice(0, 500).forEach((p, index) => {
                     const row = document.createElement('tr');
                     // Use the correct property names from your sheet: name, classInfo, totalScore
                     row.innerHTML = `
