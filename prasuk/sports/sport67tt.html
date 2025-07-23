@@ -14,22 +14,36 @@
     <style>
         body { 
             font-family: 'Sarabun', sans-serif; 
-            background-color: #f0f2f5;
+            background-image: url('https://lh3.googleusercontent.com/d/1akq2oOECS6vzP6M36kkysfcieirXy_go');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
         }
         .card {
             border: none;
             border-radius: 0.75rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            background-color: rgba(255, 255, 255, 0.95);
         }
+        /* [ปรับปรุง] ดีไซน์ส่วนหัวใหม่ทั้งหมด */
         .card-header {
-            background-color: #0d6efd;
+            background-image: linear-gradient(45deg, #0d6efd, #0dcaf0);
             color: white;
             border-top-left-radius: 0.75rem;
             border-top-right-radius: 0.75rem;
-            padding: 1.5rem;
+            padding: 2rem;
+            border-bottom: 0;
         }
-        h1 { font-size: 1.75rem; margin: 0; }
-        h5 { font-size: 1rem; margin: 0; opacity: 0.9; }
+        .card-header h1 { 
+            font-size: 2rem; 
+            font-weight: 700;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+        }
+        .card-header h5 { 
+            font-size: 1.1rem; 
+            opacity: 0.9;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
         #loading { text-align: center; padding: 50px; font-size: 1.2rem; }
         #dataTable thead { background-color: #6c757d; }
         .card-body .table { margin-bottom: 0; }
@@ -39,6 +53,10 @@
     <div class="container my-2 my-md-4">
         <div class="card">
             <div class="card-header text-center">
+                <!-- [ปรับปรุง] เพิ่มไอคอนเหรียญรางวัล -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-patch-check-fill mb-3" viewBox="0 0 16 16" style="color: rgba(255, 255, 255, 0.8);">
+                    <path d="M10.067.87a2.89 2.89 0 0 0-4.134 0l-.622.638-.89-.011a2.89 2.89 0 0 0-2.924 2.924l.01.89-.636.622a2.89 2.89 0 0 0 0 4.134l.637.622-.011.89a2.89 2.89 0 0 0 2.924 2.924l.89-.01.622.636a2.89 2.89 0 0 0 4.134 0l.622-.637.89.011a2.89 2.89 0 0 0 2.924-2.924l-.01-.89.636-.622a2.89 2.89 0 0 0 0-4.134l-.637-.622.011-.89a2.89 2.89 0 0 0-2.924-2.924l-.89.01-.622-.636zm.287 5.984-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7 8.793l2.646-2.647a.5.5 0 0 1 .708.708z"/>
+                </svg>
                 <h1>ระบบสืบค้นเกียรติบัตร</h1>
                 <h5 class="fw-normal">การแข่งขันกีฬา-กรีฑา ศูนย์เครือข่ายโรงเรียนที่ 10 ชุมพวง “จามจุรีเกมส์ 2567”</h5>
             </div>
