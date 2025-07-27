@@ -37,9 +37,51 @@
 
     <div id="app-container" class="w-full max-w-2xl bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-8 transition-all duration-500">
 
-        <!-- หน้าจอกรอกข้อมูลนักเรียน -->
-        <div id="student-info-screen">
+        <!-- หน้าจอเลือประเภทผู้ใช้ -->
+        <div id="login-type-screen">
             <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6 text-center">ระบบทำข้อสอบออนไลน์</h1>
+            <div class="space-y-4">
+                <button onclick="showInternalLogin()" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 px-4 rounded-lg transition-colors duration-300 text-lg">
+                    นักเรียนในโรงเรียน
+                </button>
+                <button onclick="showExternalLogin()" class="w-full bg-gray-500 hover:bg-gray-600 text-white font-bold py-4 px-4 rounded-lg transition-colors duration-300 text-lg">
+                    นักเรียนภายนอก / บุคคลทั่วไป
+                </button>
+            </div>
+        </div>
+
+        <!-- หน้าจอล็อกอินสำหรับนักเรียนในโรงเรียน -->
+        <div id="internal-login-screen" class="hidden">
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6 text-center">สำหรับนักเรียนในโรงเรียน</h1>
+            <form id="internal-login-form" class="space-y-4">
+                <div>
+                    <label for="student-id" class="block text-left font-medium text-gray-700">กรุณากรอกรหัสนักเรียน</label>
+                    <input type="text" id="student-id" inputmode="numeric" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" required>
+                </div>
+                 <div id="internal-login-loader" class="text-center hidden">
+                     <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                 </div>
+                 <div id="internal-login-error" class="text-red-500 text-center font-semibold hidden"></div>
+                <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-300">
+                    ค้นหาข้อมูล
+                </button>
+                <button type="button" onclick="showLoginTypeScreen()" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-4 rounded-lg transition-colors duration-300 mt-2">
+                    กลับ
+                </button>
+            </form>
+            <div id="student-confirmation-section" class="hidden mt-6 text-center p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <p class="font-semibold text-gray-700">กรุณายืนยันข้อมูลของคุณ:</p>
+                <p id="confirm-student-name" class="text-xl font-bold text-blue-800"></p>
+                <p id="confirm-student-details" class="text-gray-600"></p>
+                <button id="confirm-student-btn" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-300 mt-4">
+                    ข้อมูลถูกต้อง, เริ่มทำข้อสอบ
+                </button>
+            </div>
+        </div>
+
+        <!-- หน้าจอกรอกข้อมูลนักเรียน (ภายนอก) -->
+        <div id="student-info-screen" class="hidden">
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6 text-center">สำหรับนักเรียนภายนอก</h1>
             <form id="student-info-form" class="space-y-4">
                 <div>
                     <label for="student-name" class="block text-left font-medium text-gray-700">ชื่อ - สกุล</label>
@@ -55,6 +97,9 @@
                 </div>
                 <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-300 mt-4 !mt-6">
                     ยืนยันและเลือกวิชา
+                </button>
+                 <button type="button" onclick="showLoginTypeScreen()" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-4 rounded-lg transition-colors duration-300 mt-2">
+                    กลับ
                 </button>
             </form>
         </div>
@@ -127,7 +172,7 @@
             </button>
         </div>
 
-        <!-- **อัปเดต:** เพิ่มข้อมูลผู้จัดทำ -->
+        <!-- ข้อมูลผู้จัดทำ -->
         <div class="text-center mt-8 border-t pt-4">
             <p class="text-sm text-gray-600">
                 ผู้จัดทำ: 
@@ -151,17 +196,26 @@
         let studentInfo = {};
         let currentSubject = '';
         let allSubjects = [];
+        let highScores = {}; // **เพิ่ม:** สำหรับเก็บคะแนนสูงสุด
         let currentQuestions = [];
         let currentQuestionIndex = 0;
         let score = 0;
         let answerLog = [];
         let currentShuffledOptions = [];
 
+        // Screen elements
+        const loginTypeScreen = document.getElementById('login-type-screen');
+        const internalLoginScreen = document.getElementById('internal-login-screen');
         const studentInfoScreen = document.getElementById('student-info-screen');
-        const studentInfoForm = document.getElementById('student-info-form');
         const subjectSelectionScreen = document.getElementById('subject-selection-screen');
         const quizScreen = document.getElementById('quiz-screen');
         const resultScreen = document.getElementById('result-screen');
+        
+        // Form elements
+        const internalLoginForm = document.getElementById('internal-login-form');
+        const studentInfoForm = document.getElementById('student-info-form');
+
+        // Other elements
         const loader = document.getElementById('loader');
         const subjectButtonsContainer = document.getElementById('subject-buttons');
         const errorMessage = document.getElementById('error-message');
@@ -182,6 +236,12 @@
         const imageModal = document.getElementById('image-modal');
         const modalImg = document.getElementById('modal-img');
         const closeModalBtn = document.getElementById('close-modal-btn');
+        
+        // Internal Login Elements
+        const internalLoginLoader = document.getElementById('internal-login-loader');
+        const internalLoginError = document.getElementById('internal-login-error');
+        const studentConfirmationSection = document.getElementById('student-confirmation-section');
+        const confirmStudentBtn = document.getElementById('confirm-student-btn');
 
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
@@ -195,6 +255,32 @@
             event.returnValue = '';
         }
 
+        // --- UI Navigation ---
+        function showLoginTypeScreen() {
+            loginTypeScreen.classList.remove('hidden');
+            internalLoginScreen.classList.add('hidden');
+            studentInfoScreen.classList.add('hidden');
+        }
+
+        function showInternalLogin() {
+            loginTypeScreen.classList.add('hidden');
+            internalLoginScreen.classList.remove('hidden');
+        }
+
+        function showExternalLogin() {
+            loginTypeScreen.classList.add('hidden');
+            studentInfoScreen.classList.remove('hidden');
+        }
+
+        function proceedToSubjectSelection() {
+            internalLoginScreen.classList.add('hidden');
+            studentInfoScreen.classList.add('hidden');
+            subjectSelectionScreen.classList.remove('hidden');
+            document.getElementById('student-display-name').textContent = `ผู้สอบ: ${studentInfo.name}`;
+            loadSubjectsAndScores(); // **เปลี่ยน** มาเรียกฟังก์ชันใหม่
+        }
+
+
         // --- Event Listeners ---
         studentInfoForm.addEventListener('submit', (e) => {
             e.preventDefault();
@@ -203,10 +289,47 @@
                 class: document.getElementById('student-class').value,
                 number: document.getElementById('student-number').value,
             };
-            studentInfoScreen.classList.add('hidden');
-            subjectSelectionScreen.classList.remove('hidden');
-            document.getElementById('student-display-name').textContent = `ผู้สอบ: ${studentInfo.name}`;
-            loadSubjects();
+            proceedToSubjectSelection();
+        });
+
+        internalLoginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const studentId = document.getElementById('student-id').value;
+            if (!studentId) return;
+
+            internalLoginLoader.classList.remove('hidden');
+            internalLoginError.classList.add('hidden');
+            studentConfirmationSection.classList.add('hidden');
+
+            const payload = { action: 'getStudentInfo', studentId: studentId };
+
+            try {
+                 const response = await fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(payload),
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                });
+                if (!response.ok) throw new Error('Network response was not ok.');
+                
+                const result = await response.json();
+                if (result.status === 'success') {
+                    studentInfo = result.data;
+                    document.getElementById('confirm-student-name').textContent = studentInfo.name;
+                    document.getElementById('confirm-student-details').textContent = `ชั้น: ${studentInfo.class} เลขที่: ${studentInfo.number}`;
+                    studentConfirmationSection.classList.remove('hidden');
+                } else {
+                    throw new Error(result.message || 'ไม่พบข้อมูลนักเรียน');
+                }
+            } catch (error) {
+                internalLoginError.textContent = error.message;
+                internalLoginError.classList.remove('hidden');
+            } finally {
+                internalLoginLoader.classList.add('hidden');
+            }
+        });
+
+        confirmStudentBtn.addEventListener('click', () => {
+            proceedToSubjectSelection();
         });
         
         nextQuestionBtn.addEventListener('click', () => {
@@ -229,30 +352,73 @@
             }
         });
 
-        // --- Functions ---
-        async function loadSubjects() {
+        // --- Main Functions ---
+        // **ใหม่:** ฟังก์ชันสำหรับโหลดรายวิชาและคะแนนสูงสุดพร้อมกัน
+        async function loadSubjectsAndScores() {
             loader.classList.remove('hidden');
+            subjectButtonsContainer.innerHTML = '';
+            errorMessage.classList.add('hidden');
+
             try {
-                const response = await fetch(API_URL);
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                allSubjects = await response.json();
+                // เตรียม request ทั้งสองอย่าง
+                const subjectsPromise = fetch(API_URL);
+                const highScoresPayload = { action: 'getHighScores', studentInfo: studentInfo };
+                const highScoresPromise = fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(highScoresPayload),
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                });
+
+                // รอให้ทั้งสองอย่างเสร็จสิ้น
+                const [subjectsResponse, highScoresResponse] = await Promise.all([subjectsPromise, highScoresPromise]);
+
+                if (!subjectsResponse.ok) throw new Error(`HTTP error while fetching subjects! status: ${subjectsResponse.status}`);
+                if (!highScoresResponse.ok) throw new Error(`HTTP error while fetching high scores! status: ${highScoresResponse.status}`);
+                
+                allSubjects = await subjectsResponse.json();
+                const highScoresResult = await highScoresResponse.json();
+
                 if (allSubjects.error) throw new Error(allSubjects.error);
+                if (highScoresResult.status !== 'success') throw new Error(highScoresResult.message || 'Could not fetch scores');
+
+                highScores = highScoresResult.data || {};
+
                 loader.classList.add('hidden');
                 displaySubjects();
+
             } catch (error) {
-                console.error('ไม่สามารถโหลดรายชื่อวิชาได้:', error);
+                console.error('ไม่สามารถโหลดข้อมูลวิชาและคะแนนได้:', error);
                 loader.classList.add('hidden');
-                errorMessage.textContent = 'เกิดข้อผิดพลาด: ไม่สามารถเชื่อมต่อกับฐานข้อมูลข้อสอบได้';
+                errorMessage.textContent = 'เกิดข้อผิดพลาด: ไม่สามารถเชื่อมต่อกับฐานข้อมูลได้';
                 errorMessage.classList.remove('hidden');
             }
         }
 
+        // **แก้ไข:** ให้แสดงคะแนนสูงสุดในปุ่ม
         function displaySubjects() {
             subjectButtonsContainer.innerHTML = '';
             allSubjects.forEach(subject => {
                 const button = document.createElement('button');
-                button.textContent = subject;
-                button.className = 'w-full bg-white hover:bg-gray-200 border border-gray-300 text-gray-700 font-semibold py-4 px-4 rounded-lg transition-all duration-300 transform hover:scale-105';
+                button.className = 'w-full bg-white hover:bg-gray-100 border border-gray-300 text-gray-700 font-semibold py-3 px-4 rounded-lg transition-all duration-300 transform hover:scale-105 text-left';
+                
+                const subjectNameSpan = document.createElement('span');
+                subjectNameSpan.className = 'text-lg';
+                subjectNameSpan.textContent = subject;
+                button.appendChild(subjectNameSpan);
+
+                const highScoreInfo = highScores[subject];
+                if (highScoreInfo) {
+                    const scoreSpan = document.createElement('span');
+                    scoreSpan.className = 'block text-sm font-normal text-blue-600 mt-1';
+                    scoreSpan.textContent = `คะแนนสูงสุด: ${highScoreInfo.score} / ${highScoreInfo.total}`;
+                    button.appendChild(scoreSpan);
+                } else {
+                    const noScoreSpan = document.createElement('span');
+                    noScoreSpan.className = 'block text-sm font-normal text-gray-400 mt-1';
+                    noScoreSpan.textContent = 'ยังไม่มีประวัติการสอบ';
+                    button.appendChild(noScoreSpan);
+                }
+
                 button.onclick = () => startQuiz(subject);
                 subjectButtonsContainer.appendChild(button);
             });
@@ -482,10 +648,22 @@
 
         function restartQuiz() {
             window.removeEventListener('beforeunload', beforeUnloadHandler);
-
+            
+            // Reset all screens
             resultScreen.classList.add('hidden');
-            studentInfoScreen.classList.remove('hidden');
+            quizScreen.classList.add('hidden');
+            subjectSelectionScreen.classList.add('hidden');
+            internalLoginScreen.classList.add('hidden');
+            studentInfoScreen.classList.add('hidden');
+
+            // Show initial login type screen
+            loginTypeScreen.classList.remove('hidden');
+
+            // Reset forms
             studentInfoForm.reset();
+            internalLoginForm.reset();
+            document.getElementById('student-confirmation-section').classList.add('hidden');
+            document.getElementById('internal-login-error').classList.add('hidden');
         }
 
     </script>
