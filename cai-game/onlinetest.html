@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>แอปทำข้อสอบออนไลน์</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 1. นำเข้า Tone.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -35,10 +37,25 @@
 </head>
 <body class="min-h-screen flex items-center justify-center p-4">
 
-    <div id="app-container" class="w-full max-w-2xl bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-8 transition-all duration-500">
+    <div id="app-container" class="relative w-full max-w-2xl bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-8 transition-all duration-500">
+        
+        <!-- Sound Toggle Button -->
+        <button id="sound-toggle-btn" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 focus:outline-none z-10 hidden">
+            <!-- Speaker Icon will be injected by JS -->
+        </button>
 
-        <!-- หน้าจอเลือประเภทผู้ใช้ -->
-        <div id="login-type-screen">
+        <!-- Welcome Screen to unlock audio -->
+        <div id="welcome-screen">
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-4 text-center">ระบบทำข้อสอบออนไลน์</h1>
+            <p class="text-center text-gray-600 mb-8">พร้อมแล้วเริ่มทำข้อสอบกันเลย!</p>
+            <button onclick="startApp()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-4 rounded-lg transition-colors duration-300 text-xl transform hover:scale-105 shadow-lg">
+                🚀 เริ่มทำแบบทดสอบ
+            </button>
+        </div>
+
+
+        <!-- หน้าจอเลือประเภทผู้ใช้ (now hidden by default) -->
+        <div id="login-type-screen" class="hidden">
             <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6 text-center">ระบบทำข้อสอบออนไลน์</h1>
             <div class="space-y-4">
                 <button onclick="showInternalLogin()" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 px-4 rounded-lg transition-colors duration-300 text-lg">
@@ -189,21 +206,30 @@
         <button id="close-modal-btn" class="absolute top-4 right-4 text-white text-4xl font-bold">&times;</button>
     </div>
 
-
     <script>
         const API_URL = 'https://script.google.com/macros/s/AKfycbxA6iM_zihkKBJo8fb09ADVjy5qiKnwsWI-haEHxn-uynKzN2ZHjT49ygwn-RKzb0hO9Q/exec';
 
         let studentInfo = {};
         let currentSubject = '';
         let allSubjects = [];
-        let highScores = {}; // **เพิ่ม:** สำหรับเก็บคะแนนสูงสุด
+        let highScores = {};
         let currentQuestions = [];
         let currentQuestionIndex = 0;
         let score = 0;
         let answerLog = [];
         let currentShuffledOptions = [];
 
+        // --- NEW Tone.js Audio Setup ---
+        let sfx = {};
+        let isSoundEnabled = true;
+        let audioInitialized = false; 
+
+        const soundToggleButton = document.getElementById('sound-toggle-btn');
+        const speakerOnIcon = `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /></svg>`;
+        const speakerOffIcon = `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14l2-2m0 0l2-2m-2 2l-2 2m2-2l2 2" /></svg>`;
+
         // Screen elements
+        const welcomeScreen = document.getElementById('welcome-screen');
         const loginTypeScreen = document.getElementById('login-type-screen');
         const internalLoginScreen = document.getElementById('internal-login-screen');
         const studentInfoScreen = document.getElementById('student-info-screen');
@@ -243,6 +269,79 @@
         const studentConfirmationSection = document.getElementById('student-confirmation-section');
         const confirmStudentBtn = document.getElementById('confirm-student-btn');
 
+        // --- Tone.js Audio Functions ---
+        function initializeAudio() {
+            if (audioInitialized) return;
+            try {
+                // สร้าง Synthesizers สำหรับเสียงต่างๆ
+                sfx.click = new Tone.Synth({
+                    oscillator: { type: "sine" },
+                    envelope: { attack: 0.005, decay: 0.1, sustain: 0.02, release: 0.1 }
+                }).toDestination();
+                
+                sfx.correct = new Tone.PolySynth(Tone.Synth, {
+                    oscillator: { type: "fmsine" },
+                    envelope: { attack: 0.01, decay: 0.2, sustain: 0.2, release: 0.2 }
+                }).toDestination();
+
+                sfx.wrong = new Tone.Synth({
+                    oscillator: { type: 'fmsquare', modulationType: 'sawtooth' },
+                    envelope: { attack: 0.01, decay: 0.3, sustain: 0, release: 0.1 }
+                }).toDestination();
+
+                sfx.complete = new Tone.PolySynth(Tone.Synth, {
+                    oscillator: { type: 'triangle8' }
+                }).toDestination();
+                
+                // ปรับเสียง Master Volume
+                // 0 คือ 100%, ค่าลบจะเบาลง
+                Tone.Master.volume.value = 0; 
+                
+                audioInitialized = true;
+                console.log('Tone.js audio system initialized.');
+            } catch (e) {
+                console.error('Failed to initialize Tone.js', e);
+                isSoundEnabled = false;
+                audioInitialized = false;
+            }
+        }
+
+        function playSound(soundName) {
+            if (!isSoundEnabled || !audioInitialized) return;
+            
+            if (sfx[soundName]) {
+                const now = Tone.now();
+                switch(soundName) {
+                    case 'click':
+                        sfx.click.triggerAttackRelease('C5', '16n', now);
+                        break;
+                    case 'correct':
+                        sfx.correct.triggerAttackRelease(['C5', 'E5', 'G5'], '8n', now);
+                        break;
+                    case 'wrong':
+                        sfx.wrong.triggerAttackRelease('A2', '8n', now);
+                        break;
+                    case 'complete':
+                        sfx.complete.triggerAttackRelease(['C4', 'E4', 'G4', 'C5'], '8n', now);
+                        break;
+                }
+            }
+        }
+
+        function toggleSound() {
+            isSoundEnabled = !isSoundEnabled;
+            // Tone.js ใช้ Master.mute ในการเปิด/ปิดเสียงทั้งหมด
+            Tone.Master.mute = !isSoundEnabled;
+            updateSoundIcon();
+            if(isSoundEnabled) {
+                playSound('click');
+            }
+        }
+
+        function updateSoundIcon() {
+             soundToggleButton.innerHTML = isSoundEnabled ? speakerOnIcon : speakerOffIcon;
+        }
+
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -256,28 +355,51 @@
         }
 
         // --- UI Navigation ---
+        async function startApp() {
+            // CRITICAL: Initialize audio on the very first user interaction
+            if (!audioInitialized) {
+                await Tone.start();
+                console.log('Audio Context started by user interaction.');
+                initializeAudio();
+            }
+            playSound('click');
+            welcomeScreen.classList.add('hidden');
+            loginTypeScreen.classList.remove('hidden');
+            loginTypeScreen.classList.add('fade-in');
+            if (audioInitialized) {
+                soundToggleButton.classList.remove('hidden'); 
+            }
+        }
+
         function showLoginTypeScreen() {
+            playSound('click');
             loginTypeScreen.classList.remove('hidden');
             internalLoginScreen.classList.add('hidden');
             studentInfoScreen.classList.add('hidden');
         }
 
         function showInternalLogin() {
+            playSound('click');
             loginTypeScreen.classList.add('hidden');
             internalLoginScreen.classList.remove('hidden');
+            internalLoginScreen.classList.add('fade-in');
         }
 
         function showExternalLogin() {
+            playSound('click');
             loginTypeScreen.classList.add('hidden');
             studentInfoScreen.classList.remove('hidden');
+            studentInfoScreen.classList.add('fade-in');
         }
 
         function proceedToSubjectSelection() {
+            playSound('click');
             internalLoginScreen.classList.add('hidden');
             studentInfoScreen.classList.add('hidden');
             subjectSelectionScreen.classList.remove('hidden');
+            subjectSelectionScreen.classList.add('fade-in');
             document.getElementById('student-display-name').textContent = `ผู้สอบ: ${studentInfo.name}`;
-            loadSubjectsAndScores(); // **เปลี่ยน** มาเรียกฟังก์ชันใหม่
+            loadSubjectsAndScores();
         }
 
 
@@ -294,6 +416,7 @@
 
         internalLoginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            playSound('click');
             const studentId = document.getElementById('student-id').value;
             if (!studentId) return;
 
@@ -333,6 +456,7 @@
         });
         
         nextQuestionBtn.addEventListener('click', () => {
+            playSound('click');
             currentQuestionIndex++;
             displayQuestion();
         });
@@ -353,14 +477,12 @@
         });
 
         // --- Main Functions ---
-        // **ใหม่:** ฟังก์ชันสำหรับโหลดรายวิชาและคะแนนสูงสุดพร้อมกัน
         async function loadSubjectsAndScores() {
             loader.classList.remove('hidden');
             subjectButtonsContainer.innerHTML = '';
             errorMessage.classList.add('hidden');
 
             try {
-                // เตรียม request ทั้งสองอย่าง
                 const subjectsPromise = fetch(API_URL);
                 const highScoresPayload = { action: 'getHighScores', studentInfo: studentInfo };
                 const highScoresPromise = fetch(API_URL, {
@@ -369,7 +491,6 @@
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                 });
 
-                // รอให้ทั้งสองอย่างเสร็จสิ้น
                 const [subjectsResponse, highScoresResponse] = await Promise.all([subjectsPromise, highScoresPromise]);
 
                 if (!subjectsResponse.ok) throw new Error(`HTTP error while fetching subjects! status: ${subjectsResponse.status}`);
@@ -394,7 +515,6 @@
             }
         }
 
-        // **แก้ไข:** ให้แสดงคะแนนสูงสุดในปุ่ม
         function displaySubjects() {
             subjectButtonsContainer.innerHTML = '';
             allSubjects.forEach(subject => {
@@ -419,7 +539,10 @@
                     button.appendChild(noScoreSpan);
                 }
 
-                button.onclick = () => startQuiz(subject);
+                button.onclick = () => {
+                    playSound('click');
+                    startQuiz(subject);
+                };
                 subjectButtonsContainer.appendChild(button);
             });
         }
@@ -434,6 +557,7 @@
 
             subjectSelectionScreen.classList.add('hidden');
             quizScreen.classList.remove('hidden');
+            quizScreen.classList.add('fade-in');
             document.getElementById('quiz-title').textContent = `วิชา: ${subjectName}`;
             document.getElementById('question-text').textContent = 'กำลังโหลดข้อสอบ...';
             document.getElementById('options-container').innerHTML = '';
@@ -522,6 +646,7 @@
         }
 
         async function selectAnswer(button, selectedOptionText) {
+            playSound('click');
             const buttons = document.querySelectorAll('#options-container button');
             buttons.forEach(btn => {
                 btn.disabled = true;
@@ -560,11 +685,13 @@
                 if (result.isCorrect) {
                     score++;
                     answerLog.push(1);
+                    playSound('correct');
                     feedbackContainer.className = 'mt-4 p-4 rounded-lg min-h-[90px] bg-green-100 border-l-4 border-green-500';
                     feedbackMessage.textContent = 'ถูกต้องครับ!';
                     feedbackMessage.className = 'font-bold text-lg text-green-700';
                 } else {
                     answerLog.push(0);
+                    playSound('wrong');
                     feedbackContainer.className = 'mt-4 p-4 rounded-lg min-h-[90px] bg-red-100 border-l-4 border-red-500';
                     feedbackMessage.textContent = 'ยังไม่ถูกนะครับ';
                     feedbackMessage.className = 'font-bold text-lg text-red-700';
@@ -592,6 +719,7 @@
         }
         
         function showResults() {
+            playSound('complete');
             window.removeEventListener('beforeunload', beforeUnloadHandler);
 
             quizScreen.classList.add('hidden');
@@ -647,24 +775,30 @@
         }
 
         function restartQuiz() {
+            playSound('click');
             window.removeEventListener('beforeunload', beforeUnloadHandler);
             
-            // Reset all screens
             resultScreen.classList.add('hidden');
             quizScreen.classList.add('hidden');
             subjectSelectionScreen.classList.add('hidden');
             internalLoginScreen.classList.add('hidden');
             studentInfoScreen.classList.add('hidden');
+            welcomeScreen.classList.remove('hidden');
+            welcomeScreen.classList.add('fade-in');
+            
+            soundToggleButton.classList.add('hidden');
 
-            // Show initial login type screen
-            loginTypeScreen.classList.remove('hidden');
-
-            // Reset forms
             studentInfoForm.reset();
             internalLoginForm.reset();
             document.getElementById('student-confirmation-section').classList.add('hidden');
             document.getElementById('internal-login-error').classList.add('hidden');
         }
+
+        // Initialize sound button
+        document.addEventListener('DOMContentLoaded', () => {
+            soundToggleButton.addEventListener('click', toggleSound);
+            updateSoundIcon();
+        });
 
     </script>
 </body>
