@@ -33,12 +33,6 @@
             opacity: 0;
             pointer-events: none;
         }
-        .app-screen {
-            display: none;
-        }
-        #welcome-screen {
-            display: block;
-        }
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-4">
@@ -47,7 +41,7 @@
         
         <button id="sound-toggle-btn" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 focus:outline-none z-10 hidden"></button>
         
-        <div id="welcome-screen" class="app-screen">
+        <div id="welcome-screen">
             <img src="https://lh3.googleusercontent.com/d/1hEck4UE4_MCadmAVdNQkrrdiFx97QfLX" alt="Logo" class="mx-auto mb-6 w-40 h-auto rounded-2xl shadow-md">
             <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-4 text-center">ระบบทำข้อสอบออนไลน์</h1>
             <p class="text-center text-gray-600 mb-8">พร้อมแล้วเริ่มทำข้อสอบกันเลย!</p>
@@ -59,7 +53,7 @@
             </div>
         </div>
 
-        <div id="login-type-screen" class="app-screen">
+        <div id="login-type-screen" class="hidden">
             <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6 text-center">ระบบทำข้อสอบออนไลน์</h1>
             <div class="space-y-4">
                 <button onclick="showInternalLogin()" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 px-4 rounded-lg transition-colors duration-300 text-lg">
@@ -74,7 +68,7 @@
             </div>
         </div>
 
-        <div id="internal-login-screen" class="app-screen">
+        <div id="internal-login-screen" class="hidden">
             <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6 text-center">สำหรับนักเรียนในโรงเรียน</h1>
             <form id="internal-login-form" class="space-y-4">
                 <div>
@@ -102,7 +96,7 @@
             </div>
         </div>
 
-        <div id="student-info-screen" class="app-screen">
+        <div id="student-info-screen" class="hidden">
             <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6 text-center">สำหรับนักเรียนภายนอก</h1>
             <form id="student-info-form" class="space-y-4">
                 <div>
@@ -126,9 +120,9 @@
             </form>
         </div>
 
-        <div id="subject-selection-screen" class="app-screen text-center">
-            <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-2">กรุณาเลือกวิชา</h1>
-            <p id="student-display-name" class="text-gray-500 mb-6"></p>
+        <div id="subject-selection-screen" class="hidden">
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-2 text-center">กรุณาเลือกวิชา</h1>
+            <p id="student-display-name" class="text-gray-500 mb-6 text-center"></p>
             
             <div class="relative mb-6">
                 <span class="absolute inset-y-0 left-0 flex items-center pl-3">
@@ -143,11 +137,11 @@
                  <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
             </div>
             <div id="subject-buttons" class="space-y-3"></div>
-            <p id="no-subject-found" class="text-gray-500 mt-4 hidden">ไม่พบวิชาที่ค้นหา</p>
-            <div id="error-message" class="mt-6 text-red-500 font-semibold hidden"></div>
+            <p id="no-subject-found" class="text-gray-500 mt-4 hidden text-center">ไม่พบวิชาที่ค้นหา</p>
+            <div id="error-message" class="mt-6 text-red-500 font-semibold hidden text-center"></div>
         </div>
 
-        <div id="quiz-screen" class="app-screen">
+        <div id="quiz-screen" class="hidden">
             <div class="flex justify-between items-center mb-4">
                 <h2 id="quiz-title" class="text-xl md:text-2xl font-bold text-blue-600"></h2>
                 <div id="score-tracker" class="text-lg font-semibold text-gray-700">คะแนน: 0</div>
@@ -190,7 +184,7 @@
             </div>
         </div>
 
-        <div id="result-screen" class="app-screen text-center">
+        <div id="result-screen" class="hidden text-center">
             <h1 class="text-3xl font-bold text-gray-800 mb-2">สรุปผลการทดสอบ</h1>
             <p id="result-subject" class="text-xl text-gray-600 mb-6"></p>
             <div class="bg-blue-100/80 border-l-4 border-blue-500 text-blue-700 p-6 rounded-lg mb-6">
@@ -201,7 +195,7 @@
             <p id="save-status" class="text-gray-500 mt-4 h-6"></p>
             
             <div id="certificate-section" class="mt-6 hidden">
-                <div class="p-4 bg-yellow-100 border-l-4 border-yellow-500 rounded-r-lg">
+                 <div class="p-4 bg-yellow-100 border-l-4 border-yellow-500 rounded-r-lg">
                     <div class="flex">
                         <div class="flex-shrink-0">
                              <svg class="h-10 w-10 text-yellow-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -209,9 +203,9 @@
                             </svg>
                         </div>
                         <div class="ml-3 text-left w-full">
-                            <h3 id="cert-title" class="text-lg font-medium text-yellow-800">ยินดีด้วย! คุณสอบผ่าน</h3>
+                            <h3 class="text-lg font-medium text-yellow-800">ยินดีด้วย! คุณสอบผ่าน</h3>
                             <div class="mt-2 text-sm text-yellow-700">
-                                <p id="cert-subtitle">คุณสามารถดาวน์โหลดเกียรติบัตรเพื่อเป็นที่ระลึกได้</p>
+                                <p>คุณสามารถดาวน์โหลดเกียรติบัตรเพื่อเป็นที่ระลึกได้</p>
                             </div>
                             <div class="mt-4">
                                 <button id="certificate-btn" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-300 inline-flex items-center justify-center" disabled>
@@ -230,50 +224,71 @@
             </button>
         </div>
 
-        <div id="teacher-dashboard-screen" class="app-screen">
-            <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6 text-center">สรุปคะแนนรายวิชา (สำหรับครู)</h1>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div>
-                    <label for="teacher-subject-select" class="block text-sm font-medium text-gray-700">เลือกวิชา</label>
-                    <select id="teacher-subject-select" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"></select>
+        <div id="teacher-dashboard-screen" class="hidden">
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6 text-center">สรุปและตั้งค่า (สำหรับครู)</h1>
+            
+            <!-- Score Filtering Section -->
+            <div class="mb-8 p-4 border rounded-lg">
+                <h2 class="text-xl font-semibold text-gray-700 mb-4">สรุปคะแนนรายวิชา</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label for="teacher-subject-select" class="block text-sm font-medium text-gray-700">เลือกวิชา</label>
+                        <select id="teacher-subject-select" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"></select>
+                    </div>
+                    <div>
+                        <label for="teacher-class-select" class="block text-sm font-medium text-gray-700">เลือกชั้นเรียน</label>
+                        <select id="teacher-class-select" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"></select>
+                    </div>
+                     <div>
+                        <label for="teacher-student-type-select" class="block text-sm font-medium text-gray-700">ประเภทนักเรียน</label>
+                        <select id="teacher-student-type-select" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
+                            <option value="all">ทั้งหมด</option>
+                            <option value="internal">เฉพาะนักเรียนในโรงเรียน</option>
+                        </select>
+                    </div>
                 </div>
-                 <div>
-                    <label for="teacher-class-select" class="block text-sm font-medium text-gray-700">เลือกชั้นเรียน</label>
-                    <select id="teacher-class-select" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"></select>
-                </div>
-            </div>
-             <button id="teacher-fetch-scores-btn" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 mb-6">
-                แสดงผลคะแนน
-            </button>
-             <div id="teacher-loader" class="text-center hidden mb-4">
-                <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-            </div>
-            <div id="teacher-results-container" class="hidden">
-                 <button id="teacher-download-excel-btn" class="w-full md:w-auto bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 mb-4">
-                    ดาวน์โหลดเป็น Excel
+                <button id="teacher-fetch-scores-btn" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 mb-6">
+                    แสดงผลคะแนน
                 </button>
-                <div class="overflow-x-auto bg-white rounded-lg shadow">
-                    <table id="teacher-scores-table" class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">เลขที่</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ชื่อ - สกุล</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ชั้น</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">คะแนนที่ได้</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">จำนวนข้อ</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            <!-- Score rows will be injected here -->
-                        </tbody>
-                    </table>
+                <div id="teacher-loader-scores" class="text-center hidden mb-4">
+                    <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                </div>
+                <div id="teacher-results-container" class="hidden">
+                    <button id="teacher-download-excel-btn" class="w-full md:w-auto bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 mb-4">
+                        ดาวน์โหลดเป็น Excel
+                    </button>
+                    <div class="overflow-x-auto bg-white rounded-lg shadow">
+                        <table id="teacher-scores-table" class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">เลขที่</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ชื่อ - สกุล</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ชั้น</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">คะแนนที่ได้</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">จำนวนข้อ</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
+
+            <!-- Quiz Settings Section -->
+            <div class="p-4 border rounded-lg">
+                <h2 class="text-xl font-semibold text-gray-700 mb-4">ตั้งค่าการเฉลยข้อสอบ</h2>
+                 <div id="teacher-loader-settings" class="text-center mb-4">
+                    <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-500"></div>
+                </div>
+                <div id="quiz-settings-container" class="space-y-3">
+                    <!-- Settings will be injected here -->
+                </div>
+            </div>
+
              <button onclick="logoutTeacher()" class="w-full bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 mt-6">
                 ออกจากระบบครู
             </button>
         </div>
-
 
         <div class="text-center mt-8 border-t pt-4">
             <p class="text-sm text-gray-600">
@@ -294,25 +309,22 @@
         const API_URL = 'https://script.google.com/macros/s/AKfycbxA6iM_zihkKBJo8fb09ADVjy5qiKnwsWI-haEHxn-uynKzN2ZHjT49ygwn-RKzb0hO9Q/exec';
 
         // --- STATE MANAGEMENT ---
-        let studentInfo = {};
-        let currentSubject = '';
-        let allSubjects = [];
-        let highScores = {};
-        let currentQuestions = [];
-        let currentQuestionIndex = 0;
-        let score = 0;
-        let answerLog = [];
-        
-        // --- AUDIO ---
-        let sfx = {};
-        let isSoundEnabled = true;
-        let audioInitialized = false; 
+        let studentInfo = {}, currentSubject = '', allSubjects = [], highScores = {}, currentQuestions = [], currentQuestionIndex = 0, score = 0, answerLog = [], currentShuffledOptions = [], quizSettings = {};
+        let sfx = {}, isSoundEnabled = true, audioInitialized = false; 
 
         // --- DOM ELEMENTS ---
         const soundToggleButton = document.getElementById('sound-toggle-btn');
         const speakerOnIcon = `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /></svg>`;
         const speakerOffIcon = `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14l2-2m0 0l2-2m-2 2l-2 2m2-2l2 2" /></svg>`;
-        const allScreens = document.querySelectorAll('.app-screen');
+        const allScreens = document.querySelectorAll('#app-container > div[id$="-screen"]');
+        const welcomeScreen = document.getElementById('welcome-screen');
+        const loginTypeScreen = document.getElementById('login-type-screen');
+        const internalLoginScreen = document.getElementById('internal-login-screen');
+        const studentInfoScreen = document.getElementById('student-info-screen');
+        const subjectSelectionScreen = document.getElementById('subject-selection-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultScreen = document.getElementById('result-screen');
+        const teacherDashboardScreen = document.getElementById('teacher-dashboard-screen');
         const subjectSearchInput = document.getElementById('subject-search-input');
         const noSubjectFound = document.getElementById('no-subject-found');
         
@@ -356,15 +368,12 @@
             return newArray;
         }
         
-        function switchScreen(screenElement) {
-            allScreens.forEach(screen => {
-                screen.style.display = 'none';
-                screen.classList.remove('fade-in');
-            });
-            screenElement.style.display = 'block';
-            screenElement.classList.add('fade-in');
+        function switchScreen(screenToShow) {
+            allScreens.forEach(screen => screen.classList.add('hidden'));
+            screenToShow.classList.remove('hidden');
+            screenToShow.classList.add('fade-in');
         }
-
+        
         // --- UI FLOW ---
         async function startApp() {
             if (!audioInitialized) {
@@ -372,37 +381,26 @@
                 initializeAudio();
             }
             playSound('click');
-            switchScreen(document.getElementById('login-type-screen'));
+            switchScreen(loginTypeScreen);
             if (audioInitialized) {
                 soundToggleButton.innerHTML = isSoundEnabled ? speakerOnIcon : speakerOffIcon;
-                soundToggleButton.style.display = 'block';
+                soundToggleButton.classList.remove('hidden'); 
             }
         }
 
         function showWelcomeScreen() {
              playSound('click');
-             switchScreen(document.getElementById('welcome-screen'));
-             soundToggleButton.style.display = 'none';
+             switchScreen(welcomeScreen);
+             soundToggleButton.classList.add('hidden');
         }
 
-        function showLoginTypeScreen() {
-            playSound('click');
-            switchScreen(document.getElementById('login-type-screen'));
-        }
-
-        function showInternalLogin() {
-            playSound('click');
-            switchScreen(document.getElementById('internal-login-screen'));
-        }
-
-        function showExternalLogin() {
-            playSound('click');
-            switchScreen(document.getElementById('student-info-screen'));
-        }
+        function showLoginTypeScreen() { playSound('click'); switchScreen(loginTypeScreen); }
+        function showInternalLogin() { playSound('click'); switchScreen(internalLoginScreen); }
+        function showExternalLogin() { playSound('click'); switchScreen(studentInfoScreen); }
 
         function proceedToSubjectSelection() {
             playSound('click');
-            switchScreen(document.getElementById('subject-selection-screen'));
+            switchScreen(subjectSelectionScreen);
             document.getElementById('student-display-name').textContent = `ผู้สอบ: ${studentInfo.name}`;
             loadSubjectsAndScores();
         }
@@ -424,9 +422,7 @@
             const errorDiv = document.getElementById('internal-login-error');
             const confirmSection = document.getElementById('student-confirmation-section');
 
-            loader.classList.remove('hidden');
-            errorDiv.classList.add('hidden');
-            confirmSection.classList.add('hidden');
+            loader.classList.remove('hidden'); errorDiv.classList.add('hidden'); confirmSection.classList.add('hidden');
             
             try {
                 const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'getStudentInfo', studentId }), headers: { 'Content-Type': 'text/plain;charset=utf-8' }});
@@ -438,8 +434,7 @@
                 document.getElementById('confirm-student-details').textContent = `ชั้น: ${studentInfo.class} เลขที่: ${studentInfo.number}`;
                 confirmSection.classList.remove('hidden');
             } catch (error) {
-                errorDiv.textContent = error.message;
-                errorDiv.classList.remove('hidden');
+                errorDiv.textContent = error.message; errorDiv.classList.remove('hidden');
             } finally {
                 loader.classList.add('hidden');
             }
@@ -452,28 +447,31 @@
             const buttonsContainer = document.getElementById('subject-buttons');
             const errorMsg = document.getElementById('error-message');
 
-            loader.style.display = 'flex';
-            buttonsContainer.innerHTML = '';
-            errorMsg.classList.add('hidden');
+            loader.classList.remove('hidden'); buttonsContainer.innerHTML = ''; errorMsg.classList.add('hidden');
 
             try {
-                const subjectsPromise = fetch(API_URL);
-                const highScoresPromise = fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'getHighScores', studentInfo }), headers: { 'Content-Type': 'text/plain;charset=utf-8' } });
-                const [subjectsResponse, highScoresResponse] = await Promise.all([subjectsPromise, highScoresPromise]);
+                const [subjectsRes, highScoresRes, settingsRes] = await Promise.all([
+                    fetch(API_URL),
+                    fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'getHighScores', studentInfo }), headers: { 'Content-Type': 'text/plain;charset=utf-8' } }),
+                    fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'getQuizSettings' }), headers: { 'Content-Type': 'text/plain;charset=utf-8' }})
+                ]);
 
-                allSubjects = await subjectsResponse.json();
+                allSubjects = await subjectsRes.json();
                 if (allSubjects.error) throw new Error(allSubjects.error);
-
-                const highScoresResult = await highScoresResponse.json();
+                
+                const highScoresResult = await highScoresRes.json();
                 if (highScoresResult.status !== 'success') throw new Error(highScoresResult.message);
                 highScores = highScoresResult.data || {};
+
+                const settingsResult = await settingsRes.json();
+                if (settingsResult.status !== 'success') throw new Error(settingsResult.message);
+                quizSettings = settingsResult.data || {};
                 
                 displaySubjects();
             } catch (error) {
-                errorMsg.textContent = 'เกิดข้อผิดพลาด: ไม่สามารถเชื่อมต่อกับฐานข้อมูลได้';
-                errorMsg.classList.remove('hidden');
+                errorMsg.textContent = 'เกิดข้อผิดพลาด: ไม่สามารถเชื่อมต่อกับฐานข้อมูลได้'; errorMsg.classList.remove('hidden');
             } finally {
-                loader.style.display = 'none';
+                loader.classList.add('hidden');
             }
         }
         
@@ -488,49 +486,26 @@
                 
                 if (result.data) {
                     const { value: resume } = await Swal.fire({
-                        title: 'พบข้อมูลการทำข้อสอบค้างอยู่',
-                        text: "คุณต้องการทำข้อสอบต่อจากเดิม หรือ เริ่มใหม่?",
-                        icon: 'question',
-                        showCancelButton: true,
-                        confirmButtonColor: '#3085d6',
-                        cancelButtonColor: '#d33',
-                        confirmButtonText: 'ทำข้อสอบต่อ',
-                        cancelButtonText: 'เริ่มใหม่'
+                        title: 'พบข้อมูลการทำข้อสอบค้างอยู่', text: "คุณต้องการทำข้อสอบต่อจากเดิม หรือ เริ่มใหม่?", icon: 'question', showCancelButton: true,
+                        confirmButtonColor: '#3085d6', cancelButtonColor: '#d33', confirmButtonText: 'ทำข้อสอบต่อ', cancelButtonText: 'เริ่มใหม่'
                     });
 
                     if (resume) {
                         const state = result.data;
-                        currentSubject = state.subject;
-                        currentQuestions = state.shuffledQuestions;
-                        score = state.score;
-                        answerLog = state.answerLog;
-                        currentQuestionIndex = answerLog.length; // Correctly resume from the next question
-                        switchScreen(document.getElementById('quiz-screen'));
+                        currentSubject = state.subject; currentQuestions = state.shuffledQuestions; score = state.score; answerLog = state.answerLog;
+                        currentQuestionIndex = answerLog.length;
+                        switchScreen(quizScreen);
                         document.getElementById('quiz-title').textContent = `วิชา: ${currentSubject}`;
                         document.getElementById('score-tracker').textContent = `คะแนน: ${score}`;
                         displayQuestion();
-
                     } else {
                         const { value: confirmText } = await Swal.fire({
-                            title: 'ยืนยันการเริ่มใหม่',
-                            html: `ข้อมูลการสอบเดิมจะถูกลบทั้งหมด <br/>กรุณาพิมพ์ "<b>เริ่มใหม่</b>" เพื่อยืนยัน`,
-                            input: 'text',
-                            inputAttributes: { autocapitalize: 'off' },
-                            showCancelButton: true,
-                            confirmButtonText: 'ยืนยัน',
-                            cancelButtonText: 'ยกเลิก',
-                            preConfirm: (text) => {
-                                if (text !== 'เริ่มใหม่') {
-                                    Swal.showValidationMessage('กรุณาพิมพ์ "เริ่มใหม่" ให้ถูกต้อง');
-                                }
-                                return text;
-                            }
+                            title: 'ยืนยันการเริ่มใหม่', html: `ข้อมูลการสอบเดิมจะถูกลบทั้งหมด <br/>กรุณาพิมพ์ "<b>เริ่มใหม่</b>" เพื่อยืนยัน`,
+                            input: 'text', inputAttributes: { autocapitalize: 'off' }, showCancelButton: true, confirmButtonText: 'ยืนยัน', cancelButtonText: 'ยกเลิก',
+                            preConfirm: (text) => { if (text !== 'เริ่มใหม่') { Swal.showValidationMessage('กรุณาพิมพ์ "เริ่มใหม่" ให้ถูกต้อง'); } return text; }
                         });
-                        if (confirmText === 'เริ่มใหม่') {
-                           await clearOnlineStateAndStartNew(subjectName);
-                        } else {
-                           buttonContainer.innerHTML = originalButtonsHTML;
-                        }
+                        if (confirmText === 'เริ่มใหม่') await clearOnlineStateAndStartNew(subjectName);
+                        else buttonContainer.innerHTML = originalButtonsHTML;
                     }
                 } else {
                     startQuiz(subjectName);
@@ -550,15 +525,11 @@
                 container.setAttribute('data-subject-name', subject);
                 
                 const infoDiv = document.createElement('div');
-                infoDiv.className = 'text-left';
                 infoDiv.innerHTML = `<span class="text-lg font-semibold text-gray-800">${subject}</span>`;
-
                 const highScoreInfo = highScores[subject];
-                if (highScoreInfo) {
-                    infoDiv.innerHTML += `<span class="block text-sm font-normal text-blue-600 mt-1">คะแนนสูงสุด: ${highScoreInfo.score} / ${highScoreInfo.total}</span>`;
-                } else {
-                    infoDiv.innerHTML += `<span class="block text-sm font-normal text-gray-400 mt-1">ยังไม่มีประวัติการสอบ</span>`;
-                }
+                infoDiv.innerHTML += highScoreInfo 
+                    ? `<span class="block text-sm font-normal text-blue-600 mt-1">คะแนนสูงสุด: ${highScoreInfo.score} / ${highScoreInfo.total}</span>`
+                    : `<span class="block text-sm font-normal text-gray-400 mt-1">ยังไม่มีประวัติการสอบ</span>`;
                 container.appendChild(infoDiv);
 
                 const buttonsDiv = document.createElement('div');
@@ -601,7 +572,7 @@
         
         async function startQuiz(subjectName) {
             currentSubject = subjectName; currentQuestions = []; currentQuestionIndex = 0; score = 0; answerLog = [];
-            switchScreen(document.getElementById('quiz-screen'));
+            switchScreen(quizScreen);
             document.getElementById('quiz-title').textContent = `วิชา: ${subjectName}`;
             document.getElementById('question-text').textContent = 'กำลังโหลดข้อสอบ...';
             
@@ -610,11 +581,8 @@
                 const questions = await response.json();
                 if (questions.error) throw new Error(questions.error);
                 
-                questions.forEach((q, index) => {
-                    q.originalIndex = index;
-                });
+                questions.forEach((q, index) => q.originalIndex = index);
                 currentQuestions = shuffleArray(questions);
-
                 document.getElementById('score-tracker').textContent = `คะแนน: ${score}`;
                 displayQuestion();
             } catch (error) {
@@ -624,37 +592,29 @@
         }
         
         function displayQuestion() {
-            const feedbackContainer = document.getElementById('feedback-container');
-            const nextButtonContainer = document.getElementById('next-button-container');
-            
             if (currentQuestionIndex >= currentQuestions.length) { showResults(); return; }
             const question = currentQuestions[currentQuestionIndex];
             
-            feedbackContainer.classList.add('hidden');
-            nextButtonContainer.classList.add('hidden');
-            
-            document.getElementById('context-container').style.display = question.context ? 'block' : 'none';
+            document.getElementById('feedback-container').classList.add('hidden');
+            document.getElementById('next-button-container').classList.add('hidden');
+            document.getElementById('context-container').classList.toggle('hidden', !question.context);
             if(question.context) document.getElementById('context-text').textContent = question.context;
 
             const attachmentUrl = question.image;
-            document.getElementById('image-container').style.display = 'none'; 
-            document.getElementById('link-container').style.display = 'none'; 
+            document.getElementById('image-container').classList.add('hidden'); 
+            document.getElementById('link-container').classList.add('hidden'); 
             
             if (attachmentUrl) {
                 const isImage = /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(attachmentUrl) || attachmentUrl.startsWith('https://lh3.googleusercontent.com');
                 if (isImage) {
-                    const imgContainer = document.getElementById('image-container');
-                    const imgLoader = document.getElementById('image-loader');
-                    const imgEl = document.getElementById('question-image');
-                    imgContainer.style.display = 'block';
-                    imgEl.style.display = 'none';
-                    imgLoader.style.display = 'flex';
-                    imgEl.onload = () => { imgLoader.style.display = 'none'; imgEl.style.display = 'block'; };
-                    imgEl.onerror = () => { imgLoader.style.display = 'none'; imgContainer.style.display = 'none'; };
+                    const imgContainer = document.getElementById('image-container'), imgLoader = document.getElementById('image-loader'), imgEl = document.getElementById('question-image');
+                    imgContainer.classList.remove('hidden'); imgEl.classList.add('hidden'); imgLoader.classList.remove('hidden');
+                    imgEl.onload = () => { imgLoader.classList.add('hidden'); imgEl.classList.remove('hidden'); };
+                    imgEl.onerror = () => { imgLoader.classList.add('hidden'); imgContainer.classList.add('hidden'); };
                     imgEl.src = attachmentUrl;
                 } else {
                     document.getElementById('attachment-link').href = attachmentUrl;
-                    document.getElementById('link-container').style.display = 'block';
+                    document.getElementById('link-container').classList.remove('hidden');
                 }
             }
 
@@ -662,10 +622,10 @@
             document.getElementById('total-questions').textContent = currentQuestions.length;
             document.getElementById('question-text').textContent = question.question;
             
-            let options = shuffleArray([...question.options]);
+            currentShuffledOptions = shuffleArray([...question.options]);
             const optionsContainer = document.getElementById('options-container');
             optionsContainer.innerHTML = '';
-            options.forEach((optionText, index) => {
+            currentShuffledOptions.forEach((optionText, index) => {
                 const button = document.createElement('button');
                 button.innerHTML = `<span class="bg-blue-500 text-white rounded-full h-8 w-8 flex items-center justify-center mr-3">${index + 1}</span> <span>${optionText}</span>`;
                 button.className = 'w-full flex items-center text-left p-3 bg-gray-100 hover:bg-blue-100 border border-gray-200 rounded-lg transition-all duration-200 fade-in';
@@ -677,10 +637,7 @@
         async function saveOnlineState() {
             const nextBtn = document.getElementById('next-question-btn');
             nextBtn.disabled = true;
-            nextBtn.innerHTML = `
-                <div class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                กำลังบันทึก...
-            `;
+            nextBtn.innerHTML = `<div class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div> กำลังบันทึก...`;
             
             const stateToSave = { subject: currentSubject, score, answerLog, shuffledQuestions: currentQuestions };
             const payload = { action: 'saveQuizState', studentInfo, subject: currentSubject, state: stateToSave };
@@ -688,12 +645,9 @@
             try {
                 await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
             } catch(e) {
-                console.error("Failed to save state:", e);
-                nextBtn.textContent = 'บันทึกไม่สำเร็จ';
-                return;
+                nextBtn.textContent = 'บันทึกไม่สำเร็จ'; return;
             } finally {
-                nextBtn.disabled = false;
-                nextBtn.textContent = 'ข้อถัดไป';
+                nextBtn.disabled = false; nextBtn.textContent = 'ข้อถัดไป';
             }
         }
 
@@ -702,15 +656,18 @@
             const buttons = document.querySelectorAll('#options-container button');
             buttons.forEach(btn => { btn.disabled = true; btn.classList.add('is-checking'); });
             
-            const feedbackContainer = document.getElementById('feedback-container');
-            const feedbackMessage = document.getElementById('feedback-message');
-            const reasonText = document.getElementById('reason-text');
+            const feedbackContainer = document.getElementById('feedback-container'), feedbackMessage = document.getElementById('feedback-message'), reasonText = document.getElementById('reason-text');
+            const showAnswers = quizSettings[currentSubject] !== undefined ? quizSettings[currentSubject] : true;
 
             feedbackContainer.classList.remove('hidden');
-            feedbackContainer.className = 'mt-4 p-4 rounded-lg min-h-[90px] bg-blue-100 border-l-4 border-blue-500 transition-all duration-300';
-            feedbackMessage.textContent = 'กำลังตรวจคำตอบ...';
-            feedbackMessage.className = 'font-bold text-lg text-blue-700 animate-pulse';
             reasonText.textContent = '';
+            if(showAnswers){
+                feedbackContainer.className = 'mt-4 p-4 rounded-lg min-h-[90px] bg-blue-100 border-l-4 border-blue-500 transition-all duration-300';
+                feedbackMessage.textContent = 'กำลังตรวจคำตอบ...'; feedbackMessage.className = 'font-bold text-lg text-blue-700 animate-pulse'; 
+            } else {
+                feedbackContainer.className = 'mt-4 p-4 rounded-lg min-h-[90px] bg-gray-100 border-l-4 border-gray-400 transition-all duration-300';
+                feedbackMessage.textContent = 'กำลังบันทึกคำตอบ...'; feedbackMessage.className = 'font-bold text-lg text-gray-600 animate-pulse';
+            }
             
             const payload = { action: 'checkAnswer', sheetName: currentSubject, questionIndex: currentQuestions[currentQuestionIndex].originalIndex, selectedOptionText };
 
@@ -719,29 +676,33 @@
                 const result = await response.json();
                 
                 if (result.isCorrect) {
-                    score++;
-                    answerLog.push(1);
-                    playSound('correct');
-                    feedbackContainer.className = 'mt-4 p-4 rounded-lg min-h-[90px] bg-green-100 border-l-4 border-green-500';
-                    feedbackMessage.textContent = 'ถูกต้องครับ!';
-                    feedbackMessage.className = 'font-bold text-lg text-green-700';
+                    score++; answerLog.push(1);
+                    if(showAnswers) {
+                        playSound('correct');
+                        feedbackContainer.className = 'mt-4 p-4 rounded-lg min-h-[90px] bg-green-100 border-l-4 border-green-500';
+                        feedbackMessage.textContent = 'ถูกต้องครับ!'; feedbackMessage.className = 'font-bold text-lg text-green-700';
+                    }
                 } else {
                     answerLog.push(0);
-                    playSound('wrong');
-                    feedbackContainer.className = 'mt-4 p-4 rounded-lg min-h-[90px] bg-red-100 border-l-4 border-red-500';
-                    feedbackMessage.textContent = 'ยังไม่ถูกนะครับ';
-                    feedbackMessage.className = 'font-bold text-lg text-red-700';
-                    const correctButton = Array.from(buttons).find(btn => btn.textContent.includes(result.correctAnswerText));
-                    if (correctButton) correctButton.classList.add('bg-green-200', 'border-green-500');
+                    if(showAnswers){
+                         playSound('wrong');
+                        feedbackContainer.className = 'mt-4 p-4 rounded-lg min-h-[90px] bg-red-100 border-l-4 border-red-500';
+                        feedbackMessage.textContent = 'ยังไม่ถูกนะครับ'; feedbackMessage.className = 'font-bold text-lg text-red-700';
+                        const correctButton = Array.from(buttons).find(btn => btn.textContent.includes(result.correctAnswerText));
+                        if (correctButton) correctButton.classList.add('bg-green-200', 'border-green-500');
+                    }
                 }
-                reasonText.textContent = (result.reason) ? `เหตุผล: ${result.reason}` : '';
+                if(showAnswers) reasonText.textContent = (result.reason) ? `เหตุผล: ${result.reason}` : '';
+
             } catch (error) {
-                feedbackContainer.className = 'mt-4 p-4 rounded-lg min-h-[90px] bg-yellow-100 border-l-4 border-yellow-500';
-                feedbackMessage.textContent = 'เกิดข้อผิดพลาดในการตรวจคำตอบ';
-                feedbackMessage.className = 'font-bold text-lg text-yellow-700';
+                 if(showAnswers){
+                    feedbackContainer.className = 'mt-4 p-4 rounded-lg min-h-[90px] bg-yellow-100 border-l-4 border-yellow-500';
+                    feedbackMessage.textContent = 'เกิดข้อผิดพลาดในการตรวจคำตอบ'; feedbackMessage.className = 'font-bold text-lg text-yellow-700';
+                }
                 answerLog.push('error'); 
             } finally {
                 document.getElementById('score-tracker').textContent = `คะแนน: ${score}`;
+                if (!showAnswers) feedbackContainer.classList.add('hidden');
                 document.getElementById('next-button-container').classList.remove('hidden');
                 await saveOnlineState();
             }
@@ -750,7 +711,9 @@
         // --- FINALIZATION ---
         async function showResults() {
             playSound('complete');
-            switchScreen(document.getElementById('result-screen'));
+            document.getElementById('restart-btn').classList.add('hidden');
+            window.addEventListener('beforeunload', (e) => { e.preventDefault(); e.returnValue = ''; });
+            switchScreen(resultScreen);
             
             const totalQuestions = currentQuestions.length;
             const percentage = totalQuestions > 0 ? (score / totalQuestions) * 100 : 0;
@@ -760,48 +723,33 @@
             
             await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'clearQuizState', studentInfo, subject: currentSubject }), headers: { 'Content-Type': 'text/plain;charset=utf-8' }});
             
-            const previousHighScoreInfo = highScores[currentSubject];
-            const isNewHighScore = !previousHighScoreInfo || score > previousHighScoreInfo.score;
-            
-            await saveFinalScore(totalQuestions);
+            let allTasks = [saveFinalScore(totalQuestions)];
 
-            if (percentage >= 50) {
-                const certSection = document.getElementById('certificate-section');
-                const certTitle = document.getElementById('cert-title');
-                const certSubtitle = document.getElementById('cert-subtitle');
-                const certBtn = document.getElementById('certificate-btn');
-                
-                certSection.classList.remove('hidden');
+            const highScoreInfo = highScores[currentSubject];
+            const isNewHighScore = !highScoreInfo || score > highScoreInfo.score;
 
-                if (isNewHighScore) {
-                    certTitle.textContent = 'ยินดีด้วย! คุณทำลายสถิติใหม่';
-                    certSubtitle.textContent = 'คุณสามารถดาวน์โหลดเกียรติบัตรฉบับใหม่ได้';
-                    await requestCertificate(score, totalQuestions);
-                } else {
-                    certTitle.textContent = 'ยินดีด้วย! คุณสอบผ่าน';
-                    const certLoader = document.getElementById('cert-loader');
-                    certLoader.style.display = 'none';
-
-                    if (previousHighScoreInfo && previousHighScoreInfo.certificateUrl) {
-                        certSubtitle.textContent = 'คะแนนครั้งนี้ไม่สูงกว่าเดิม สามารถดาวน์โหลดเกียรติบัตรฉบับคะแนนสูงสุดได้ที่นี่';
-                        document.getElementById('cert-btn-text').textContent = `ดาวน์โหลดเกียรติบัตร (${previousHighScoreInfo.score}/${previousHighScoreInfo.total} คะแนน)`;
-                        certBtn.disabled = false;
-                        certBtn.onclick = () => { playSound('click'); window.open(previousHighScoreInfo.certificateUrl, '_blank'); };
-                    } else {
-                        // This case happens if they passed, not a new high score, but the old high score cert doesn't exist for some reason.
-                        certSubtitle.textContent = 'คะแนนครั้งนี้ไม่สูงกว่าเดิม แต่ยังไม่มีเกียรติบัตรสำหรับคะแนนสูงสุด';
-                        document.getElementById('cert-btn-text').textContent = 'สร้างเกียรติบัตร (คะแนนสูงสุด)';
-                        certBtn.disabled = false;
-                        certBtn.onclick = () => requestCertificate(previousHighScoreInfo.score, previousHighScoreInfo.total);
-                    }
-                }
+            if (percentage >= 50 && isNewHighScore) {
+                document.getElementById('certificate-section').classList.remove('hidden');
+                allTasks.push(requestCertificate(score, totalQuestions));
+            } else if (percentage >= 50 && highScoreInfo && highScoreInfo.certificateUrl) {
+                document.getElementById('certificate-section').classList.remove('hidden');
+                const certBtn = document.getElementById('certificate-btn'), certBtnText = document.getElementById('cert-btn-text'), certLoader = document.getElementById('cert-loader');
+                certLoader.classList.add('hidden');
+                certBtnText.textContent = 'ดาวน์โหลดเกียรติบัตร (คะแนนเดิม)';
+                certBtn.disabled = false;
+                certBtn.onclick = () => { playSound('click'); window.open(highScoreInfo.certificateUrl, '_blank'); };
             }
+
+            await Promise.all(allTasks);
+            
+            document.getElementById('restart-btn').classList.remove('hidden');
+            window.removeEventListener('beforeunload', (e) => { e.preventDefault(); e.returnValue = ''; });
         }
         
         async function saveFinalScore(totalQuestions) {
             const saveStatus = document.getElementById('save-status');
             saveStatus.textContent = 'กำลังบันทึกคะแนน...';
-            const payload = { action: 'saveScore', ...studentInfo, subject: currentSubject, totalQuestions, scoreObtained: score, answers: answerLog };
+            const payload = { action: 'saveScore', ...studentInfo, subject: currentSubject, totalQuestions: totalQuestions, scoreObtained: score, answers: answerLog };
             try {
                 const response = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
                 const result = await response.json();
@@ -809,42 +757,165 @@
                 saveStatus.textContent = 'บันทึกคะแนนเรียบร้อยแล้ว';
             } catch (error) {
                 saveStatus.textContent = 'ไม่สามารถบันทึกคะแนนได้';
-            } finally {
-                document.getElementById('restart-btn').classList.remove('hidden');
             }
         }
 
         async function requestCertificate(scoreObtained, totalQuestions) {
-            const certBtn = document.getElementById('certificate-btn');
-            const certBtnText = document.getElementById('cert-btn-text');
-            const certLoader = document.getElementById('cert-loader');
-            const certError = document.getElementById('cert-error');
-            
-            certBtn.disabled = true;
-            certBtnText.textContent = 'กำลังสร้างเกียรติบัตร...';
-            certLoader.style.display = 'inline-block';
-            certError.classList.add('hidden');
-
+            const certBtn = document.getElementById('certificate-btn'), certBtnText = document.getElementById('cert-btn-text'), certLoader = document.getElementById('cert-loader'), certError = document.getElementById('cert-error');
             const payload = { action: 'generateCertificate', studentInfo, subject: currentSubject, scoreObtained, totalQuestions };
-
             try {
                 const response = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
                 const result = await response.json();
                 if (result.status !== 'success') throw new Error(result.message);
-                
-                certLoader.style.display = 'none';
+                certLoader.classList.add('hidden');
                 certBtnText.textContent = 'ดาวน์โหลดเกียรติบัตร';
                 certBtn.disabled = false;
                 certBtn.onclick = () => { playSound('click'); window.open(result.url, '_blank'); };
-                
             } catch (error) {
-                certLoader.style.display = 'none';
-                certBtn.style.display = 'none';
+                certLoader.classList.add('hidden');
+                certBtn.classList.add('hidden');
                 certError.textContent = `เกิดข้อผิดพลาด: ${error.message}`;
                 certError.classList.remove('hidden');
             }
         }
         
+        function restartQuiz() {
+            playSound('click');
+            switchScreen(welcomeScreen);
+            soundToggleButton.classList.add('hidden');
+            document.getElementById('student-info-form').reset();
+            document.getElementById('internal-login-form').reset();
+        }
+        
+        // --- TEACHER MODE ---
+        async function showTeacherLoginPrompt(event) {
+            event.preventDefault();
+            playSound('click');
+            const { value: password } = await Swal.fire({
+                title: 'สำหรับครู', input: 'password', inputLabel: 'กรุณาใส่รหัสผ่าน', inputPlaceholder: 'รหัสผ่านสำหรับครู',
+                showCancelButton: true, confirmButtonText: 'เข้าสู่ระบบ', cancelButtonText: 'ยกเลิก', allowOutsideClick: () => !Swal.isLoading(),
+                showLoaderOnConfirm: true,
+                preConfirm: async (password) => {
+                    try {
+                        const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'checkTeacherPassword', password }), headers: { 'Content-Type': 'text/plain;charset=utf-8' }});
+                        if (!response.ok) throw new Error('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้');
+                        const result = await response.json();
+                        if (result.status !== 'success') throw new Error(result.message);
+                        return result;
+                    } catch (error) {
+                        Swal.showValidationMessage(`เกิดข้อผิดพลาด: ${error.message}`);
+                    }
+                },
+            });
+
+            if (password) loadTeacherDashboard();
+        }
+
+        async function loadTeacherDashboard() {
+            switchScreen(teacherDashboardScreen);
+            const loaderScores = document.getElementById('teacher-loader-scores');
+            const loaderSettings = document.getElementById('teacher-loader-settings');
+            const subjectSelect = document.getElementById('teacher-subject-select');
+            const classSelect = document.getElementById('teacher-class-select');
+            
+            loaderScores.classList.add('hidden');
+            loaderSettings.classList.remove('hidden');
+            
+            try {
+                const [teacherDataRes, settingsRes] = await Promise.all([
+                    fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'getTeacherData' }), headers: { 'Content-Type': 'text/plain;charset=utf-8' }}),
+                    fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'getQuizSettings' }), headers: { 'Content-Type': 'text/plain;charset=utf-8' }})
+                ]);
+                
+                const teacherDataResult = await teacherDataRes.json();
+                const settingsResult = await settingsRes.json();
+
+                if(teacherDataResult.status !== 'success' || settingsResult.status !== 'success') throw new Error('Could not fetch data');
+
+                const { subjects, classNames } = teacherDataResult.data;
+                const settings = settingsResult.data;
+
+                subjectSelect.innerHTML = subjects.map(s => `<option value="${s}">${s}</option>`).join('');
+                classSelect.innerHTML = `<option value="all">ทุกชั้นเรียน</option>` + classNames.filter(c => c !== 'ทุกชั้นเรียน').map(c => `<option value="${c}">${c}</option>`).join('');
+                
+                const settingsContainer = document.getElementById('quiz-settings-container');
+                settingsContainer.innerHTML = '';
+                subjects.forEach(subject => {
+                    const isChecked = settings[subject] !== undefined ? settings[subject] : true;
+                    const settingDiv = document.createElement('div');
+                    settingDiv.className = 'flex items-center justify-between p-2 bg-gray-50 rounded-lg';
+                    settingDiv.innerHTML = `
+                        <span class="text-sm font-medium text-gray-900">${subject}</span>
+                        <label for="toggle-${subject.replace(/\s+/g, '-')}" class="inline-flex relative items-center cursor-pointer">
+                            <input type="checkbox" id="toggle-${subject.replace(/\s+/g, '-')}" class="sr-only peer" ${isChecked ? 'checked' : ''}>
+                            <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-blue-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                        </label>
+                    `;
+                    settingsContainer.appendChild(settingDiv);
+                    settingDiv.querySelector('input').addEventListener('change', (e) => updateQuizSetting(subject, e.target.checked));
+                });
+
+            } catch (e) {
+                Swal.fire('เกิดข้อผิดพลาด', 'ไม่สามารถโหลดข้อมูลสำหรับครูได้', 'error');
+                showWelcomeScreen();
+            } finally {
+                loaderSettings.classList.add('hidden');
+            }
+        }
+
+        async function fetchTeacherScores() {
+             playSound('click');
+             const loader = document.getElementById('teacher-loader-scores');
+             const resultsContainer = document.getElementById('teacher-results-container');
+             const tableBody = document.querySelector('#teacher-scores-table tbody');
+             const subject = document.getElementById('teacher-subject-select').value;
+             const className = document.getElementById('teacher-class-select').value;
+             const studentType = document.getElementById('teacher-student-type-select').value;
+
+             loader.classList.remove('hidden'); resultsContainer.classList.add('hidden'); tableBody.innerHTML = '';
+
+             try {
+                const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'getScoresForSubject', subject, className, studentType }), headers: { 'Content-Type': 'text/plain;charset=utf-8' }});
+                const result = await response.json();
+                if(result.status !== 'success') throw new Error(result.message);
+                
+                if(result.data.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="5" class="text-center py-4">ไม่พบข้อมูลคะแนน</td></tr>';
+                } else {
+                    result.data.forEach(row => {
+                       const tr = document.createElement('tr');
+                       tr.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${row.number}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${row.name}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${row.class}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-semibold text-blue-600">${row.score}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${row.total}</td>
+                       `;
+                       tableBody.appendChild(tr);
+                    });
+                }
+                resultsContainer.classList.remove('hidden');
+             } catch(e) {
+                Swal.fire('เกิดข้อผิดพลาด', 'ไม่สามารถโหลดข้อมูลคะแนนได้', 'error');
+             } finally {
+                loader.classList.add('hidden');
+             }
+        }
+        
+        async function updateQuizSetting(subject, showAnswers) {
+            playSound('click');
+            const toggle = document.getElementById(`toggle-${subject.replace(/\s+/g, '-')}`);
+            toggle.disabled = true;
+             try {
+                await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'updateQuizSetting', subject, showAnswers }), headers: { 'Content-Type': 'text/plain;charset=utf-8' }});
+             } catch(e) {
+                Swal.fire('เกิดข้อผิดพลาด', 'ไม่สามารถบันทึกการตั้งค่าได้', 'error');
+                toggle.checked = !showAnswers;
+             } finally {
+                toggle.disabled = false;
+             }
+        }
+
         async function generateCertificateFromSubjectsPage(subject, buttonElement) {
             const originalText = buttonElement.innerHTML;
             buttonElement.disabled = true;
@@ -865,118 +936,14 @@
                 buttonElement.disabled = false;
                 buttonElement.onclick = (e) => { e.stopPropagation(); playSound('click'); window.open(result.url, '_blank'); };
             } catch (error) {
-                Swal.fire('เกิดข้อผิดพลาด', `ไม่สามารถสร้างเกียรติบัตรได้: ${error.message}`, 'error');
-                buttonElement.innerHTML = originalText;
-                buttonElement.disabled = false;
+                buttonElement.innerHTML = `สร้างไม่ได้`;
+                setTimeout(() => {
+                    buttonElement.innerHTML = originalText;
+                    buttonElement.disabled = false;
+                }, 3000);
             }
         }
 
-        function restartQuiz() {
-            playSound('click');
-            switchScreen(document.getElementById('welcome-screen'));
-            soundToggleButton.style.display = 'none';
-            document.getElementById('student-info-form').reset();
-            document.getElementById('internal-login-form').reset();
-        }
-        
-        // --- TEACHER MODE ---
-        async function showTeacherLoginPrompt(event) {
-            event.preventDefault();
-            playSound('click');
-            const { value: password } = await Swal.fire({
-                title: 'สำหรับครู',
-                input: 'password',
-                inputLabel: 'กรุณาใส่รหัสผ่าน',
-                inputPlaceholder: 'รหัสผ่านสำหรับครู',
-                showCancelButton: true,
-                confirmButtonText: 'เข้าสู่ระบบ',
-                cancelButtonText: 'ยกเลิก',
-                allowOutsideClick: () => !Swal.isLoading(),
-                showLoaderOnConfirm: true,
-                preConfirm: async (password) => {
-                    try {
-                        const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'checkTeacherPassword', password }), headers: { 'Content-Type': 'text/plain;charset=utf-8' }});
-                        const result = await response.json();
-                        if (result.status !== 'success') {
-                           throw new Error(result.message);
-                        }
-                        return result;
-                    } catch (error) {
-                        Swal.showValidationMessage(`เกิดข้อผิดพลาด: ${error.message}`);
-                    }
-                },
-            });
-
-            if (password) {
-                loadTeacherDashboard();
-            }
-        }
-
-        async function loadTeacherDashboard() {
-            switchScreen(document.getElementById('teacher-dashboard-screen'));
-            const loader = document.getElementById('teacher-loader');
-            const subjectSelect = document.getElementById('teacher-subject-select');
-            const classSelect = document.getElementById('teacher-class-select');
-            
-            loader.style.display = 'block';
-            
-            try {
-                const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'getTeacherData' }), headers: { 'Content-Type': 'text/plain;charset=utf-8' }});
-                const result = await response.json();
-                if(result.status !== 'success') throw new Error('Could not fetch data');
-
-                subjectSelect.innerHTML = result.data.subjects.map(s => `<option value="${s}">${s}</option>`).join('');
-                classSelect.innerHTML = `<option value="all">ทุกชั้นเรียน</option>` + result.data.classNames.filter(c => c && c.toString().trim() !== 'ทุกชั้นเรียน').map(c => `<option value="${c}">${c}</option>`).join('');
-                
-            } catch (e) {
-                Swal.fire('เกิดข้อผิดพลาด', 'ไม่สามารถโหลดข้อมูลสำหรับครูได้', 'error');
-                showWelcomeScreen();
-            } finally {
-                loader.style.display = 'none';
-            }
-        }
-
-        async function fetchTeacherScores() {
-             playSound('click');
-             const loader = document.getElementById('teacher-loader');
-             const resultsContainer = document.getElementById('teacher-results-container');
-             const tableBody = document.querySelector('#teacher-scores-table tbody');
-             const subject = document.getElementById('teacher-subject-select').value;
-             const className = document.getElementById('teacher-class-select').value;
-
-             loader.style.display = 'block';
-             resultsContainer.classList.add('hidden');
-             tableBody.innerHTML = '';
-
-             try {
-                const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'getScoresForSubject', subject, className }), headers: { 'Content-Type': 'text/plain;charset=utf-8' }});
-                const result = await response.json();
-                if(result.status !== 'success') throw new Error(result.message);
-                
-                if(result.data.length === 0) {
-                    tableBody.innerHTML = '<tr><td colspan="5" class="text-center py-4">ไม่พบข้อมูลคะแนน</td></tr>';
-                } else {
-                    result.data.forEach(row => {
-                       const tr = document.createElement('tr');
-                       tr.innerHTML = `
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${row.number}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${row.name}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${row.class}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-semibold text-blue-600">${row.score}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${row.total}</td>
-                       `;
-                       tableBody.appendChild(tr);
-                    });
-                }
-                resultsContainer.classList.remove('hidden');
-
-             } catch(e) {
-                Swal.fire('เกิดข้อผิดพลาด', 'ไม่สามารถโหลดข้อมูลคะแนนได้', 'error');
-             } finally {
-                loader.style.display = 'none';
-             }
-        }
-        
         function downloadExcel() {
              playSound('click');
              const table = document.getElementById('teacher-scores-table');
@@ -987,10 +954,7 @@
              XLSX.writeFile(wb, filename);
         }
 
-        function logoutTeacher() {
-            playSound('click');
-            showWelcomeScreen();
-        }
+        function logoutTeacher() { playSound('click'); showWelcomeScreen(); }
 
         // --- INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', () => {
@@ -998,14 +962,8 @@
             document.getElementById('image-modal').addEventListener('click', (e) => { if (e.target === e.currentTarget) e.currentTarget.classList.add('hidden'); });
             document.getElementById('teacher-fetch-scores-btn').addEventListener('click', fetchTeacherScores);
             document.getElementById('teacher-download-excel-btn').addEventListener('click', downloadExcel);
+            document.getElementById('next-question-btn').addEventListener('click', () => { playSound('click'); currentQuestionIndex++; displayQuestion(); });
             soundToggleButton.addEventListener('click', toggleSound);
-            
-            document.getElementById('next-question-btn').addEventListener('click', () => {
-                playSound('click');
-                currentQuestionIndex++;
-                displayQuestion();
-            });
-
             subjectSearchInput.addEventListener('input', () => {
                 const searchTerm = subjectSearchInput.value.toLowerCase();
                 const subjectItems = document.querySelectorAll('.subject-item');
