@@ -175,7 +175,7 @@
             <div id="options-container" class="space-y-3"></div>
             <div id="feedback-container" class="mt-4 p-4 rounded-lg min-h-[90px] hidden transition-all duration-300">
                 <p id="feedback-message" class="font-bold text-lg"></p>
-                <p id="reason-text" class="mt-2 text-gray-700"></p>
+                <div id="reason-text" class="mt-2 text-gray-700"></div>
             </div>
             <div id="next-button-container" class="mt-6 text-center hidden">
                 <button id="next-question-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-8 rounded-lg transition-colors duration-300 inline-flex items-center justify-center">
@@ -627,8 +627,27 @@
             optionsContainer.innerHTML = '';
             currentShuffledOptions.forEach((optionText, index) => {
                 const button = document.createElement('button');
-                button.innerHTML = `<span class="bg-blue-500 text-white rounded-full h-8 w-8 flex items-center justify-center mr-3">${index + 1}</span> <span>${optionText}</span>`;
+                const isImageOption = /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(optionText) || optionText.startsWith('https://lh3.googleusercontent.com');
+                
                 button.className = 'w-full flex items-center text-left p-3 bg-gray-100 hover:bg-blue-100 border border-gray-200 rounded-lg transition-all duration-200 fade-in';
+                
+                if (isImageOption) {
+                    button.innerHTML = `
+                        <span class="bg-blue-500 text-white rounded-full h-8 w-8 flex items-center justify-center mr-4 flex-shrink-0">${index + 1}</span>
+                        <div class="flex-grow">
+                             <img src="${optionText}" class="max-h-32 w-auto rounded-md shadow-sm cursor-pointer option-image">
+                             <p class="text-xs text-gray-500 mt-1">กดที่รูปเพื่อขยาย</p>
+                        </div>
+                    `;
+                     button.querySelector('.option-image').onclick = (e) => {
+                        e.stopPropagation();
+                        playSound('click');
+                        openImageModal(optionText);
+                    };
+                } else {
+                    button.innerHTML = `<span class="bg-blue-500 text-white rounded-full h-8 w-8 flex items-center justify-center mr-3">${index + 1}</span> <span>${optionText}</span>`;
+                }
+                
                 button.onclick = () => selectAnswer(button, optionText);
                 optionsContainer.appendChild(button);
             });
@@ -660,7 +679,7 @@
             const showAnswers = quizSettings[currentSubject] !== undefined ? quizSettings[currentSubject] : true;
 
             feedbackContainer.classList.remove('hidden');
-            reasonText.textContent = '';
+            reasonText.innerHTML = '';
             if(showAnswers){
                 feedbackContainer.className = 'mt-4 p-4 rounded-lg min-h-[90px] bg-blue-100 border-l-4 border-blue-500 transition-all duration-300';
                 feedbackMessage.textContent = 'กำลังตรวจคำตอบ...'; feedbackMessage.className = 'font-bold text-lg text-blue-700 animate-pulse'; 
@@ -688,11 +707,30 @@
                          playSound('wrong');
                         feedbackContainer.className = 'mt-4 p-4 rounded-lg min-h-[90px] bg-red-100 border-l-4 border-red-500';
                         feedbackMessage.textContent = 'ยังไม่ถูกนะครับ'; feedbackMessage.className = 'font-bold text-lg text-red-700';
-                        const correctButton = Array.from(buttons).find(btn => btn.textContent.includes(result.correctAnswerText));
+                        
+                        const isCorrectAnswerImage = /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(result.correctAnswerText) || result.correctAnswerText.startsWith('https://lh3.googleusercontent.com');
+                        
+                        const correctButton = Array.from(buttons).find(btn => {
+                            if(isCorrectAnswerImage) {
+                                const img = btn.querySelector('img');
+                                return img && img.src === result.correctAnswerText;
+                            }
+                            return btn.textContent.includes(result.correctAnswerText);
+                        });
+
                         if (correctButton) correctButton.classList.add('bg-green-200', 'border-green-500');
                     }
                 }
-                if(showAnswers) reasonText.textContent = (result.reason) ? `เหตุผล: ${result.reason}` : '';
+                if(showAnswers && result.reason && result.reason.trim() !== ''){
+                     const isReasonImage = /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(result.reason) || result.reason.startsWith('https://lh3.googleusercontent.com');
+                     if(isReasonImage){
+                         reasonText.innerHTML = `<p class="font-semibold mb-2">เหตุผล:</p>
+                            <img src="${result.reason}" class="max-h-40 w-auto rounded-lg shadow-md cursor-pointer mx-auto" onclick="openImageModal('${result.reason}')">
+                            <p class="text-center text-sm text-gray-500 mt-1">กดที่รูปเพื่อขยาย</p>`;
+                     } else {
+                         reasonText.textContent = `เหตุผล: ${result.reason}`;
+                     }
+                }
 
             } catch (error) {
                  if(showAnswers){
@@ -785,6 +823,13 @@
             soundToggleButton.classList.add('hidden');
             document.getElementById('student-info-form').reset();
             document.getElementById('internal-login-form').reset();
+        }
+
+        function openImageModal(src) {
+            const modalImg = document.getElementById('modal-img');
+            const imageModal = document.getElementById('image-modal');
+            modalImg.src = src;
+            imageModal.classList.remove('hidden');
         }
         
         // --- TEACHER MODE ---
