@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HCEC Survey & Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.1.0/dist/chartjs-plugin-datalabels.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <style>
+        body { font-family: 'Sarabun', sans-serif; background-color: #f1f5f9; }
+        .chart-container { position: relative; height: 350px; width: 100%; }
+        .tab-button.active { background-color: white; color: #3b82f6; box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1); }
+        .tab-content, .view-content { display: none; }
+        .tab-content.active, .view-content.active { display: block; animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .swal2-html-container { text-align: left !important; padding: 0 1em; }
+        .swal2-html-container strong { color: #1e293b; }
+        .swal2-html-container ul { list-style-type: none; padding-left: 0; }
+        .swal2-html-container li { margin-top: 0.5rem; }
+        #qrcode { display: flex; justify-content: center; align-items: center; padding-top: 1rem; }
+    </style>
+</head>
+<body class="p-4 sm:p-6 lg:p-8">
+    <div id="mainApp" class="view-content active container mx-auto max-w-7xl">
+        <div class="mb-10 text-center"><h1 class="text-3xl md:text-4xl font-bold text-slate-800">ระบบข้อมูลการพัฒนาทักษะภาษาอังกฤษ</h1><p class="text-slate-500 mt-2">โรงเรียนบ้านประสุข สพป.นครราชสีมา เขต 7</p></div>
+        <div class="flex justify-center mb-10"><div class="inline-flex space-x-2 rounded-full bg-slate-200 p-2 border border-slate-300"><button class="tab-button active rounded-full py-2 px-6 text-sm font-semibold transition-colors duration-300" onclick="openTab(event, 'formTab')">แบบสอบถาม</button><button class="tab-button rounded-full py-2 px-6 text-sm font-semibold text-slate-600 hover:text-slate-800 transition-colors duration-300" onclick="openTab(event, 'dashboardTab')">แดชบอร์ด</button></div></div>
+        <div>
+            <div id="formTab" class="tab-content active">
+                <div id="formContainer" class="max-w-3xl mx-auto"><form id="personnelForm" class="space-y-8"><div class="bg-white rounded-xl shadow-md overflow-hidden border border-slate-200"><h2 class="bg-blue-600 text-white font-bold p-4 text-lg">ส่วนที่ 1: ข้อมูลส่วนตัว</h2><div class="p-6 sm:p-8 bg-slate-50 space-y-6"><div><label for="fullName" class="block text-sm font-medium text-slate-700 mb-1">ชื่อ-สกุล</label><input type="text" id="fullName" name="fullName" placeholder="กรุณากรอกชื่อและนามสกุล" required class="block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"></div><div><label for="position" class="block text-sm font-medium text-slate-700 mb-1">ตำแหน่ง</label><select id="position" name="position" required class="block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"><option value="">-- กรุณาเลือกตำแหน่ง --</option><option value="ครูผู้สอนภาษาอังกฤษ(จบวิชาเอกภาษาอังกฤษ)">ครูผู้สอนภาษาอังกฤษ (จบวิชาเอกภาษาอังกฤษ)</option><option value="ครูผู้สอนภาษาอังกฤษ(ไม่ตรงเอก/จบเอกวิชาอื่น)">ครูผู้สอนภาษาอังกฤษ (ไม่ตรงเอก/จบเอกวิชาอื่น)</option><option value="ครูและบุคลากรทางการศึกษาในสถานศึกษา">ครูและบุคลากรทางการศึกษาในสถานศึกษา</option><option value="ผู้บริหารสถานศึกษา">ผู้บริหารสถานศึกษา</option></select></div></div></div><div class="bg-white rounded-xl shadow-md overflow-hidden border border-slate-200"><h2 class="bg-blue-600 text-white font-bold p-4 text-lg">ส่วนที่ 2: ข้อมูลด้านภาษาอังกฤษ</h2><div class="p-6 sm:p-8 bg-slate-50 space-y-8"><fieldset><legend class="text-base font-medium text-slate-900">1. ท่านเคยเข้ารับการทดสอบวัดระดับความสามารถทางภาษาอังกฤษ (CEFR) หรือไม่?</legend><div class="mt-4 space-y-4"><div class="flex items-center"><input type="radio" name="hasCEFR" value="yes" onchange="toggleCEFRSection(true)" class="h-5 w-5 rounded-full border-slate-400 text-indigo-600 focus:ring-indigo-500"><span class="ml-3 text-sm text-slate-600">เคย</span></div><div class="flex items-center"><input type="radio" name="hasCEFR" value="no" onchange="toggleCEFRSection(false)" checked class="h-5 w-5 rounded-full border-slate-400 text-indigo-600 focus:ring-indigo-500"><span class="ml-3 text-sm text-slate-600">ไม่เคย</span></div></div></fieldset><div id="cefrLevelSection" class="hidden"><fieldset><legend class="text-base font-medium text-slate-900">2. โปรดระบุระดับผลการสอบล่าสุดของท่าน (เลือกได้หลายรายการ)</legend><div class="mt-2 rounded-md bg-blue-50 border border-blue-200 p-4"><p class="text-sm text-blue-800"><span class="font-semibold">ข้อมูลเพิ่มเติม:</span> สำหรับระดับ A1 และ A2 ท่านสามารถสมัครและเข้าทดสอบได้ที่ <a href="https://learning-obec.com" target="_blank" class="font-bold hover:underline">learning-obec.com</a></p></div><div class="mt-4 space-y-4"><div class="flex items-center"><input type="checkbox" name="cefrLevel" value="A1" class="h-5 w-5 rounded border-slate-400 text-indigo-600 focus:ring-indigo-500"><span class="ml-3 text-sm text-slate-600">A1</span></div><div class="flex items-center"><input type="checkbox" name="cefrLevel" value="A2" class="h-5 w-5 rounded border-slate-400 text-indigo-600 focus:ring-indigo-500"><span class="ml-3 text-sm text-slate-600">A2</span></div><div class="flex items-center"><input type="checkbox" name="cefrLevel" value="B1" class="h-5 w-5 rounded border-slate-400 text-indigo-600 focus:ring-indigo-500"><span class="ml-3 text-sm text-slate-600">B1</span></div><div class="flex items-center"><input type="checkbox" name="cefrLevel" value="B2" class="h-5 w-5 rounded border-slate-400 text-indigo-600 focus:ring-indigo-500"><span class="ml-3 text-sm text-slate-600">B2</span></div><div class="flex items-center"><input type="checkbox" name="cefrLevel" value="C1" class="h-5 w-5 rounded border-slate-400 text-indigo-600 focus:ring-indigo-500"><span class="ml-3 text-sm text-slate-600">C1</span></div><div class="flex items-center"><input type="checkbox" name="cefrLevel" value="C2" class="h-5 w-5 rounded border-slate-400 text-indigo-600 focus:ring-indigo-500"><span class="ml-3 text-sm text-slate-600">C2</span></div></div></fieldset></div><fieldset><legend class="text-base font-medium text-slate-900">3. การพัฒนาความสามารถทางภาษาอังกฤษของท่าน (เลือกได้หลายข้อ)</legend><div class="mt-4 space-y-4"><div class="flex items-center"><input type="checkbox" name="teacherDev" value="self_learning" class="h-5 w-5 rounded border-slate-400 text-indigo-600 focus:ring-indigo-500"><span class="ml-3 text-sm text-slate-600">1) เรียนรู้/ฝึกทักษะภาษาอังกฤษด้วยตนเอง (Self-learning)</span></div><div class="flex items-center"><input type="checkbox" name="teacherDev" value="online_training" class="h-5 w-5 rounded border-slate-400 text-indigo-600 focus:ring-indigo-500"><span class="ml-3 text-sm text-slate-600">2) เข้ารับการอบรม/เรียนรู้/ฝึกทักษะภาษาอังกฤษรูปแบบออนไลน์</span></div><div class="flex items-center"><input type="checkbox" name="teacherDev" value="onsite_exchange" class="h-5 w-5 rounded border-slate-400 text-indigo-600 focus:ring-indigo-500"><span class="ml-3 text-sm text-slate-600">3) เข้ารับการพัฒนา/อบรม/แลกเปลี่ยนเรียนรู้ผ่านกิจกรรมออนไซต์</span></div><div class="flex items-center"><input type="checkbox" name="teacherDev" value="ai_self_learning" class="h-5 w-5 rounded border-slate-400 text-indigo-600 focus:ring-indigo-500"><span class="ml-3 text-sm text-slate-600">4) ใช้เครื่องมือ/สื่อ AI เป็นตัวช่วยในการเรียนรู้/ฝึกทักษะของตนเอง</span></div><div class="flex items-center"><input type="checkbox" name="teacherDev" value="ai_teaching_tool" class="h-5 w-5 rounded border-slate-400 text-indigo-600 focus:ring-indigo-500"><span class="ml-3 text-sm text-slate-600">5) ใช้สื่อการจัดการเรียนรู้/สื่อดิจิทัล/เครื่องมือ AI ช่วยในการสอนนักเรียน</span></div></div></fieldset></div></div><div class="flex justify-center items-center"><button type="submit" class="flex items-center justify-center bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold py-3 px-8 rounded-full shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 ease-in-out focus:outline-none focus:ring-4 focus:ring-blue-300"><svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg><span>บันทึกข้อมูล</span></button></div></form></div>
+                <div id="successView" class="hidden max-w-3xl mx-auto"><div id="captureArea" class="bg-white p-6 sm:p-8 rounded-xl shadow-md border border-slate-200 text-center"><div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100"><svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></div><h2 class="text-2xl font-bold text-slate-800 mt-4">บันทึกข้อมูลสำเร็จ!</h2><p class="text-slate-500 mt-2">ข้อมูลของท่านถูกบันทึกเรียบร้อยแล้ว</p><div class="mt-4 text-center"><p class="font-semibold text-slate-700">ระบบข้อมูลการพัฒนาทักษะภาษาอังกฤษ</p><p class="text-sm text-slate-500">โรงเรียนบ้านประสุข สพป.นครราชสีมา เขต 7</p></div><div id="submittedDataSummary" class="mt-6 border-t border-slate-200 pt-6 text-left space-y-2 text-sm"></div><div id="qrcode" class="mt-4"></div><div id="downloadTimestamp" class="mt-4 text-xs text-slate-400 text-right"></div></div><div class="mt-8 flex flex-col sm:flex-row justify-center gap-4"><button id="downloadImageBtn" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-full transition-colors duration-300 flex items-center justify-center"><svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>ดาวน์โหลดรูปภาพ</button><button id="goToDashboardBtn" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-full transition-colors duration-300">ไปที่หน้าแดชบอร์ด</button><button id="addAnotherBtn" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2 px-4 rounded-full transition-colors duration-300">บันทึกข้อมูลคนอื่นต่อ</button></div></div>
+            </div>
+            <div id="dashboardTab" class="tab-content"><div id="loadingDashboard" class="text-center py-16"><svg class="animate-spin h-10 w-10 text-blue-600 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><p class="mt-4 text-slate-500">กำลังโหลดข้อมูลแดชบอร์ด...</p></div><div id="dashboardContent" class="hidden"><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8"><div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex items-center space-x-4"><div class="bg-blue-100 p-3 rounded-full"><svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg></div><div><p class="text-slate-500 text-sm">ผู้ตอบแบบสอบถามทั้งหมด</p><p id="totalRespondents" class="text-3xl font-bold text-slate-800">0</p></div></div><div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex items-center space-x-4"><div class="bg-green-100 p-3 rounded-full"><svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div><div><p class="text-slate-500 text-sm">มีผลสอบ CEFR</p><p id="hasCEFRCount" class="text-3xl font-bold text-slate-800">0</p></div></div><div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex items-center space-x-4"><div class="bg-purple-100 p-3 rounded-full"><svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg></div><div><p class="text-slate-500 text-sm">การพัฒนาตนเองยอดนิยม</p><p id="topDevMethod" class="text-lg font-bold text-slate-800">-</p></div></div></div><div class="grid grid-cols-1 lg:grid-cols-2 gap-8"><div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200"><h3 class="font-bold text-slate-800 mb-4">สัดส่วนตำแหน่ง</h3><div class="chart-container"><canvas id="positionChart"></canvas></div></div><div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200"><h3 class="font-bold text-slate-800 mb-4">ผู้ที่เคยทดสอบ CEFR</h3><div class="chart-container"><canvas id="testedCEFRChart"></canvas></div></div><div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 lg:col-span-2"><h3 class="font-bold text-slate-800 mb-4">จำนวนผู้ตอบในแต่ละระดับ CEFR</h3><div class="chart-container"><canvas id="cefrLevelChart"></canvas></div></div><div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 lg:col-span-2"><h3 class="font-bold text-slate-800 mb-4">รูปแบบการพัฒนาความสามารถทางภาษาอังกฤษ</h3><div class="chart-container"><canvas id="devMethodChart"></canvas></div></div><div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 lg:col-span-2"><div class="flex justify-between items-center mb-4"><h3 class="font-bold text-slate-800">รายชื่อผู้ตอบแบบสอบถาม</h3><span id="respondentCount" class="text-sm font-semibold text-slate-500"></span></div><ul id="respondentList" class="max-h-60 overflow-y-auto space-y-2 text-sm text-slate-600 pr-2"></ul></div></div></div></div>
+        </div>
+        <footer class="mt-12 text-center text-sm text-slate-500"><p>พัฒนาโดย: นายกานตพงศ์ สุวรรณทา</p></footer>
+    </div>
+    <div id="recordView" class="view-content container mx-auto max-w-3xl"><div id="loadingRecord" class="text-center py-16"><svg class="animate-spin h-10 w-10 text-blue-600 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><p class="mt-4 text-slate-500">กำลังโหลดข้อมูล...</p></div><div id="recordContent" class="hidden bg-white p-6 sm:p-8 rounded-xl shadow-md border border-slate-200 text-center"></div></div>
+
+    <script>
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzPOp9N__zqK_xBWh9cmJdemWeTHxpr4-mxztFHtbf5K6CmdwUolFsYwdz95dBaBVdj_w/exec';
+        const FRONTEND_URL = 'https://webapp.eduinthai.com/cai-game/cefrlevels.html'; 
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('view') === 'record' && params.has('id')) {
+                loadSingleRecord(params.get('id'));
+            } else {
+                document.getElementById('mainApp').classList.add('active');
+            }
+        });
+
+        let dashboardLoaded = false;
+        function openTab(evt, tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            evt.currentTarget.classList.add("active");
+
+            if (tabName === 'dashboardTab' && !dashboardLoaded) {
+                loadDashboardData();
+                dashboardLoaded = true;
+            }
+        }
+
+        function toggleCEFRSection(show) {
+            document.getElementById('cefrLevelSection').classList.toggle('hidden', !show);
+            if (!show) { document.querySelectorAll('input[name="cefrLevel"]').forEach(checkbox => checkbox.checked = false); }
+        }
+
+        document.getElementById('personnelForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const form = this;
+            const formData = new FormData(form);
+            const jsonData = {};
+            formData.forEach((value, key) => {
+                const excludedKeys = ['cefrLevel', 'teacherDev'];
+                if (!excludedKeys.includes(key)) jsonData[key] = value;
+            });
+            jsonData.cefrLevel = formData.getAll('cefrLevel').join(', ') || 'ไม่ได้ระบุ';
+            jsonData.teacherDev = formData.getAll('teacherDev');
+            
+            const devMethodLabels = { 'self_learning': '1) เรียนรู้/ฝึกทักษะภาษาอังกฤษด้วยตนเอง (Self-learning)', 'online_training': '2) เข้ารับการอบรม/เรียนรู้/ฝึกทักษะภาษาอังกฤษรูปแบบออนไลน์', 'onsite_exchange': '3) เข้ารับการพัฒนา/อบรม/แลกเปลี่ยนเรียนรู้ผ่านกิจกรรมออนไซต์', 'ai_self_learning': '4) ใช้เครื่องมือ/สื่อ AI เป็นตัวช่วยในการเรียนรู้/ฝึกทักษะของตนเอง', 'ai_teaching_tool': '5) ใช้สื่อการจัดการเรียนรู้/สื่อดิจิทัล/เครื่องมือ AI ช่วยในการสอนนักเรียน' };
+            const devList = jsonData.teacherDev.length > 0 ? `<ul>${jsonData.teacherDev.map(dev => `<li>- ${devMethodLabels[dev] || dev}</li>`).join('')}</ul>` : 'ไม่ได้ระบุ';
+
+            let confirmationHtml = `<div class="text-left text-sm space-y-2"><p><strong>ชื่อ-สกุล:</strong> ${jsonData.fullName}</p><p><strong>ตำแหน่ง:</strong> ${jsonData.position}</p><hr class="my-2"><p><strong>เคยทดสอบ CEFR:</strong> ${jsonData.hasCEFR === 'yes' ? 'เคย' : 'ไม่เคย'}</p>`;
+            if (jsonData.hasCEFR === 'yes') { confirmationHtml += `<p><strong>ระดับ CEFR ที่เลือก:</strong> ${jsonData.cefrLevel}</p>`; }
+            confirmationHtml += `<p><strong>การพัฒนาตนเอง:</strong></p>${devList}</div>`;
+
+            Swal.fire({
+                title: 'โปรดตรวจสอบข้อมูล', html: confirmationHtml, icon: 'info', showCancelButton: true,
+                confirmButtonColor: '#3085d6', cancelButtonColor: '#d33',
+                confirmButtonText: 'ยืนยันและบันทึกข้อมูล', cancelButtonText: 'แก้ไข'
+            }).then((result) => {
+                if (result.isConfirmed) { submitData(jsonData); }
+            });
+        });
+
+        function submitData(jsonData) {
+            Swal.fire({ title: 'กำลังบันทึกข้อมูล', text: 'กรุณารอสักครู่...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            const dataToSave = { ...jsonData, teacherDev: jsonData.teacherDev.join(', ') };
+            
+            const params = new URLSearchParams();
+            params.append('action', 'saveData');
+            for (const key in dataToSave) {
+                params.append(key, dataToSave[key]);
+            }
+
+            fetch(`${SCRIPT_URL}?${params.toString()}`)
+            .then(res => res.json())
+            .then(res => {
+                if (res.success) {
+                    onSaveSuccess(jsonData, res.recordId);
+                } else {
+                    onSaveFailure({ message: res.error });
+                }
+            })
+            .catch(err => onSaveFailure(err));
+        }
+
+        function onSaveSuccess(submittedData, recordId) {
+            Swal.close();
+            document.getElementById('formContainer').classList.add('hidden');
+            document.getElementById('successView').classList.remove('hidden');
+
+            const summaryContainer = document.getElementById('submittedDataSummary');
+            const devMethodLabels = { 'self_learning': '1) เรียนรู้/ฝึกทักษะภาษาอังกฤษด้วยตนเอง (Self-learning)', 'online_training': '2) เข้ารับการอบรม/เรียนรู้/ฝึกทักษะภาษาอังกฤษรูปแบบออนไลน์', 'onsite_exchange': '3) เข้ารับการพัฒนา/อบรม/แลกเปลี่ยนเรียนรู้ผ่านกิจกรรมออนไซต์', 'ai_self_learning': '4) ใช้เครื่องมือ/สื่อ AI เป็นตัวช่วยในการเรียนรู้/ฝึกทักษะของตนเอง', 'ai_teaching_tool': '5) ใช้สื่อการจัดการเรียนรู้/สื่อดิจิทัล/เครื่องมือ AI ช่วยในการสอนนักเรียน' };
+            const devList = submittedData.teacherDev.length > 0 ? `<ul>${submittedData.teacherDev.map(dev => `<li>- ${devMethodLabels[dev] || dev}</li>`).join('')}</ul>` : 'ไม่ได้ระบุ';
+            
+            let summaryHtml = `<p><strong>ชื่อ-สกุล:</strong> ${submittedData.fullName}</p><p><strong>ตำแหน่ง:</strong> ${submittedData.position}</p><hr class="my-2"><p><strong>เคยทดสอบ CEFR:</strong> ${submittedData.hasCEFR === 'yes' ? 'เคย' : 'ไม่เคย'}</p>`;
+            if (submittedData.hasCEFR === 'yes') { summaryHtml += `<p><strong>ระดับ CEFR:</strong> ${submittedData.cefrLevel}</p>`; }
+            summaryHtml += `<p><strong>การพัฒนาตนเอง:</strong></p>${devList}`;
+            summaryContainer.innerHTML = summaryHtml;
+            
+            const qrCodeContainer = document.getElementById('qrcode');
+            qrCodeContainer.innerHTML = '';
+            
+            if (FRONTEND_URL === 'YOUR_PUBLIC_HTML_FILE_URL' || !FRONTEND_URL) {
+                qrCodeContainer.innerHTML = `<p class="text-xs text-red-500">ไม่สามารถสร้าง QR Code ได้ <br>กรุณาตั้งค่า FRONTEND_URL ในไฟล์ HTML</p>`;
+            } else {
+                const viewerUrl = `${FRONTEND_URL}?view=record&id=${recordId}`;
+                new QRCode(qrCodeContainer, { text: viewerUrl, width: 128, height: 128 });
+            }
+            
+            if(dashboardLoaded) {
+                dashboardLoaded = false;
+                document.getElementById('dashboardContent').classList.add('hidden');
+                document.getElementById('loadingDashboard').classList.remove('hidden');
+            }
+        }
+
+        document.getElementById('addAnotherBtn').addEventListener('click', () => {
+            document.getElementById('successView').classList.add('hidden');
+            document.getElementById('formContainer').classList.remove('hidden');
+            document.getElementById('personnelForm').reset();
+            toggleCEFRSection(false);
+        });
+
+        document.getElementById('goToDashboardBtn').addEventListener('click', () => {
+            document.querySelector('button[onclick*="dashboardTab"]').click();
+        });
+
+        document.getElementById('downloadImageBtn').addEventListener('click', () => {
+            const captureElement = document.getElementById('captureArea');
+            const timestampElement = document.getElementById('downloadTimestamp');
+            const now = new Date();
+            const formattedDate = `${now.toLocaleDateString('th-TH', { day: '2-digit', month: 'long', year: 'numeric' })} เวลา ${now.toLocaleTimeString('th-TH')} น.`;
+            timestampElement.textContent = `ดาวน์โหลดเมื่อ: ${formattedDate}`;
+
+            html2canvas(captureElement, { scale: 2, useCORS: true }).then(canvas => {
+                const ctx = canvas.getContext('2d');
+                ctx.font = "bold 48px Sarabun";
+                ctx.fillStyle = "rgba(100, 116, 139, 0.08)";
+                ctx.textAlign = 'center';
+                ctx.translate(canvas.width / 2, canvas.height / 2);
+                ctx.rotate(-0.4);
+                
+                const watermarkText = "โรงเรียนบ้านประสุข";
+                for (let i = -5; i < 6; i++) {
+                    for (let j = -5; j < 6; j++) {
+                        ctx.fillText(watermarkText, i * 400, j * 200);
+                    }
+                }
+                
+                const image = canvas.toDataURL("image/png", 1.0);
+                const a = document.createElement('a');
+                a.href = image;
+                a.download = `report-${Date.now()}.png`;
+                a.click();
+                timestampElement.textContent = '';
+            });
+        });
+
+        function onSaveFailure(error) {
+            Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถบันทึกข้อมูลได้: ' + error.message, confirmButtonText: 'ตกลง' });
+        }
+
+        Chart.register(ChartDataLabels);
+
+        function loadDashboardData() {
+            fetch(SCRIPT_URL + "?action=getDashboardData").then(response => response.json()).then(data => {
+                if(data.error) { onDataError(data); } else { onDataLoaded(data.data); }
+            }).catch(err => onDataError(err));
+        }
+        function onDataError(error) {
+            document.getElementById('loadingDashboard').innerHTML = `<p class="text-red-500">เกิดข้อผิดพลาดในการโหลดข้อมูล: ${error.message}</p>`;
+        }
+        function onDataLoaded(data) {
+            if (!data || data.length === 0) {
+                document.getElementById('loadingDashboard').innerHTML = '<p class="text-slate-500">ยังไม่มีข้อมูลที่ตอบกลับ</p>';
+                return;
+            }
+            document.getElementById('loadingDashboard').classList.add('hidden');
+            document.getElementById('dashboardContent').classList.remove('hidden');
+            
+            const totalRespondents = data.length;
+            const hasCEFRCount = data.filter(d => d.HasCEFR === 'yes').length;
+            const positionCounts = countOccurrences(data.map(d => d.Position));
+            const testedCEFRCounts = countOccurrences(data.map(d => d.HasCEFR));
+            const cefrLevelCounts = countDelimited(data.map(d => d.CEFRLevels));
+            const devMethodCounts = countDelimited(data.map(d => d.TeacherDevelopment));
+            
+            document.getElementById('totalRespondents').textContent = totalRespondents;
+            document.getElementById('hasCEFRCount').textContent = hasCEFRCount;
+            const topDevMethod = Object.keys(devMethodCounts).length > 0 ? Object.entries(devMethodCounts).sort((a,b) => b[1]-a[1])[0][0] : '-';
+            const devMethodLabels = { 'self_learning': 'เรียนรู้ด้วยตนเอง', 'online_training': 'อบรมออนไลน์', 'onsite_exchange': 'อบรมออนไซต์', 'ai_self_learning': 'ใช้ AI เรียนรู้', 'ai_teaching_tool': 'ใช้ AI สอน' };
+            document.getElementById('topDevMethod').textContent = devMethodLabels[topDevMethod] || topDevMethod;
+
+            const respondentList = document.getElementById('respondentList');
+            const respondentCount = document.getElementById('respondentCount');
+            respondentList.innerHTML = '';
+            const names = data.map(d => d.FullName).filter(name => name);
+            
+            respondentCount.textContent = `จำนวนทั้งหมด ${names.length} คน`;
+
+            names.forEach((name, index) => {
+                const maskedName = maskName(name);
+                const li = document.createElement('li');
+                li.textContent = `${index + 1}. ${maskedName}`;
+                li.className = 'p-2 bg-slate-50 rounded-md';
+                respondentList.appendChild(li);
+            });
+
+            const chartColors = ['#3b82f6', '#10b981', '#8b5cf6', '#f59e0b', '#ec4899', '#0ea5e9'];
+            
+            if(window.myCharts) { window.myCharts.forEach(chart => chart.destroy()); }
+            window.myCharts = [];
+            
+            const datalabelFormatter = (value, ctx) => { let sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0); let percentage = (value * 100 / sum).toFixed(1) + "%"; return `${value}\n(${percentage})`; };
+
+            window.myCharts.push(new Chart(document.getElementById('positionChart'), { type: 'doughnut', data: { labels: Object.keys(positionCounts), datasets: [{ data: Object.values(positionCounts), backgroundColor: chartColors, borderColor: '#fff' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' }, datalabels: { formatter: datalabelFormatter, color: '#fff', font: { weight: 'bold' } } } } }));
+            window.myCharts.push(new Chart(document.getElementById('testedCEFRChart'), { type: 'pie', data: { labels: ['เคยทดสอบ', 'ไม่เคยทดสอบ'], datasets: [{ data: [testedCEFRCounts.yes || 0, testedCEFRCounts.no || 0], backgroundColor: [chartColors[1], chartColors[4]], borderColor: '#fff' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' }, datalabels: { formatter: datalabelFormatter, color: '#fff', font: { weight: 'bold' } } } } }));
+            window.myCharts.push(new Chart(document.getElementById('cefrLevelChart'), { type: 'bar', data: { labels: Object.keys(cefrLevelCounts), datasets: [{ label: 'จำนวน (คน)', data: Object.values(cefrLevelCounts), backgroundColor: chartColors[2] }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { anchor: 'end', align: 'top', color: '#334155', font: { weight: 'bold' } } } } }));
+            window.myCharts.push(new Chart(document.getElementById('devMethodChart'), { type: 'bar', data: { labels: Object.keys(devMethodCounts).map(k => devMethodLabels[k] || k), datasets: [{ label: 'จำนวน (คน)', data: Object.values(devMethodCounts), backgroundColor: chartColors[5] }] }, options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', plugins: { legend: { display: false }, datalabels: { anchor: 'end', align: 'end', color: '#334155', font: { weight: 'bold' } } } } }));
+        }
+
+        function loadSingleRecord(id) {
+            document.getElementById('mainApp').classList.add('hidden');
+            document.getElementById('recordView').classList.add('active');
+            fetch(`${SCRIPT_URL}?action=getRecordById&id=${id}`)
+                .then(res => res.json())
+                .then(res => {
+                    document.getElementById('loadingRecord').classList.add('hidden');
+                    const content = document.getElementById('recordContent');
+                    if (res.success && res.data) {
+                        const record = res.data;
+                        const devMethodLabels = { 'self_learning': '1) เรียนรู้/ฝึกทักษะภาษาอังกฤษด้วยตนเอง (Self-learning)', 'online_training': '2) เข้ารับการอบรม/เรียนรู้/ฝึกทักษะภาษาอังกฤษรูปแบบออนไลน์', 'onsite_exchange': '3) เข้ารับการพัฒนา/อบรม/แลกเปลี่ยนเรียนรู้ผ่านกิจกรรมออนไซต์', 'ai_self_learning': '4) ใช้เครื่องมือ/สื่อ AI เป็นตัวช่วยในการเรียนรู้/ฝึกทักษะของตนเอง', 'ai_teaching_tool': '5) ใช้สื่อการจัดการเรียนรู้/สื่อดิจิทัล/เครื่องมือ AI ช่วยในการสอนนักเรียน' };
+                        const devList = record.TeacherDevelopment.split(', ').length > 0 ? `<ul>${record.TeacherDevelopment.split(', ').map(dev => `<li>- ${devMethodLabels[dev.trim()] || dev}</li>`).join('')}</ul>` : 'ไม่ได้ระบุ';
+                        
+                        let recordHtml = `
+                            <h2 class="text-2xl font-bold text-slate-800 mt-4">ข้อมูลการตอบแบบสอบถาม</h2>
+                            <p class="text-slate-500 mt-2">บันทึกเมื่อ: ${record.Timestamp}</p>
+                            <div class="mt-6 border-t border-slate-200 pt-6 text-left space-y-2 text-sm">
+                                <p><strong>ชื่อ-สกุล:</strong> ${record.FullName}</p>
+                                <p><strong>ตำแหน่ง:</strong> ${record.Position}</p>
+                                <hr class="my-2">
+                                <p><strong>เคยทดสอบ CEFR:</strong> ${record.HasCEFR === 'yes' ? 'เคย' : 'ไม่เคย'}</p>
+                        `;
+                        if (record.HasCEFR === 'yes') {
+                            recordHtml += `<p><strong>ระดับ CEFR:</strong> ${record.CEFRLevels}</p>`;
+                        }
+                        recordHtml += `<p><strong>การพัฒนาตนเอง:</strong></p>${devList}</div>`;
+                        content.innerHTML = recordHtml;
+                    } else {
+                        content.innerHTML = `<h2 class="text-2xl font-bold text-red-600 mt-4">ไม่พบข้อมูล</h2><p class="text-slate-500 mt-2">${res.error || 'ไม่สามารถโหลดข้อมูลตามรหัสที่ระบุได้'}</p>`;
+                    }
+                    content.classList.remove('hidden');
+                })
+                .catch(err => {
+                    document.getElementById('loadingRecord').classList.add('hidden');
+                    const content = document.getElementById('recordContent');
+                    content.innerHTML = `<h2 class="text-2xl font-bold text-red-600 mt-4">เกิดข้อผิดพลาด</h2><p class="text-slate-500 mt-2">ไม่สามารถเชื่อมต่อเพื่อดึงข้อมูลได้</p>`;
+                    content.classList.remove('hidden');
+                });
+        }
+
+        function countOccurrences(arr) { return arr.reduce((acc, val) => { if(val) acc[val] = (acc[val] || 0) + 1; return acc; }, {}); }
+        function countDelimited(arr) { return arr.reduce((acc, str) => { if (str) { str.split(', ').forEach(item => { if(item) acc[item] = (acc[item] || 0) + 1; }); } return acc; }, {}); }
+        function maskName(fullName) {
+            if (!fullName) return 'ไม่มีชื่อ';
+            const nameParts = fullName.trim().split(' ');
+            if (nameParts.length > 1) { return `${nameParts[0]}***`; }
+            return `${fullName}***`;
+        }
+    </script>
+</body>
+</html>
