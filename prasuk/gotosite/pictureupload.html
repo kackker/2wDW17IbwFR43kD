@@ -1,4 +1,3 @@
-<!-- File: index.html (Standalone Frontend - New Logo & Background) -->
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -20,22 +19,25 @@
       --border-color: #ced4da;
     }
 
+    /* --- CHANGE START: Adjusted body for top alignment --- */
     body {
       font-family: 'Sarabun', sans-serif;
-      /* --- CHANGE HERE: Updated background image --- */
       background-image: url('https://lh3.googleusercontent.com/d/1SQSiBTo7LRD2JQYCkXmrvrh9qoavrymO');
       background-size: cover;
       background-position: center center;
       background-attachment: fixed;
       background-repeat: no-repeat;
-      
       display: flex;
       justify-content: center;
-      align-items: center;
+      /* Align content to the start (top) of the flex container */
+      align-items: flex-start;
       min-height: 100vh;
       margin: 0;
-      padding: 1rem;
+      /* Set top padding to 10px, other sides to 1rem */
+      padding: 10px 1rem 1rem;
+      box-sizing: border-box;
     }
+    /* --- CHANGE END --- */
 
     .container {
       background-color: var(--card-bg);
@@ -49,8 +51,6 @@
       text-align: center;
       border: 1px solid rgba(255, 255, 255, 0.25);
     }
-    
-    /* --- CHANGE HERE: Added Logo styles --- */
     .logo-container {
         margin-bottom: 1.5rem;
     }
@@ -58,19 +58,16 @@
         max-height: 80px; /* Adjust size as needed */
         width: auto;
     }
-
     h1 {
       color: var(--text-primary);
       margin-bottom: 2rem;
       font-weight: 700;
       font-size: 1.8rem;
     }
-
     .form-group {
       margin-bottom: 1.5rem;
       text-align: left;
     }
-
     .form-label {
       display: block;
       margin-bottom: 0.6rem;
@@ -78,7 +75,6 @@
       font-weight: 600;
       font-size: 0.95rem;
     }
-
     .form-control {
       width: 100%;
       padding: 0.8rem 1rem;
@@ -89,17 +85,14 @@
       font-size: 1rem;
       transition: border-color 0.3s, box-shadow 0.3s;
     }
-    
     .form-control:focus {
       outline: none;
       border-color: var(--primary-color);
       box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
     }
-    
     input[type="file"] {
         font-size: 0.9rem;
     }
-
     /* Image Preview */
     .image-preview-container {
         margin-top: 1rem;
@@ -109,13 +102,14 @@
         border-radius: 8px;
         overflow: hidden;
         border: 1px solid var(--border-color);
+        margin-left: auto;
+        margin-right: auto;
     }
     #imagePreview {
         width: 100%;
         height: 100%;
         object-fit: cover;
     }
-
     .btn-submit {
       width: 100%;
       padding: 0.9rem;
@@ -129,18 +123,15 @@
       transition: all 0.2s ease-in-out;
       margin-top: 1rem;
     }
-
     .btn-submit:disabled {
       background-color: #a0c3ff;
       cursor: not-allowed;
     }
-
     .btn-submit:hover:not(:disabled) {
       background-color: var(--primary-hover);
       transform: translateY(-2px);
       box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
     }
-
     #status {
       margin-top: 1.5rem;
       padding: 1rem;
@@ -152,7 +143,6 @@
     }
     #status.success { display: block; background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb;}
     #status.error { display: block; background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb;}
-    
     .result-link {
         display: block;
         background-color: #e9ecef;
@@ -162,7 +152,6 @@
         font-size: 0.9rem;
         margin: 0.5rem 0 1rem 0;
     }
-    
     .copy-btn {
         padding: 8px 16px;
         font-size: 0.9rem;
@@ -181,7 +170,6 @@
 </head>
 <body>
   <div class="container">
-    <!-- --- CHANGE HERE: Added Logo --- -->
     <div class="logo-container">
         <img src="https://lh3.googleusercontent.com/d/1t5CnSSaUjegXd1h0_uuujDRCwKPImzlB" alt="Logo" class="logo">
     </div>
@@ -232,7 +220,10 @@
       e.preventDefault();
 
       if (fileInput.files.length === 0) {
-        alert('กรุณาเลือกไฟล์ก่อนค่ะ');
+        // Using custom status div instead of alert
+        statusDiv.className = 'error';
+        statusDiv.style.display = 'block';
+        statusDiv.innerHTML = 'กรุณาเลือกไฟล์ก่อนค่ะ';
         return;
       }
 
@@ -246,7 +237,6 @@
 
       reader.onload = function(event) {
         const fileData = event.target.result.split(',')[1];
-        
         const descriptionValue = document.getElementById('description').value.trim() || "รูปภาพ";
 
         const formObject = {
@@ -294,10 +284,33 @@
         <div class="result-link">${fileUrl}</div>
         <button type="button" id="copyButton" class="copy-btn">คัดลอกลิงก์</button>
       `;
-      
+
       document.getElementById('copyButton').addEventListener('click', function() {
+        // Use Clipboard API for modern browsers, with fallback
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(fileUrl).then(() => {
+                const copyBtn = document.getElementById('copyButton');
+                copyBtn.textContent = 'คัดลอกแล้ว!';
+                setTimeout(() => { copyBtn.textContent = 'คัดลอกลิงก์'; }, 2000);
+            }).catch(err => {
+                console.error('ไม่สามารถคัดลอกลิงก์ได้:', err);
+                fallbackCopyTextToClipboard(fileUrl);
+            });
+        } else {
+            fallbackCopyTextToClipboard(fileUrl);
+        }
+      });
+
+      submitButton.disabled = false;
+      // Reset form fields after successful upload
+      uploadForm.reset();
+      imagePreviewContainer.style.display = 'none';
+      imagePreview.src = '';
+    }
+    
+    function fallbackCopyTextToClipboard(text) {
         const tempTextArea = document.createElement('textarea');
-        tempTextArea.value = fileUrl;
+        tempTextArea.value = text;
         tempTextArea.style.position = 'absolute';
         tempTextArea.style.left = '-9999px';
         document.body.appendChild(tempTextArea);
@@ -308,18 +321,15 @@
             copyBtn.textContent = 'คัดลอกแล้ว!';
             setTimeout(() => { copyBtn.textContent = 'คัดลอกลิงก์'; }, 2000);
         } catch (err) {
-            console.error('ไม่สามารถคัดลอกลิงก์ได้:', err);
-            alert('ขออภัยค่ะ ไม่สามารถคัดลอกลิงก์ได้โดยอัตโนมัติ');
+            console.error('Fallback: ไม่สามารถคัดลอกลิงก์ได้', err);
+            statusDiv.innerHTML += '<br><small>ไม่สามารถคัดลอกลิงก์อัตโนมัติได้</small>';
         }
         document.body.removeChild(tempTextArea);
-      });
-
-      submitButton.disabled = false;
     }
+
 
     function onUploadFailure(error) {
       statusDiv.className = 'error';
-      
       let errorMessage = error.message;
       if (errorMessage.includes("Failed to fetch") || errorMessage.includes("NetworkError") || errorMessage.includes("CORS")) {
         errorMessage = `ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้ ปัญหานี้มักเกิดจากการตั้งค่าการ Deploy ไม่ถูกต้อง <br><br>
@@ -330,7 +340,6 @@
                         4. ตรวจสอบว่า "Who has access" เป็น <strong>"Anyone"</strong> <br>
                         5. กดปุ่ม "Deploy" แล้วลองใช้งานอีกครั้ง`;
       }
-      
       statusDiv.innerHTML = `<strong>เกิดข้อผิดพลาด:</strong><br>${errorMessage}`;
       submitButton.disabled = false;
     }
