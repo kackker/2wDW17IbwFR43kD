@@ -4,228 +4,317 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Eduinthai Linkhub</title>
-    <link rel="stylesheet" href="https://webapp.eduinthai.com/prasuk/pp5/styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <style>
-        /* กำหนดฟอนต์สำหรับทั้งหน้า */
+        /* กำหนดฟอนต์และสไตล์พื้นฐาน */
         body {
-            font-family: 'Sarabun', sans-serif; /* เปลี่ยนเป็นฟอนต์ Sarabun */
+            font-family: 'Sarabun', sans-serif;
             margin: 0;
             overflow: hidden; /* ป้องกันไม่ให้มีแถบเลื่อน */
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 10px;
         }
-        /* พื้นหลังแบบเคลื่อนไหว */
+
+        /* พื้นหลังแบบรูปภาพ */
         .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://lh3.googleusercontent.com/d/1OFbdILnfIlUXGhBBhAtTcljd8M_LdyRo');
+            background-size: cover;
+            background-position: center;
+            z-index: -1;
+        }
+
+        /* กล่องล็อกอิน */
+        .login-container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            width: 320px;
+            max-width: 90%;
+            animation: fadeIn 0.5s ease;
+            z-index: 1;
+        }
+
+        /* เอฟเฟกต์การเข้าของกล่อง */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* โลโก้ */
+        .logo {
+            width: 130px;
+            margin-bottom: 15px;
+        }
+
+        /* หัวข้อ */
+        h2 {
+            margin-bottom: 5px;
+            color: #333;
+            font-size: 22px;
+        }
+        
+        h5 {
+            margin-top: 5px;
+            margin-bottom: 15px;
+            color: #555;
+            font-weight: 400;
+        }
+        
+        /* กลุ่มปุ่มบริการ */
+        .service-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .service-button {
+            background-color: #f0f0f0;
+            color: #333;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 15px;
+            font-family: 'Sarabun', sans-serif;
+            transition: background-color 0.3s, transform 0.2s;
+            width: 100%;
+        }
+
+        .service-button:hover {
+            background-color: #e0e0e0;
+            transform: translateY(-1px);
+        }
+
+        /* ฟอร์ม */
+        #login-form {
+            margin-top: 20px;
+        }
+
+        /* ป้ายชื่อ */
+        #login-form label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: bold;
+            text-align: center; /* จัดข้อความกึ่งกลาง */
+        }
+
+        /* ช่องกรอกรหัสผ่าน */
+        input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            box-sizing: border-box;
+        }
+
+        input[type="password"]:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+            outline: none;
+        }
+
+        /* ข้อความแจ้งเตือนข้อผิดพลาด */
+        #error-message {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-bottom: 15px;
+            min-height: 20px;
+            text-align: center;
+        }
+
+        /* ปุ่มยืนยัน */
+        button[type="submit"] {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-family: 'Sarabun', sans-serif;
+            transition: background-color 0.3s, transform 0.2s;
+            width: 100%;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        /* คอนเทนเนอร์สำหรับ iframe และตัวโหลด */
+        #iframe-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        /* ส่วนแสดงการโหลด */
+        #loading {
+            text-align: center;
+        }
+
+        /* อนิเมชันการโหลด */
+        .loader {
+            border: 12px solid #f3f3f3;
+            border-top: 12px solid #3498db;
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #loading p {
+            font-size: 18px;
+            color: #333;
+            margin: 0;
+        }
+
+        /* iframe */
+        #iframe {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(270deg, #74ebd5, #9face6); /* กำหนดสีพื้นหลังเป็นเกรเดียนต์ */
-            background-size: 400% 400%; /* ขนาดพื้นหลัง */
-            animation: gradient-animation 15s ease infinite; /* กำหนดอนิเมชันพื้นหลัง */
-            z-index: -1; /* วางอยู่ด้านหลังขององค์ประกอบอื่น */
-        }
-        /* อนิเมชันสำหรับพื้นหลัง */
-        @keyframes gradient-animation {
-            0% {
-                background-position: 0% 50%;
-            }
-            50% {
-                background-position: 100% 50%;
-            }
-            100% {
-                background-position: 0% 50%;
-            }
-        }
-        /* กล่องล็อกอิน */
-        .login-container {
-            position: absolute; /* กำหนดตำแหน่งเป็นแบบสัมพัทธ์ */
-            top: 50px; /* ห่างจากด้านบน 50px */
-            left: 50%; /* จัดกลางในแนวนอน */
-            transform: translateX(-50%); /* ปรับตำแหน่งให้ตรงกลาง */
-            background: white; /* สีพื้นหลังของกล่องล็อกอิน */
-            padding: 40px; /* ระยะห่างภายใน */
-            border-radius: 12px; /* มุมโค้งของกล่อง */
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3); /* เงาของกล่อง */
-            text-align: center; /* จัดข้อความให้กึ่งกลาง */
-            width: 320px; /* ความกว้างของกล่อง */
-            transition: transform 0.3s; /* เอฟเฟกต์การเปลี่ยนแปลง */
-            animation: fadeIn 0.5s ease; /* เอฟเฟกต์การเข้าของกล่อง */
-            z-index: 1; /* วางอยู่ด้านบนของพื้นหลัง */
-        }
-        /* เอฟเฟกต์การเข้าของกล่อง */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-20px); } /* เริ่มต้นที่โปร่งใส */
-            to { opacity: 1; transform: translateY(0); } /* สิ้นสุดที่ไม่โปร่งใส */
-        }
-        /* โลโก้ */
-        .logo {
-            width: 150px; /* กำหนดความกว้างของโลโก้ */
-            margin-bottom: 20px; /* ระยะห่างด้านล่าง */
-        }
-        /* หัวข้อ */
-        h2 {
-            margin-bottom: 20px; /* ระยะห่างด้านล่าง */
-            color: #333; /* สีข้อความ */
-            font-size: 24px; /* ขนาดตัวอักษร */
-        }
-        /* ป้ายชื่อ */
-        label {
-            display: block; /* แสดงเป็นบล็อก */
-            margin-bottom: 8px; /* ระยะห่างด้านล่าง */
-            color: #555; /* สีข้อความ */
-            font-weight: bold; /* ตัวหนา */
-        }
-        /* ช่องกรอกรหัสผ่าน */
-        input[type="password"] {
-            width: 100%; /* ความกว้างเต็ม */
-            padding: 12px; /* ระยะห่างภายใน */
-            border: 1px solid #ccc; /* ขอบ */
-            border-radius: 6px; /* มุมโค้ง */
-            margin-bottom: 20px; /* ระยะห่างด้านล่าง */
-            transition: border-color 0.3s, box-shadow 0.3s; /* เอฟเฟกต์การเปลี่ยนแปลง */
-        }
-        /* เอฟเฟกต์เมื่อโฟกัสที่ช่องกรอกข้อมูล */
-        input[type="password"]:focus {
-            border-color: #3498db; /* เปลี่ยนสีขอบเมื่อโฟกัส */
-            box-shadow: 0 0 5px rgba(52, 152, 219, 0.5); /* เงา */
-            outline: none; /* ไม่แสดงขอบ */
-        }
-        /* ปุ่ม */
-        button {
-            background-color: #3498db; /* สีพื้นหลังของปุ่ม */
-            color: white; /* สีข้อความ */
-            border: none; /* ไม่มีขอบ */
-            padding: 12px 20px; /* ระยะห่างภายใน */
-            border-radius: 6px; /* มุมโค้ง */
-            cursor: pointer; /* เปลี่ยนเคอร์เซอร์เมื่อชี้ */
-            font-size: 16px; /* ขนาดตัวอักษร */
-            transition: background-color 0.3s, transform 0.2s; /* เอฟเฟกต์การเปลี่ยนแปลง */
-        }
-        /* เอฟเฟกต์เมื่อชี้ไปที่ปุ่ม */
-        button:hover {
-            background-color: #2980b9; /* เปลี่ยนสีเมื่อชี้ */
-            transform: translateY(-2px); /* ยกขึ้นเล็กน้อย */
-        }
-        /* คอนเทนเนอร์สำหรับ iframe */
-        #iframe-container {
-            position: fixed; /* ตำแหน่งคงที่ */
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.9); /* สีพื้นหลัง */
-            display: none; /* ซ่อนเริ่มต้น */
-            justify-content: center; /* จัดกลางในแนวนอน */
-            align-items: center; /* จัดกลางในแนวตั้ง */
-            z-index: 1000; /* วางอยู่ด้านบนสุด */
-        }
-        /* ข้อความโหลด */
-        #loading {
-            position: fixed;
-            top: 10%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center; /* จัดกลางข้อความ */
-        }
-        /* กำหนดลูปโหลด */
-        #loading .loader {   
-            position: fixed;         
-            top: 10%;
-            left: 50%;
-            transform: translate(-50%, -50%);            
-            border: 16px solid #f3f3f3; /* ขอบ */
-            border-top: 16px solid #3498db; /* ขอบด้านบน */
-            border-radius: 50%; /* มุมโค้ง */
-            width: 80px; /* ความกว้าง */
-            height: 80px; /* ความสูง */
-            animation: spin 1s linear infinite; /* อนิเมชันหมุน */
-            margin-bottom: 20px; /* ระยะห่างด้านล่าง */
-        }
-
-    /* อนิเมชันการโหลด */
-    .loader {
-    position: fixed;
-    top: 10%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    border: 16px solid #f3f3f3; /* ขอบ */
-    border-top: 16px solid #3498db; /* ขอบด้านบน */
-    border-radius: 50%; /* มุมโค้ง */
-    width: 80px; /* ความกว้าง */
-    height: 80px; /* ความสูง */
-    animation: spin 1s linear infinite; /* อนิเมชันหมุน */
-    margin-bottom: 20px; /* ระยะห่างด้านล่าง */
-    }
-
-        /* อนิเมชันหมุน */
-        @keyframes spin {
-            0% { transform: rotate(0deg); } /* เริ่มต้นที่ 0 องศา */
-            100% { transform: rotate(360deg); } /* หมุนครบ 360 องศา */
-        }
-        /* ข้อความโหลด */
-        #loading p {
-            position: fixed;
-            top: 10%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 1px; /* ขนาดตัวอักษร */
-            color: #333; /* สีข้อความ */
-            margin: 0; /* ไม่มีระยะห่าง */
-        }
-        /* การจัดการหน้าจอเล็ก */
-        @media (max-width: 400px) {
-            .login-container {
-                width: 90%; /* ปรับความกว้างให้เล็กลง */
-            }
+            border: 0;
+            display: none;
         }
     </style>
 </head>
-<body>      
-    <div class="background"></div> <!-- พื้นหลังแบบเคลื่อนไหว -->
-    <div class="login-container"> <!-- กล่องล็อกอิน -->
-        <img src="/pic/Linkhub.png" alt="Logo" class="logo">    
-        <h2>กรุณาใส่รหัสผ่าน</h2>  
+<body>
+    <div class="background"></div>
+
+    <div class="login-container">
+        <img src="https://lh3.googleusercontent.com/d/1_yLLFZQNGOLofnjgEeW-P9NFxKVVvgWk" alt="Logo" class="logo">
+        <h2>เลือกบริการ</h2>
         <h5>(บริการฟรี ไม่มีค่าใช้จ่าย)</h5>
-        <h5>- ระบบสร้าง QRCode  รหัส  qr</h5>    
-        <h5>- ระบบย่อลิ้งเว็บไซต์  รหัส  url</h5>       
-        <form id="login-form"> <!-- ฟอร์มล็อกอิน -->
-            <label for="password">รหัสผ่าน:</label>
+        
+        <div class="service-buttons">
+            <button class="service-button" data-pass="qr">ระบบสร้าง QRCode</button>
+            <button class="service-button" data-pass="url">ระบบย่อลิ้งเว็บไซต์</button>
+            <button class="service-button" data-pass="pic">ระบบฝากรูป</button>
+        </div>
+        
+        <form id="login-form">
+            <label for="password">หรือกรอกรหัสผ่าน:</label>
             <input type="password" id="password" required>
-            <button type="submit">ยืนยัน</button> <!-- ปุ่มยืนยัน -->
+            <div id="error-message"></div>
+            <button type="submit">ยืนยัน</button>
         </form>
     </div>
-    
-    <div id="iframe-container"> <!-- คอนเทนเนอร์สำหรับ iframe -->
-        <div id="loading"> <!-- ข้อความโหลด -->
-            <div class="loader"></div> <!-- ลูปโหลด -->
+
+    <div id="iframe-container">
+        <div id="loading">
+            <div class="loader"></div>
             <p>กำลังโหลดข้อมูล...</p>
         </div>
-        <iframe style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; display: none;" id="iframe"></iframe>
-    </div>        
+        <iframe id="iframe"></iframe>
+    </div>
+
     <script>
-        function sendHeight() { // ฟังก์ชันส่งความสูงของเอกสาร
-            const height = document.documentElement.scrollHeight;
-            window.parent.postMessage(height, '*'); // ส่งความสูงไปยังพาเรนต์
-        }
-        function setupObserver() { // ฟังก์ชันตั้งค่าตรวจสอบการเปลี่ยนแปลง
-            const observer = new MutationObserver(sendHeight);
-            observer.observe(document.body, { childList: true, subtree: true }); // ตรวจสอบการเปลี่ยนแปลงใน body
-        }
-        function handleSubmit(event) { // ฟังก์ชันจัดการการส่งฟอร์ม
-            event.preventDefault(); // ป้องกันการรีเฟรชหน้า
-            document.querySelector('.login-container').style.display = 'none'; // ซ่อนกล่องล็อกอิน
-            document.querySelector('#iframe-container').style.display = 'flex'; // แสดงหน้าจอโหลด
-        }
-        window.addEventListener('load', () => { // เมื่อโหลดหน้าเสร็จ
-            sendHeight(); // ส่งความสูง
-            setupObserver(); // ตั้งค่าตรวจสอบ
-            const form = document.getElementById('login-form');
-            form.addEventListener('submit', handleSubmit); // เพิ่มฟังก์ชันจัดการการส่งฟอร์ม
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginForm = document.getElementById('login-form');
+            const passwordInput = document.getElementById('password');
+            const errorMessage = document.getElementById('error-message');
+            const loginContainer = document.querySelector('.login-container');
+            const iframeContainer = document.getElementById('iframe-container');
+            const loadingIndicator = document.getElementById('loading');
+            const iframe = document.getElementById('iframe');
+            const serviceButtons = document.querySelectorAll('.service-button');
+
+            // ฟังก์ชันสำหรับส่งฟอร์ม
+            function submitLogin(password) {
+                errorMessage.textContent = '';
+                loginContainer.style.display = 'none';
+                iframeContainer.style.display = 'flex';
+                loadingIndicator.style.display = 'block';
+                iframe.style.display = 'none';
+
+                const hashedInputPassword = CryptoJS.SHA256(password).toString();
+
+                fetch('https://script.google.com/macros/s/AKfycbymITyEcnX2fWibMRJ9CYcEFQ1KWUlmpZsq99dYd1ep9SNLSMiRZy7SjNKyv37xt5CJiA/exec', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `password=${hashedInputPassword}`
+                })
+                .then(response => response.text())
+                .then(encodedIframeUrl => {
+                    if (encodedIframeUrl === 'Invalid Password') {
+                        errorMessage.textContent = "รหัสผ่านไม่ถูกต้อง!";
+                        passwordInput.value = '';
+                        loginContainer.style.display = 'block';
+                        iframeContainer.style.display = 'none';
+                    } else {
+                        try {
+                            const iframeUrl = CryptoJS.enc.Base64.parse(encodedIframeUrl).toString(CryptoJS.enc.Utf8);
+                            if (iframeUrl) {
+                                iframe.src = iframeUrl;
+                                iframe.onload = function() {
+                                    loadingIndicator.style.display = 'none';
+                                    iframe.style.display = 'block';
+                                };
+                            } else {
+                                throw new Error("Decoded URL is empty.");
+                            }
+                        } catch (error) {
+                            console.error('Base64 Decode Error:', error);
+                            errorMessage.textContent = "เกิดข้อผิดพลาดในการรับข้อมูล";
+                            loginContainer.style.display = 'block';
+                            iframeContainer.style.display = 'none';
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Fetch Error:', error);
+                    errorMessage.textContent = "เกิดข้อผิดพลาดขณะเชื่อมต่อ";
+                    passwordInput.value = '';
+                    loginContainer.style.display = 'block';
+                    iframeContainer.style.display = 'none';
+                });
+            }
+
+            // จัดการการคลิกปุ่มบริการ
+            serviceButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const pass = this.getAttribute('data-pass');
+                    passwordInput.value = pass;
+                    submitLogin(pass);
+                });
+            });
+
+            // จัดการการส่งฟอร์มแบบปกติ
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                submitLogin(passwordInput.value);
+            });
         });
-        window.addEventListener('resize', sendHeight); // ส่งความสูงเมื่อขนาดหน้าต่างเปลี่ยน
-    </script>    
-    <script src="https://webapp.eduinthai.com/prasuk/pp5/script3.js"></script>               
+    </script>
 </body>
 </html>

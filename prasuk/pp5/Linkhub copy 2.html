@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eduinthai Linkhub</title>
+    <link rel="stylesheet" href="https://webapp.eduinthai.com/prasuk/pp5/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <style>
+        /* กำหนดฟอนต์สำหรับทั้งหน้า */
+        body {
+            font-family: 'Sarabun', sans-serif; /* เปลี่ยนเป็นฟอนต์ Sarabun */
+            margin: 0;
+            overflow: hidden; /* ป้องกันไม่ให้มีแถบเลื่อน */
+        }
+        /* พื้นหลังแบบเคลื่อนไหว */
+        .background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(270deg, #74ebd5, #9face6); /* กำหนดสีพื้นหลังเป็นเกรเดียนต์ */
+            background-size: 400% 400%; /* ขนาดพื้นหลัง */
+            animation: gradient-animation 15s ease infinite; /* กำหนดอนิเมชันพื้นหลัง */
+            z-index: -1; /* วางอยู่ด้านหลังขององค์ประกอบอื่น */
+        }
+        /* อนิเมชันสำหรับพื้นหลัง */
+        @keyframes gradient-animation {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+        /* กล่องล็อกอิน */
+        .login-container {
+            position: absolute; /* กำหนดตำแหน่งเป็นแบบสัมพัทธ์ */
+            top: 50px; /* ห่างจากด้านบน 50px */
+            left: 50%; /* จัดกลางในแนวนอน */
+            transform: translateX(-50%); /* ปรับตำแหน่งให้ตรงกลาง */
+            background: white; /* สีพื้นหลังของกล่องล็อกอิน */
+            padding: 40px; /* ระยะห่างภายใน */
+            border-radius: 12px; /* มุมโค้งของกล่อง */
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3); /* เงาของกล่อง */
+            text-align: center; /* จัดข้อความให้กึ่งกลาง */
+            width: 320px; /* ความกว้างของกล่อง */
+            transition: transform 0.3s; /* เอฟเฟกต์การเปลี่ยนแปลง */
+            animation: fadeIn 0.5s ease; /* เอฟเฟกต์การเข้าของกล่อง */
+            z-index: 1; /* วางอยู่ด้านบนของพื้นหลัง */
+        }
+        /* เอฟเฟกต์การเข้าของกล่อง */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); } /* เริ่มต้นที่โปร่งใส */
+            to { opacity: 1; transform: translateY(0); } /* สิ้นสุดที่ไม่โปร่งใส */
+        }
+        /* โลโก้ */
+        .logo {
+            width: 150px; /* กำหนดความกว้างของโลโก้ */
+            margin-bottom: 20px; /* ระยะห่างด้านล่าง */
+        }
+        /* หัวข้อ */
+        h2 {
+            margin-bottom: 20px; /* ระยะห่างด้านล่าง */
+            color: #333; /* สีข้อความ */
+            font-size: 24px; /* ขนาดตัวอักษร */
+        }
+        /* ป้ายชื่อ */
+        label {
+            display: block; /* แสดงเป็นบล็อก */
+            margin-bottom: 8px; /* ระยะห่างด้านล่าง */
+            color: #555; /* สีข้อความ */
+            font-weight: bold; /* ตัวหนา */
+        }
+        /* ช่องกรอกรหัสผ่าน */
+        input[type="password"] {
+            width: 100%; /* ความกว้างเต็ม */
+            padding: 12px; /* ระยะห่างภายใน */
+            border: 1px solid #ccc; /* ขอบ */
+            border-radius: 6px; /* มุมโค้ง */
+            margin-bottom: 20px; /* ระยะห่างด้านล่าง */
+            transition: border-color 0.3s, box-shadow 0.3s; /* เอฟเฟกต์การเปลี่ยนแปลง */
+        }
+        /* เอฟเฟกต์เมื่อโฟกัสที่ช่องกรอกข้อมูล */
+        input[type="password"]:focus {
+            border-color: #3498db; /* เปลี่ยนสีขอบเมื่อโฟกัส */
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.5); /* เงา */
+            outline: none; /* ไม่แสดงขอบ */
+        }
+        /* ปุ่ม */
+        button {
+            background-color: #3498db; /* สีพื้นหลังของปุ่ม */
+            color: white; /* สีข้อความ */
+            border: none; /* ไม่มีขอบ */
+            padding: 12px 20px; /* ระยะห่างภายใน */
+            border-radius: 6px; /* มุมโค้ง */
+            cursor: pointer; /* เปลี่ยนเคอร์เซอร์เมื่อชี้ */
+            font-size: 16px; /* ขนาดตัวอักษร */
+            transition: background-color 0.3s, transform 0.2s; /* เอฟเฟกต์การเปลี่ยนแปลง */
+        }
+        /* เอฟเฟกต์เมื่อชี้ไปที่ปุ่ม */
+        button:hover {
+            background-color: #2980b9; /* เปลี่ยนสีเมื่อชี้ */
+            transform: translateY(-2px); /* ยกขึ้นเล็กน้อย */
+        }
+        /* คอนเทนเนอร์สำหรับ iframe */
+        #iframe-container {
+            position: fixed; /* ตำแหน่งคงที่ */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9); /* สีพื้นหลัง */
+            display: none; /* ซ่อนเริ่มต้น */
+            justify-content: center; /* จัดกลางในแนวนอน */
+            align-items: center; /* จัดกลางในแนวตั้ง */
+            z-index: 1000; /* วางอยู่ด้านบนสุด */
+        }
+        /* ข้อความโหลด */
+        #loading {
+            position: fixed;
+            top: 10%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center; /* จัดกลางข้อความ */
+        }
+        /* กำหนดลูปโหลด */
+        #loading .loader {   
+            position: fixed;         
+            top: 10%;
+            left: 50%;
+            transform: translate(-50%, -50%);            
+            border: 16px solid #f3f3f3; /* ขอบ */
+            border-top: 16px solid #3498db; /* ขอบด้านบน */
+            border-radius: 50%; /* มุมโค้ง */
+            width: 80px; /* ความกว้าง */
+            height: 80px; /* ความสูง */
+            animation: spin 1s linear infinite; /* อนิเมชันหมุน */
+            margin-bottom: 20px; /* ระยะห่างด้านล่าง */
+        }
+
+    /* อนิเมชันการโหลด */
+    .loader {
+    position: fixed;
+    top: 10%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: 16px solid #f3f3f3; /* ขอบ */
+    border-top: 16px solid #3498db; /* ขอบด้านบน */
+    border-radius: 50%; /* มุมโค้ง */
+    width: 80px; /* ความกว้าง */
+    height: 80px; /* ความสูง */
+    animation: spin 1s linear infinite; /* อนิเมชันหมุน */
+    margin-bottom: 20px; /* ระยะห่างด้านล่าง */
+    }
+
+        /* อนิเมชันหมุน */
+        @keyframes spin {
+            0% { transform: rotate(0deg); } /* เริ่มต้นที่ 0 องศา */
+            100% { transform: rotate(360deg); } /* หมุนครบ 360 องศา */
+        }
+        /* ข้อความโหลด */
+        #loading p {
+            position: fixed;
+            top: 10%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1px; /* ขนาดตัวอักษร */
+            color: #333; /* สีข้อความ */
+            margin: 0; /* ไม่มีระยะห่าง */
+        }
+        /* การจัดการหน้าจอเล็ก */
+        @media (max-width: 400px) {
+            .login-container {
+                width: 90%; /* ปรับความกว้างให้เล็กลง */
+            }
+        }
+    </style>
+</head>
+<body>      
+    <div class="background"></div> <!-- พื้นหลังแบบเคลื่อนไหว -->
+    <div class="login-container"> <!-- กล่องล็อกอิน -->
+        <img src="/pic/Linkhub.png" alt="Logo" class="logo">    
+        <h2>กรุณาใส่รหัสผ่าน</h2>  
+        <h5>(บริการฟรี ไม่มีค่าใช้จ่าย)</h5>
+        <h5>- ระบบสร้าง QRCode  รหัส  qr</h5>    
+        <h5>- ระบบย่อลิ้งเว็บไซต์  รหัส  url</h5>
+        <h5>- ระบบฝากรูป  รหัส  pic</h5>       
+        <form id="login-form"> <!-- ฟอร์มล็อกอิน -->
+            <label for="password">รหัสผ่าน:</label>
+            <input type="password" id="password" required>
+            <button type="submit">ยืนยัน</button> <!-- ปุ่มยืนยัน -->
+        </form>
+    </div>
+    
+    <div id="iframe-container"> <!-- คอนเทนเนอร์สำหรับ iframe -->
+        <div id="loading"> <!-- ข้อความโหลด -->
+            <div class="loader"></div> <!-- ลูปโหลด -->
+            <p>กำลังโหลดข้อมูล...</p>
+        </div>
+        <iframe style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; display: none;" id="iframe"></iframe>
+    </div>        
+    <script>
+        function sendHeight() { // ฟังก์ชันส่งความสูงของเอกสาร
+            const height = document.documentElement.scrollHeight;
+            window.parent.postMessage(height, '*'); // ส่งความสูงไปยังพาเรนต์
+        }
+        function setupObserver() { // ฟังก์ชันตั้งค่าตรวจสอบการเปลี่ยนแปลง
+            const observer = new MutationObserver(sendHeight);
+            observer.observe(document.body, { childList: true, subtree: true }); // ตรวจสอบการเปลี่ยนแปลงใน body
+        }
+        function handleSubmit(event) { // ฟังก์ชันจัดการการส่งฟอร์ม
+            event.preventDefault(); // ป้องกันการรีเฟรชหน้า
+            document.querySelector('.login-container').style.display = 'none'; // ซ่อนกล่องล็อกอิน
+            document.querySelector('#iframe-container').style.display = 'flex'; // แสดงหน้าจอโหลด
+        }
+        window.addEventListener('load', () => { // เมื่อโหลดหน้าเสร็จ
+            sendHeight(); // ส่งความสูง
+            setupObserver(); // ตั้งค่าตรวจสอบ
+            const form = document.getElementById('login-form');
+            form.addEventListener('submit', handleSubmit); // เพิ่มฟังก์ชันจัดการการส่งฟอร์ม
+        });
+        window.addEventListener('resize', sendHeight); // ส่งความสูงเมื่อขนาดหน้าต่างเปลี่ยน
+    </script>    
+    <script src="https://webapp.eduinthai.com/prasuk/pp5/script3.js"></script>               
+</body>
+</html>
