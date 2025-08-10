@@ -397,7 +397,7 @@
             });
         }
 
-        function createBarChart(canvasId, chartInstanceRef, data, scoreIndex, color, scoreName) {
+        function createBarChart(canvasId, chartInstanceRef, data, scoreIndex, passingScore, scoreName) {
             const totalStudents = data.length;
             const scoreCounts = data.reduce((acc, row) => {
                 const score = parseInt(row[scoreIndex], 10);
@@ -409,11 +409,23 @@
             const counts = labels.map(label => scoreCounts[label]);
             const maxCount = Math.max(...counts, 0);
 
+            const passColor = '#22c55e'; // Green
+            const failColor = '#ef4444'; // Red
+            const backgroundColors = labels.map(label => parseInt(label, 10) >= passingScore ? passColor : failColor);
+
             if (chartInstanceRef) chartInstanceRef.destroy();
             
             const chart = new Chart(document.getElementById(canvasId), {
                 type: 'bar',
-                data: { labels: labels, datasets: [{ label: 'จำนวนนักเรียน', data: counts, backgroundColor: color, borderRadius: 4 }] },
+                data: { 
+                    labels: labels, 
+                    datasets: [{ 
+                        label: 'จำนวนนักเรียน', 
+                        data: counts, 
+                        backgroundColor: backgroundColors, 
+                        borderRadius: 4 
+                    }] 
+                },
                 options: {
                     responsive: true, maintainAspectRatio: false,
                     onClick: (evt, elements) => handleChartClick(evt, elements, chart, 'score', scoreIndex, scoreName),
@@ -453,11 +465,12 @@
         }
 
         function updateBarCharts(data) {
-            totalScoreChartInstance = createBarChart('totalScoreChart', totalScoreChartInstance, data, columnIndices.totalScore, '#ef4444', 'คะแนนรวม'); 
-            listeningScoreChartInstance = createBarChart('listeningScoreChart', listeningScoreChartInstance, data, columnIndices.listeningScore, '#3b82f6', 'ทักษะการฟัง');
-            speakingScoreChartInstance = createBarChart('speakingScoreChart', speakingScoreChartInstance, data, columnIndices.speakingScore, '#14b8a6', 'ทักษะการพูด');
-            readingScoreChartInstance = createBarChart('readingScoreChart', readingScoreChartInstance, data, columnIndices.readingScore, '#8b5cf6', 'ทักษะการอ่าน');
-            writingScoreChartInstance = createBarChart('writingScoreChart', writingScoreChartInstance, data, columnIndices.writingScore, '#ec4899', 'ทักษะการเขียน');
+            const passMark = 5;
+            totalScoreChartInstance = createBarChart('totalScoreChart', totalScoreChartInstance, data, columnIndices.totalScore, passMark, 'คะแนนรวม'); 
+            listeningScoreChartInstance = createBarChart('listeningScoreChart', listeningScoreChartInstance, data, columnIndices.listeningScore, passMark, 'ทักษะการฟัง');
+            speakingScoreChartInstance = createBarChart('speakingScoreChart', speakingScoreChartInstance, data, columnIndices.speakingScore, passMark, 'ทักษะการพูด');
+            readingScoreChartInstance = createBarChart('readingScoreChart', readingScoreChartInstance, data, columnIndices.readingScore, passMark, 'ทักษะการอ่าน');
+            writingScoreChartInstance = createBarChart('writingScoreChart', writingScoreChartInstance, data, columnIndices.writingScore, passMark, 'ทักษะการเขียน');
         }
         
         function updateTable(data) {
