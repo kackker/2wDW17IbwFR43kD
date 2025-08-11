@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบรายงานความเร็ว WiFi โรงเรียนบ้านประสุข</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js for graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chart.js Datalabels Plugin -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+    <!-- Google Fonts: Sarabun -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Sarabun', sans-serif; }
+        .loader {
+            border: 8px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 8px solid #3498db;
+            width: 60px;
+            height: 60px;
+            animation: spin 2s linear infinite;
+        }
+        .modal-loader {
+            border: 4px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 4px solid #3498db;
+            width: 40px;
+            height: 40px;
+            animation: spin 1.5s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .view { transition: opacity 0.3s ease-in-out; }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <!-- ===== View 0: Login ===== -->
+    <div id="login-view" class="view hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div class="w-full max-w-sm bg-white rounded-xl shadow-lg p-8">
+            <h1 class="text-2xl font-bold text-center text-gray-800 mb-6">Admin Login</h1>
+            <form id="login-form" class="space-y-4">
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700">รหัสผ่าน</label>
+                    <input type="password" id="password" required class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <button type="submit" id="login-button" class="w-full flex justify-center items-center bg-gray-800 text-white font-bold py-2 px-4 rounded-lg hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:bg-gray-400">
+                    <span id="login-button-text">เข้าสู่ระบบ</span>
+                    <div id="login-loader" class="!w-5 !h-5 !border-2 !border-gray-200 !border-t-white rounded-full animate-spin hidden ml-3"></div>
+                </button>
+            </form>
+            <p id="login-status" class="mt-4 text-center text-sm text-red-600"></p>
+            <div class="text-center mt-4">
+                <button onclick="showView('dashboard')" class="text-gray-500 hover:underline text-sm">ยกเลิก</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== View 1: Dashboard (Default View) ===== -->
+    <div id="dashboard-view" class="view">
+        <div id="loading-overlay" class="fixed inset-0 bg-white bg-opacity-75 flex flex-col items-center justify-center z-50">
+            <div class="loader"></div>
+            <p class="mt-4 text-gray-600 font-semibold">กำลังโหลดข้อมูลแดชบอร์ด...</p>
+        </div>
+        <div id="dashboard-content" class="container mx-auto p-4 md:p-6 opacity-0 transition-opacity duration-500">
+            <header class="flex flex-col md:flex-row justify-between items-center mb-6">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-800">ระบบรายงานความเร็ว WiFi โรงเรียนบ้านประสุข</h1>
+                    <p class="text-gray-500">ภาพรวมผลการทดสอบความเร็วอินเทอร์เน็ต</p>
+                </div>
+                <div id="header-buttons" class="flex items-center space-x-4">
+                    <button onclick="handleNewDataClick()" class="mt-4 md:mt-0 px-5 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition shadow-md">
+                        &#43; บันทึกข้อมูลใหม่
+                    </button>
+                    <button id="logout-button" onclick="logout()" class="mt-4 md:mt-0 px-5 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition shadow-md hidden">
+                        ออกจากระบบ
+                    </button>
+                </div>
+            </header>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div class="bg-white p-6 rounded-xl shadow"><h3 class="text-gray-500 text-sm font-medium">ค่าเฉลี่ยดาวน์โหลด</h3><p id="avg-download" class="text-3xl font-bold text-blue-600">- Mbps</p></div>
+                <div class="bg-white p-6 rounded-xl shadow"><h3 class="text-gray-500 text-sm font-medium">ค่าเฉลี่ยอัปโหลด</h3><p id="avg-upload" class="text-3xl font-bold text-green-600">- Mbps</p></div>
+                <div class="bg-white p-6 rounded-xl shadow"><h3 class="text-gray-500 text-sm font-medium">จำนวนครั้งที่ทดสอบ</h3><p id="total-tests" class="text-3xl font-bold text-gray-700">-</p></div>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow mb-6"><h3 class="font-bold text-lg mb-4">ความเร็วเฉลี่ยแต่ละจุดติดตั้ง</h3><div class="h-96"><canvas id="locationChart"></canvas></div></div>
+            <div class="bg-white p-6 rounded-xl shadow">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold text-lg">ประวัติการบันทึกทั้งหมด</h3>
+                    <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="ค้นหาจากจุดติดตั้ง..." class="w-1/3 px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div class="overflow-x-auto"><table class="min-w-full divide-y divide-gray-200"><thead class="bg-gray-50"><tr><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ลำดับ</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">วัน/เวลา</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">จุดติดตั้ง</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Download (Mbps)</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Upload (Mbps)</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">หลักฐาน</th></tr></thead><tbody id="data-table-body" class="bg-white divide-y divide-gray-200"></tbody></table></div></div>
+            <footer class="text-center py-4 mt-8 text-sm text-gray-500 border-t border-gray-200">
+                <a href="https://eduinthai.com/" target="_blank" rel="noopener noreferrer" class="hover:text-blue-600 hover:underline">
+                    พัฒนาโดย: นายกานตพงศ์ สุวรรณทา
+                </a>
+            </footer>
+        </div>
+    </div>
+
+    <!-- ===== View 2: Form ===== -->
+    <div id="form-view" class="view hidden min-h-screen flex items-center justify-center p-4">
+        <div class="w-full max-w-lg bg-white rounded-xl shadow-lg p-6 md:p-8">
+            <div class="text-center mb-6">
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-800">บันทึกความเร็ว WiFi โรงเรียน</h1>
+                <p class="text-gray-500 mt-2">กรอกผลการทดสอบความเร็วอินเทอร์เน็ต</p>
+            </div>
+            <form id="wifi-form" class="space-y-6">
+                <div>
+                    <label for="location" class="block text-sm font-medium text-gray-700 mb-1">จุดติดตั้งไวไฟ</label>
+                    <input type="text" id="location" list="location-list" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" placeholder="เลือกหรือพิมพ์จุดติดตั้ง...">
+                    <datalist id="location-list">
+                        <!-- Options will be populated by JavaScript -->
+                    </datalist>
+                </div>
+                <div>
+                    <label for="download" class="block text-sm font-medium text-gray-700 mb-1">ความเร็วดาวน์โหลด (Mbps)</label>
+                    <input type="number" step="0.01" id="download" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" placeholder="เช่น 100.50">
+                </div>
+                <div>
+                    <label for="upload" class="block text-sm font-medium text-gray-700 mb-1">ความเร็วอัปโหลด (Mbps)</label>
+                    <input type="number" step="0.01" id="upload" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" placeholder="เช่น 50.25">
+                </div>
+                <div>
+                    <label for="evidence" class="block text-sm font-medium text-gray-700 mb-1">แนบรูปภาพหลักฐาน</label>
+                    <input type="file" id="evidence" accept="image/*" required class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                </div>
+                <div id="image-preview-container" class="hidden text-center">
+                    <img id="image-preview" src="#" alt="Image Preview" class="max-h-48 mx-auto rounded-lg shadow-sm"/>
+                </div>
+                <div>
+                    <button type="submit" id="submit-button" class="w-full flex justify-center items-center bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-gray-400">
+                        <span id="button-text">บันทึกข้อมูล</span>
+                        <div id="form-loader" class="!w-6 !h-6 !border-4 !border-gray-200 !border-t-white rounded-full animate-spin hidden ml-3"></div>
+                    </button>
+                </div>
+            </form>
+            <div id="form-status" class="mt-6 text-center text-sm"></div>
+            <div class="text-center mt-4">
+                <button onclick="showView('dashboard')" class="text-gray-600 hover:underline font-semibold">&larr; กลับไปหน้าแดชบอร์ด</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== Image Modal ===== -->
+    <div id="image-modal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 hidden p-4" onclick="hideImageModal()">
+        <div class="relative bg-white p-2 rounded-lg max-w-4xl max-h-full shadow-2xl flex items-center justify-center" onclick="event.stopPropagation()">
+            <div id="modal-spinner" class="modal-loader"></div>
+            <img id="modal-image" src="" alt="Full size evidence" class="max-w-full max-h-[90vh] object-contain hidden">
+            <button onclick="hideImageModal()" class="absolute -top-4 -right-4 bg-white rounded-full p-2 text-gray-800 hover:bg-gray-200 focus:outline-none shadow-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const API_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwZlgsiMYXbSeaB5QqVUgzFJi6n912kpr7jcGiNXFAoe4EGQplKwUMWusVfdXmqM0kr/exec';
+        let availableLocations = [];
+        let sessionToken = sessionStorage.getItem('sessionToken');
+
+        // --- View Switching Logic ---
+        function showView(viewName) {
+            document.getElementById('login-view').classList.toggle('hidden', viewName !== 'login');
+            document.getElementById('form-view').classList.toggle('hidden', viewName !== 'form');
+            document.getElementById('dashboard-view').classList.toggle('hidden', viewName !== 'dashboard');
+            
+            if (viewName === 'dashboard') {
+                loadDashboardData();
+            }
+        }
+
+        function handleNewDataClick() {
+            if (sessionToken) {
+                showView('form');
+            } else {
+                showView('login');
+            }
+        }
+
+        function populateLocationDatalist() {
+            const datalist = document.getElementById('location-list');
+            datalist.innerHTML = ''; // Clear existing options
+            availableLocations.forEach(location => {
+                const option = document.createElement('option');
+                option.value = location;
+                datalist.appendChild(option);
+            });
+        }
+        
+        // --- Login/Logout Logic ---
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const password = document.getElementById('password').value;
+            const loginButton = document.getElementById('login-button');
+            const buttonText = document.getElementById('login-button-text');
+            const loader = document.getElementById('login-loader');
+            const statusEl = document.getElementById('login-status');
+
+            loginButton.disabled = true;
+            buttonText.style.display = 'none';
+            loader.style.display = 'block';
+            statusEl.textContent = '';
+
+            try {
+                const response = await fetch(API_ENDPOINT, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ command: 'login', password: password }),
+                    redirect: 'follow'
+                });
+                const result = await response.json();
+                if (result.status !== 'success' || !result.token) {
+                    throw new Error(result.message || 'Login failed');
+                }
+                sessionToken = result.token;
+                sessionStorage.setItem('sessionToken', sessionToken); // Save token to session storage
+                showView('form');
+            } catch (error) {
+                statusEl.textContent = error.message;
+            } finally {
+                loginButton.disabled = false;
+                buttonText.style.display = 'block';
+                loader.style.display = 'none';
+            }
+        });
+
+        function logout() {
+            sessionToken = null;
+            sessionStorage.removeItem('sessionToken');
+            document.getElementById('logout-button').classList.add('hidden');
+            showView('dashboard');
+        }
+
+        // --- Form Submission Logic ---
+        document.getElementById('evidence').addEventListener('change', (event) => {
+            if (event.target.files && event.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    document.getElementById('image-preview').src = e.target.result;
+                    document.getElementById('image-preview-container').classList.remove('hidden');
+                }
+                reader.readAsDataURL(event.target.files[0]);
+            }
+        });
+
+        document.getElementById('wifi-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const fileInput = document.getElementById('evidence');
+            if (fileInput.files.length === 0) {
+                showFormStatus('กรุณาเลือกไฟล์รูปภาพหลักฐานค่ะ', 'error');
+                return;
+            }
+            setFormLoading(true);
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = async () => {
+                const payload = {
+                    command: 'saveData',
+                    token: sessionToken,
+                    formData: {
+                        location: document.getElementById('location').value,
+                        download: document.getElementById('download').value,
+                        upload: document.getElementById('upload').value,
+                        file: { fileName: file.name, mimeType: file.type, data: reader.result }
+                    }
+                };
+                try {
+                    const response = await fetch(API_ENDPOINT, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify(payload),
+                        redirect: 'follow'
+                    });
+                    const result = await response.json();
+                    if (result.status !== 'success') throw new Error(result.message);
+                    showFormStatus('บันทึกข้อมูลสำเร็จ!', 'success');
+                    document.getElementById('wifi-form').reset();
+                    document.getElementById('image-preview-container').classList.add('hidden');
+                } catch (error) {
+                    showFormStatus(`เกิดข้อผิดพลาด: ${error.message}`, 'error');
+                    if (error.message.includes('token')) {
+                        logout();
+                    }
+                } finally {
+                    setFormLoading(false);
+                }
+            };
+        });
+
+        function setFormLoading(isLoading) {
+            document.getElementById('submit-button').disabled = isLoading;
+            document.getElementById('button-text').style.display = isLoading ? 'none' : 'block';
+            document.getElementById('form-loader').style.display = isLoading ? 'block' : 'none';
+        }
+
+        function showFormStatus(message, type) {
+            const statusEl = document.getElementById('form-status');
+            statusEl.textContent = message;
+            statusEl.className = `mt-6 text-center text-sm ${type === 'success' ? 'text-green-600' : 'text-red-600'}`;
+            setTimeout(() => { statusEl.textContent = ''; }, 5000);
+        }
+
+        // --- Dashboard Logic ---
+        async function loadDashboardData() {
+            document.getElementById('loading-overlay').classList.remove('hidden');
+            document.getElementById('dashboard-content').classList.add('opacity-0');
+            try {
+                const response = await fetch(API_ENDPOINT); // Public GET request
+                if (!response.ok) {
+                   throw new Error(`ไม่สามารถโหลดข้อมูลได้`);
+                }
+                const payload = await response.json();
+                if (payload.status !== 'success') throw new Error(payload.message);
+                renderDashboard(payload);
+            } catch (error) {
+                document.getElementById('loading-overlay').innerHTML = `<p class="text-red-600 font-semibold">${error.message}</p>`;
+            }
+        }
+
+        function getPercentageClass(percent) {
+            if (percent >= 90) return 'text-green-600';
+            if (percent >= 70) return 'text-yellow-600';
+            return 'text-red-600';
+        }
+
+        function renderDashboard({ data, summary, locationData, locationList }) {
+            availableLocations = locationList || [];
+            populateLocationDatalist();
+            document.getElementById('logout-button').classList.toggle('hidden', !sessionToken);
+
+            document.getElementById('avg-download').innerHTML = `${summary.avgDownload} Mbps <span class="text-lg font-normal ${getPercentageClass(summary.avgDownloadPercent)}">(${summary.avgDownloadPercent}%)</span>`;
+            document.getElementById('avg-upload').innerHTML = `${summary.avgUpload} Mbps <span class="text-lg font-normal ${getPercentageClass(summary.avgUploadPercent)}">(${summary.avgUploadPercent}%)</span>`;
+            document.getElementById('total-tests').textContent = summary.totalTests;
+
+            const tableBody = document.getElementById('data-table-body');
+            tableBody.innerHTML = data.length === 0 ? '<tr><td colspan="6" class="text-center py-4 text-gray-500">ยังไม่มีข้อมูล</td></tr>' : data.map(row => {
+                const formulaString = row[5] || '';
+                const urlMatch = formulaString.match(/=HYPERLINK\("([^"]+)"/i);
+                const linkHTML = urlMatch ? 
+                    `<button onclick="showImageModal('${urlMatch[1]}')" class="inline-block bg-indigo-500 text-white text-xs font-semibold py-1 px-3 rounded-lg hover:bg-indigo-600 transition shadow-sm">ดูรูปภาพ</button>` 
+                    : '<span class="text-gray-400 text-xs">ไม่มีลิงก์</span>';
+                
+                const downloadPercent = row[6];
+                const uploadPercent = row[7];
+
+                return `<tr>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${row[0]}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${row[1]}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" data-searchable>${row[2]}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-blue-500 font-semibold">${row[3]} <span class="font-bold ${getPercentageClass(downloadPercent)}">(${downloadPercent}%)</span></td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500 font-semibold">${row[4]} <span class="font-bold ${getPercentageClass(uploadPercent)}">(${uploadPercent}%)</span></td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">${linkHTML}</td>
+                </tr>`;
+            }).join('');
+            
+            Chart.register(ChartDataLabels);
+            const ctx = document.getElementById('locationChart').getContext('2d');
+            if (window.myLocationChart) window.myLocationChart.destroy();
+            window.myLocationChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: locationData.labels,
+                    datasets: [
+                        { label: 'Download เฉลี่ย (Mbps)', data: locationData.downloadData, backgroundColor: 'rgba(59, 130, 246, 0.7)' },
+                        { label: 'Upload เฉลี่ย (Mbps)', data: locationData.uploadData, backgroundColor: 'rgba(16, 185, 129, 0.7)' }
+                    ]
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    scales: { y: { beginAtZero: true, title: { display: true, text: 'ความเร็ว (Mbps)' } } },
+                    plugins: {
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'top',
+                            formatter: (value, context) => {
+                                const datasetIndex = context.datasetIndex;
+                                const dataIndex = context.dataIndex;
+                                const packageDownload = locationData.packageDownload[dataIndex];
+                                const packageUpload = locationData.packageUpload[dataIndex];
+                                
+                                let percent = 0;
+                                if (datasetIndex === 0 && packageDownload > 0) {
+                                    percent = Math.round((value / packageDownload) * 100);
+                                } else if (datasetIndex === 1 && packageUpload > 0) {
+                                    percent = Math.round((value / packageUpload) * 100);
+                                }
+                                
+                                return percent > 0 ? `${percent}%` : '';
+                            },
+                            color: (context) => {
+                                const datasetIndex = context.datasetIndex;
+                                const dataIndex = context.dataIndex;
+                                const value = context.dataset.data[dataIndex];
+                                const packageDownload = locationData.packageDownload[dataIndex];
+                                const packageUpload = locationData.packageUpload[dataIndex];
+                                
+                                let percent = 0;
+                                if (datasetIndex === 0 && packageDownload > 0) {
+                                    percent = Math.round((value / packageDownload) * 100);
+                                } else if (datasetIndex === 1 && packageUpload > 0) {
+                                    percent = Math.round((value / packageUpload) * 100);
+                                }
+
+                                if (percent >= 90) return '#10B981'; // green-500
+                                if (percent >= 70) return '#F59E0B'; // amber-500
+                                return '#EF4444'; // red-500
+                            },
+                            font: {
+                                weight: 'bold'
+                            }
+                        }
+                    }
+                }
+            });
+
+            document.getElementById('loading-overlay').classList.add('hidden');
+            document.getElementById('dashboard-content').classList.remove('opacity-0');
+        }
+
+        function filterTable() {
+            const input = document.getElementById("searchInput");
+            const filter = input.value.toUpperCase();
+            const table = document.getElementById("data-table-body");
+            const tr = table.getElementsByTagName("tr");
+
+            for (let i = 0; i < tr.length; i++) {
+                const td = tr[i].getElementsByTagName("td")[2]; // Column for "จุดติดตั้ง"
+                if (td) {
+                    const txtValue = td.textContent || td.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        }
+
+        // --- Image Modal Logic ---
+        function showImageModal(imageUrl) {
+            const modal = document.getElementById('image-modal');
+            const modalImage = document.getElementById('modal-image');
+            const modalSpinner = document.getElementById('modal-spinner');
+
+            modalSpinner.style.display = 'block';
+            modalImage.style.display = 'none';
+            modal.classList.remove('hidden');
+            
+            modalImage.onload = () => {
+                modalSpinner.style.display = 'none';
+                modalImage.style.display = 'block';
+            };
+            modalImage.onerror = () => {
+                modalSpinner.style.display = 'none';
+            };
+            modalImage.src = imageUrl;
+        }
+
+        function hideImageModal() {
+            document.getElementById('image-modal').classList.add('hidden');
+            document.getElementById('modal-image').src = '';
+        }
+
+        // --- Initial Load ---
+        document.addEventListener('DOMContentLoaded', () => {
+            showView('dashboard');
+        });
+    </script>
+</body>
+</html>
