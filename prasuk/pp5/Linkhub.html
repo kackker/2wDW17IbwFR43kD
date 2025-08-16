@@ -71,13 +71,46 @@
             color: #555;
             font-weight: 400;
         }
+
+        /* ช่องค้นหา */
+        #search-box {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+            font-family: 'Sarabun', sans-serif;
+            font-size: 16px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        #search-box:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+            outline: none;
+        }
         
         /* กลุ่มปุ่มบริการ */
-        .service-buttons {
+        .service-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .service-column {
             display: flex;
             flex-direction: column;
             gap: 10px;
-            margin-bottom: 20px;
+        }
+
+        .column-header {
+            font-size: 18px;
+            font-weight: 600;
+            color: #444;
+            margin-bottom: 5px;
+            text-align: left;
         }
 
         .service-button {
@@ -91,6 +124,7 @@
             font-family: 'Sarabun', sans-serif;
             transition: background-color 0.3s, transform 0.2s;
             width: 100%;
+            text-align: left;
         }
 
         .service-button:hover {
@@ -219,14 +253,16 @@
         <h2>เลือกบริการ</h2>
         <h5>(บริการฟรี ไม่มีค่าใช้จ่าย)</h5>
         
-   <div class="service-container">
-        <div class="service-column">
-            <h2 class="column-header">เครื่องมือและระบบทั่วไป</h2>
-            <button class="service-button" data-pass="qr">ระบบสร้าง QRCode</button>
-            <button class="service-button" data-pass="url">ระบบย่อลิ้งเว็บไซต์</button>
-            <button class="service-button" data-pass="pic">ระบบฝากรูป</button>
+        <input type="text" id="search-box" placeholder="ค้นหาบริการ...">
+
+        <div class="service-container">
+            <div class="service-column">
+                <h2 class="column-header">เครื่องมือและระบบทั่วไป</h2>
+                <button class="service-button" data-pass="qr">ระบบสร้าง QRCode</button>
+                <button class="service-button" data-pass="url">ระบบย่อลิ้งเว็บไซต์</button>
+                <button class="service-button" data-pass="pic">ระบบฝากรูป</button>
+            </div>
         </div>
-    </div>
         
         <form id="login-form">
             <label for="password">หรือกรอกรหัสผ่าน:</label>
@@ -254,6 +290,8 @@
             const loadingIndicator = document.getElementById('loading');
             const iframe = document.getElementById('iframe');
             const serviceButtons = document.querySelectorAll('.service-button');
+            const searchBox = document.getElementById('search-box');
+            const serviceColumns = document.querySelectorAll('.service-column');
 
             // ฟังก์ชันสำหรับส่งฟอร์ม
             function submitLogin(password) {
@@ -319,6 +357,34 @@
             loginForm.addEventListener('submit', function(e) {
                 e.preventDefault();
                 submitLogin(passwordInput.value);
+            });
+
+            // จัดการการค้นหา
+            searchBox.addEventListener('input', function() {
+                const searchTerm = searchBox.value.toLowerCase();
+
+                serviceColumns.forEach(column => {
+                    let hasVisibleButton = false;
+                    const buttonsInColumn = column.querySelectorAll('.service-button');
+                    
+                    buttonsInColumn.forEach(button => {
+                        const buttonText = button.textContent.toLowerCase();
+                        if (buttonText.includes(searchTerm)) {
+                            button.style.display = 'block';
+                            hasVisibleButton = true;
+                        } else {
+                            button.style.display = 'none';
+                        }
+                    });
+
+                    // ซ่อนหรือแสดงหัวข้อของคอลัมน์
+                    const columnHeader = column.querySelector('.column-header');
+                    if (hasVisibleButton) {
+                        column.style.display = 'flex';
+                    } else {
+                        column.style.display = 'none';
+                    }
+                });
             });
         });
     </script>
