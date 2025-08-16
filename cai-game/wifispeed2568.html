@@ -34,6 +34,8 @@
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .view { transition: opacity 0.3s ease-in-out; }
+        .calendar-day.has-data { cursor: pointer; }
+        .calendar-day.has-data:hover { background-color: #EFF6FF; } /* blue-50 */
     </style>
 </head>
 <body class="bg-gray-100">
@@ -87,11 +89,34 @@
             </div>
             <div class="bg-white p-6 rounded-xl shadow mb-6"><h3 class="font-bold text-lg mb-4">ความเร็วเฉลี่ยแต่ละจุดติดตั้ง</h3><div class="h-96"><canvas id="locationChart"></canvas></div></div>
             <div class="bg-white p-6 rounded-xl shadow">
-                <div class="flex justify-between items-center mb-4">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
                     <h3 class="font-bold text-lg">ประวัติการบันทึกทั้งหมด</h3>
-                    <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="ค้นหาจากจุดติดตั้ง..." class="w-1/3 px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                    <div class="flex items-center space-x-2 mt-2 sm:mt-0">
+                        <div id="history-view-toggles" class="inline-flex rounded-md shadow-sm" role="group">
+                           <button type="button" onclick="showHistoryView('list')" class="history-toggle-btn bg-blue-600 text-white px-4 py-2 text-sm font-medium border border-gray-200 rounded-l-lg">รายการ</button>
+                           <button type="button" onclick="showHistoryView('calendar')" class="history-toggle-btn bg-white text-gray-900 px-4 py-2 text-sm font-medium border border-gray-200 rounded-r-md">ปฏิทิน</button>
+                        </div>
+                        <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="ค้นหาจากจุดติดตั้ง..." class="w-full sm:w-64 px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                    </div>
                 </div>
-                <div class="overflow-x-auto"><table class="min-w-full divide-y divide-gray-200"><thead class="bg-gray-50"><tr><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ลำดับ</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">วัน/เวลา</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">จุดติดตั้ง</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Download (Mbps)</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Upload (Mbps)</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">หลักฐาน</th></tr></thead><tbody id="data-table-body" class="bg-white divide-y divide-gray-200"></tbody></table></div></div>
+                <!-- Table View -->
+                <div id="table-view-container">
+                     <div id="filter-info" class="hidden my-2 p-2 bg-blue-100 text-blue-800 rounded-lg flex justify-between items-center">
+                        <p>กำลังแสดงผลสำหรับวันที่: <span id="filter-date" class="font-bold"></span></p>
+                        <button onclick="clearFilter()" class="text-blue-800 font-bold hover:underline">แสดงทั้งหมด</button>
+                    </div>
+                    <div class="overflow-x-auto"><table class="min-w-full divide-y divide-gray-200"><thead class="bg-gray-50"><tr><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ลำดับ</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">วัน/เวลา</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">จุดติดตั้ง</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Download (Mbps)</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Upload (Mbps)</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">หลักฐาน</th></tr></thead><tbody id="data-table-body" class="bg-white divide-y divide-gray-200"></tbody></table></div>
+                </div>
+                <!-- Calendar View -->
+                <div id="calendar-view-container" class="hidden">
+                    <div class="flex items-center justify-between mb-4">
+                        <button id="prev-month-btn" class="p-2 rounded-full hover:bg-gray-200"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></button>
+                        <h4 id="month-year-header" class="text-lg font-bold"></h4>
+                        <button id="next-month-btn" class="p-2 rounded-full hover:bg-gray-200"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></button>
+                    </div>
+                    <div id="calendar-grid" class="grid grid-cols-7 gap-1"></div>
+                </div>
+            </div>
             <footer class="text-center py-4 mt-8 text-sm text-gray-500 border-t border-gray-200">
                 <a href="https://eduinthai.com/" target="_blank" rel="noopener noreferrer" class="hover:text-blue-600 hover:underline">
                     พัฒนาโดย: นายกานตพงศ์ สุวรรณทา
@@ -161,6 +186,8 @@
         const API_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwZlgsiMYXbSeaB5QqVUgzFJi6n912kpr7jcGiNXFAoe4EGQplKwUMWusVfdXmqM0kr/exec';
         let availableLocations = [];
         let sessionToken = sessionStorage.getItem('sessionToken');
+        let allData = [];
+        let calendarDate = new Date();
 
         // --- View Switching Logic ---
         function showView(viewName) {
@@ -183,7 +210,7 @@
 
         function populateLocationDatalist() {
             const datalist = document.getElementById('location-list');
-            datalist.innerHTML = ''; // Clear existing options
+            datalist.innerHTML = '';
             availableLocations.forEach(location => {
                 const option = document.createElement('option');
                 option.value = location;
@@ -217,7 +244,7 @@
                     throw new Error(result.message || 'Login failed');
                 }
                 sessionToken = result.token;
-                sessionStorage.setItem('sessionToken', sessionToken); // Save token to session storage
+                sessionStorage.setItem('sessionToken', sessionToken);
                 showView('form');
             } catch (error) {
                 statusEl.textContent = error.message;
@@ -310,12 +337,13 @@
             document.getElementById('loading-overlay').classList.remove('hidden');
             document.getElementById('dashboard-content').classList.add('opacity-0');
             try {
-                const response = await fetch(API_ENDPOINT); // Public GET request
+                const response = await fetch(API_ENDPOINT);
                 if (!response.ok) {
                    throw new Error(`ไม่สามารถโหลดข้อมูลได้`);
                 }
                 const payload = await response.json();
                 if (payload.status !== 'success') throw new Error(payload.message);
+                allData = payload.data;
                 renderDashboard(payload);
             } catch (error) {
                 document.getElementById('loading-overlay').innerHTML = `<p class="text-red-600 font-semibold">${error.message}</p>`;
@@ -335,28 +363,10 @@
 
             document.getElementById('avg-download').innerHTML = `${summary.avgDownload} Mbps <span class="text-lg font-normal ${getPercentageClass(summary.avgDownloadPercent)}">(${summary.avgDownloadPercent}%)</span>`;
             document.getElementById('avg-upload').innerHTML = `${summary.avgUpload} Mbps <span class="text-lg font-normal ${getPercentageClass(summary.avgUploadPercent)}">(${summary.avgUploadPercent}%)</span>`;
-            document.getElementById('total-tests').textContent = summary.totalTests;
+            document.getElementById('total-tests').innerHTML = `${summary.totalTests} <span class="text-lg font-normal text-gray-500">ครั้ง (ใน ${summary.totalDays} วัน)</span>`;
 
-            const tableBody = document.getElementById('data-table-body');
-            tableBody.innerHTML = data.length === 0 ? '<tr><td colspan="6" class="text-center py-4 text-gray-500">ยังไม่มีข้อมูล</td></tr>' : data.map(row => {
-                const formulaString = row[5] || '';
-                const urlMatch = formulaString.match(/=HYPERLINK\("([^"]+)"/i);
-                const linkHTML = urlMatch ? 
-                    `<button onclick="showImageModal('${urlMatch[1]}')" class="inline-block bg-indigo-500 text-white text-xs font-semibold py-1 px-3 rounded-lg hover:bg-indigo-600 transition shadow-sm">ดูรูปภาพ</button>` 
-                    : '<span class="text-gray-400 text-xs">ไม่มีลิงก์</span>';
-                
-                const downloadPercent = row[6];
-                const uploadPercent = row[7];
-
-                return `<tr>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${row[0]}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${row[1]}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" data-searchable>${row[2]}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-blue-500 font-semibold">${row[3]} <span class="font-bold ${getPercentageClass(downloadPercent)}">(${downloadPercent}%)</span></td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500 font-semibold">${row[4]} <span class="font-bold ${getPercentageClass(uploadPercent)}">(${uploadPercent}%)</span></td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm">${linkHTML}</td>
-                </tr>`;
-            }).join('');
+            renderTable(data);
+            renderCalendar();
             
             Chart.register(ChartDataLabels);
             const ctx = document.getElementById('locationChart').getContext('2d');
@@ -407,9 +417,9 @@
                                     percent = Math.round((value / packageUpload) * 100);
                                 }
 
-                                if (percent >= 90) return '#10B981'; // green-500
-                                if (percent >= 70) return '#F59E0B'; // amber-500
-                                return '#EF4444'; // red-500
+                                if (percent >= 90) return '#10B981';
+                                if (percent >= 70) return '#F59E0B';
+                                return '#EF4444';
                             },
                             font: {
                                 weight: 'bold'
@@ -430,7 +440,7 @@
             const tr = table.getElementsByTagName("tr");
 
             for (let i = 0; i < tr.length; i++) {
-                const td = tr[i].getElementsByTagName("td")[2]; // Column for "จุดติดตั้ง"
+                const td = tr[i].getElementsByTagName("td")[2];
                 if (td) {
                     const txtValue = td.textContent || td.innerText;
                     if (txtValue.toUpperCase().indexOf(filter) > -1) {
@@ -441,6 +451,128 @@
                 }
             }
         }
+        
+        // --- History View Logic ---
+        function showHistoryView(viewName) {
+            document.getElementById('table-view-container').classList.toggle('hidden', viewName !== 'list');
+            document.getElementById('searchInput').classList.toggle('hidden', viewName !== 'list');
+            document.getElementById('calendar-view-container').classList.toggle('hidden', viewName !== 'calendar');
+            
+            const buttons = document.querySelectorAll('.history-toggle-btn');
+            buttons.forEach(btn => {
+                if (btn.textContent.toLowerCase().includes(viewName)) {
+                    btn.classList.add('bg-blue-600', 'text-white');
+                    btn.classList.remove('bg-white', 'text-gray-900');
+                } else {
+                    btn.classList.add('bg-white', 'text-gray-900');
+                    btn.classList.remove('bg-blue-600', 'text-white');
+                }
+            });
+        }
+        
+        function renderTable(dataToRender) {
+            const tableBody = document.getElementById('data-table-body');
+            tableBody.innerHTML = dataToRender.length === 0 ? '<tr><td colspan="6" class="text-center py-4 text-gray-500">ไม่พบข้อมูล</td></tr>' : dataToRender.map(row => {
+                const formulaString = row[5] || '';
+                const urlMatch = formulaString.match(/=HYPERLINK\("([^"]+)"/i);
+                const linkHTML = urlMatch ? 
+                    `<button onclick="showImageModal('${urlMatch[1]}')" class="inline-block bg-indigo-500 text-white text-xs font-semibold py-1 px-3 rounded-lg hover:bg-indigo-600 transition shadow-sm">ดูรูปภาพ</button>` 
+                    : '<span class="text-gray-400 text-xs">ไม่มีลิงก์</span>';
+                
+                const downloadPercent = row[6];
+                const uploadPercent = row[7];
+
+                return `<tr>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${row[0]}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${row[1]}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" data-searchable>${row[2]}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-blue-500 font-semibold">${row[3]} <span class="font-bold ${getPercentageClass(downloadPercent)}">(${downloadPercent}%)</span></td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500 font-semibold">${row[4]} <span class="font-bold ${getPercentageClass(uploadPercent)}">(${uploadPercent}%)</span></td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">${linkHTML}</td>
+                </tr>`;
+            }).join('');
+        }
+        
+        // --- Calendar Logic ---
+        function renderCalendar() {
+            const grid = document.getElementById('calendar-grid');
+            const header = document.getElementById('month-year-header');
+            grid.innerHTML = '';
+            
+            const year = calendarDate.getFullYear();
+            const month = calendarDate.getMonth();
+            
+            header.textContent = new Date(year, month).toLocaleDateString('th-TH', { month: 'long', year: 'numeric' });
+            
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            
+            const daysOfWeek = ['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส'];
+            daysOfWeek.forEach(day => {
+                grid.innerHTML += `<div class="text-center font-bold text-gray-600 text-sm">${day}</div>`;
+            });
+            
+            for (let i = 0; i < firstDay; i++) {
+                grid.innerHTML += '<div></div>';
+            }
+            
+            const dataByDay = allData.reduce((acc, row) => {
+                const entryDate = new Date(row[8]); // Use ISO Date from index 8
+                if (entryDate.getFullYear() === year && entryDate.getMonth() === month) {
+                    const day = entryDate.getDate();
+                    if (!acc[day]) acc[day] = [];
+                    acc[day].push(row);
+                }
+                return acc;
+            }, {});
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                let dayCellHTML = `<div class="calendar-day border rounded-lg p-2 h-24 flex flex-col items-center justify-center text-center`;
+                const dayData = dataByDay[day];
+                
+                if (dayData) {
+                    const avgDownloadPercent = dayData.reduce((sum, r) => sum + r[6], 0) / dayData.length;
+                    const colorClass = getPercentageClass(avgDownloadPercent).replace('text-', 'bg-').replace('-600', '-400');
+                    dayCellHTML += ` has-data" onclick="filterByDate(${day})">`;
+                    dayCellHTML += `<span class="font-semibold">${day}</span>`;
+                    dayCellHTML += `<div class="w-3 h-3 rounded-full ${colorClass} mt-2" title="ค่าเฉลี่ย ${avgDownloadPercent.toFixed(0)}%"></div>`;
+                } else {
+                    dayCellHTML += ` bg-gray-50 text-gray-400">`;
+                    dayCellHTML += `<span>${day}</span>`;
+                }
+                dayCellHTML += '</div>';
+                grid.innerHTML += dayCellHTML;
+            }
+        }
+        
+        function filterByDate(day) {
+            showHistoryView('list');
+            const year = calendarDate.getFullYear();
+            const month = calendarDate.getMonth();
+            const filteredData = allData.filter(row => {
+                const entryDate = new Date(row[8]);
+                return entryDate.getFullYear() === year && entryDate.getMonth() === month && entryDate.getDate() === day;
+            });
+            renderTable(filteredData);
+            document.getElementById('filter-info').classList.remove('hidden');
+            document.getElementById('filter-date').textContent = `${day} ${new Date(year, month).toLocaleDateString('th-TH', { month: 'long', year: 'numeric' })}`;
+        }
+        
+        function clearFilter() {
+            renderTable(allData);
+            document.getElementById('filter-info').classList.add('hidden');
+            document.getElementById('searchInput').value = '';
+        }
+        
+        document.getElementById('prev-month-btn').addEventListener('click', () => {
+            calendarDate.setMonth(calendarDate.getMonth() - 1);
+            renderCalendar();
+        });
+        
+        document.getElementById('next-month-btn').addEventListener('click', () => {
+            calendarDate.setMonth(calendarDate.getMonth() + 1);
+            renderCalendar();
+        });
 
         // --- Image Modal Logic ---
         function showImageModal(imageUrl) {
