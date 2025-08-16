@@ -7,402 +7,216 @@
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <style>
-        /* กำหนดฟอนต์และสไตล์พื้นฐาน */
-        body {
-            font-family: 'Sarabun', sans-serif;
-            margin: 0;
-            overflow-y: auto; /* อนุญาตให้เลื่อนได้ถ้าเนื้อหาเกิน */
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            padding: 20px 10px; /* เพิ่ม padding ด้านบนและด้านข้าง */
-            min-height: 100vh;
-            box-sizing: border-box;
-        }
-
-        /* พื้นหลังแบบรูปภาพ */
-        .background {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: url('https://lh3.googleusercontent.com/d/1zRGrwm32YUgg2UIeMERFwx5iQnfcAvp4');
-            background-size: cover;
-            background-position: center;
-            z-index: -1;
-        }
-
-        /* กล่องล็อกอิน */
-        .login-container {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-            text-align: center;
-            width: 400px; /* เพิ่มความกว้าง */
-            max-width: 95%; /* ปรับ max-width ให้ยืดหยุ่น */
-            animation: fadeIn 0.5s ease;
-            z-index: 1;
-        }
-
-        /* เอฟเฟกต์การเข้าของกล่อง */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* โลโก้ */
-        .logo {
-            width: 130px;
-            margin-bottom: 15px;
-        }
-
-        /* หัวข้อ */
-        h2 {
-            margin-bottom: 5px;
-            color: #333;
-            font-size: 22px;
-        }
-        
-        h5 {
-            margin-top: 5px;
-            margin-bottom: 15px;
-            color: #555;
-            font-weight: 400;
-        }
-
-        /* ช่องค้นหา */
-        #search-box {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            margin-bottom: 20px;
-            box-sizing: border-box;
-            font-family: 'Sarabun', sans-serif;
-            font-size: 16px;
-            transition: border-color 0.3s, box-shadow 0.3s;
-        }
-
-        #search-box:focus {
-            border-color: #3498db;
-            box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
-            outline: none;
-        }
-        
-        /* กลุ่มปุ่มบริการ */
-        .service-container {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .service-column {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .column-header {
-            font-size: 18px;
-            font-weight: 600;
-            color: #444;
-            margin-bottom: 5px;
-            text-align: left;
-        }
-
-        .service-button {
-            background-color: #f0f0f0;
-            color: #333;
-            border: 1px solid #ddd;
-            padding: 10px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 15px;
-            font-family: 'Sarabun', sans-serif;
-            transition: background-color 0.3s, transform 0.2s;
-            width: 100%;
-            text-align: left;
-        }
-
-        .service-button:hover {
-            background-color: #e0e0e0;
-            transform: translateY(-1px);
-        }
-
-        /* ฟอร์ม */
-        #login-form {
-            margin-top: 20px;
-        }
-
-        /* ป้ายชื่อ */
-        #login-form label {
-            display: block;
-            margin-bottom: 8px;
-            color: #555;
-            font-weight: bold;
-            text-align: center; /* จัดข้อความกึ่งกลาง */
-        }
-
-        /* ช่องกรอกรหัสผ่าน */
-        input[type="password"] {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            margin-bottom: 10px;
-            transition: border-color 0.3s, box-shadow 0.3s;
-            box-sizing: border-box;
-        }
-
-        input[type="password"]:focus {
-            border-color: #3498db;
-            box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
-            outline: none;
-        }
-
-        /* ข้อความแจ้งเตือนข้อผิดพลาด */
-        #error-message {
-            color: #e74c3c;
-            font-size: 14px;
-            margin-bottom: 15px;
-            min-height: 20px;
-            text-align: center;
-        }
-
-        /* ปุ่มยืนยัน */
-        button[type="submit"] {
-            background-color: #3498db;
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 16px;
-            font-family: 'Sarabun', sans-serif;
-            transition: background-color 0.3s, transform 0.2s;
-            width: 100%;
-        }
-
-        button[type="submit"]:hover {
-            background-color: #2980b9;
-            transform: translateY(-2px);
-        }
-
-        /* คอนเทนเนอร์สำหรับ iframe และตัวโหลด */
-        #iframe-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.9);
-            display: none;
-            justify-content: center;
-            align-items: flex-start; /* ปรับเป็นชิดบน */
-            padding-top: 10px; /* ระยะห่างจากขอบบน */
-            z-index: 1000;
-        }
-
-        /* ส่วนแสดงการโหลด */
-        #loading {
-            text-align: center;
-        }
-
-        /* อนิเมชันการโหลด */
-        .loader {
-            border: 12px solid #f3f3f3;
-            border-top: 12px solid #3498db;
-            border-radius: 50%;
-            width: 80px;
-            height: 80px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px auto;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        #loading p {
-            font-size: 18px;
-            color: #333;
-            margin: 0;
-        }
-
-        /* iframe */
-        #iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: 0;
-            display: none;
-        }
+        body { font-family: 'Sarabun', sans-serif; margin: 0; display: flex; justify-content: center; align-items: flex-start; padding: 20px 10px; min-height: 100vh; box-sizing: border-box; }
+        .background { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-image: url('https://lh3.googleusercontent.com/d/1zRGrwm32YUgg2UIeMERFwx5iQnfcAvp4'); background-size: cover; background-position: center; z-index: -1; }
+        .logo { width: 130px; margin-bottom: 15px; }
+        h2 { margin-bottom: 5px; color: #333; font-size: 22px; }
+        h5 { margin-top: 5px; margin-bottom: 15px; color: #555; font-weight: 400; }
+        .main-container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,0.3); text-align: center; width: 400px; max-width: 95%; z-index: 1; position: relative; }
+        .hidden { display: none !important; }
+        #search-box { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; margin-bottom: 20px; box-sizing: border-box; font-family: 'Sarabun', sans-serif; font-size: 16px; }
+        .service-container { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; }
+        .service-column { display: flex; flex-direction: column; gap: 10px; }
+        .column-header { font-size: 18px; font-weight: 600; color: #444; margin-bottom: 5px; text-align: left; }
+        .service-button { background-color: #f0f0f0; color: #333; border: 1px solid #ddd; padding: 10px; border-radius: 6px; cursor: pointer; font-size: 15px; font-family: 'Sarabun', sans-serif; transition: background-color 0.3s, transform 0.2s; width: 100%; text-align: left; }
+        .service-button:hover { background-color: #e0e0e0; transform: translateY(-1px); }
+        .login-form-section label { display: block; margin-bottom: 8px; color: #555; font-weight: bold; text-align: center; }
+        #password { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; margin-bottom: 10px; box-sizing: border-box; }
+        #error-message, #error-message-2fa { color: #e74c3c; font-size: 14px; margin-bottom: 15px; min-height: 20px; text-align: center; }
+        button { background-color: #3498db; color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; font-size: 16px; font-family: 'Sarabun', sans-serif; transition: background-color 0.3s, transform 0.2s; width: 100%; }
+        button:hover { background-color: #2980b9; transform: translateY(-2px); }
+        #pin-container { display: flex; justify-content: center; gap: 10px; margin: 20px 0; }
+        .pin-input { width: 45px; height: 50px; text-align: center; font-size: 24px; border: 1px solid #ccc; border-radius: 6px; }
+        #pattern-container { display: flex; flex-direction: column; align-items: center; margin: 10px 0; }
+        #pattern-canvas { border: 1px solid #ddd; border-radius: 8px; cursor: pointer; }
+        #reset-pattern-btn { margin-top: 15px; background-color: #e74c3c; }
+        #iframe-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.9); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .loader { border: 16px solid #f3f3f3; border-top: 16px solid #3498db; border-radius: 50%; width: 120px; height: 120px; animation: spin 2s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        #iframe { width: 100%; height: 100%; border: 0; }
+        .loading-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255, 255, 255, 0.85); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10; border-radius: 12px; }
     </style>
 </head>
 <body>
     <div class="background"></div>
 
-    <div class="login-container">
+    <!-- คอนเทนเนอร์หลัก -->
+    <div id="login-container" class="main-container">
+        <div class="loading-overlay hidden">
+            <div class="loader"></div>
+            <p style="margin-top: 20px;">กำลังตรวจสอบข้อมูล...</p>
+        </div>
         <img src="https://lh3.googleusercontent.com/d/1_yLLFZQNGOLofnjgEeW-P9NFxKVVvgWk" alt="Logo" class="logo">
         <h2>เลือกบริการ</h2>
         <h5>(บริการฟรี ไม่มีค่าใช้จ่าย)</h5>
-        
         <input type="text" id="search-box" placeholder="ค้นหาบริการ...">
-
-        <div class="service-container">
-            <div class="service-column">
-                <h2 class="column-header">เครื่องมือและระบบทั่วไป</h2>
-                <button class="service-button" data-pass="qr">ระบบสร้าง QRCode</button>
-                <button class="service-button" data-pass="url">ระบบย่อลิ้งเว็บไซต์</button>
-                <button class="service-button" data-pass="pic">ระบบฝากรูป</button>
-            </div>
-
-            <div class="service-column">
-                <h2 class="column-header">ระบบข้อมูลเฉพาะ</h2>
-                <button class="service-button" data-pass="prasuk565">ระบบข้อมูลนักเรียน</button>
-                <button class="service-button" data-pass="prasuk014723">ระบบข้อมูลครู</button>
-                <button class="service-button" data-pass="Yz3jxW^HsTrrEmq7">ระบบแสดงข้อมูลหนังสือคำสั่ง (แบบใหม่)</button>
-                <button class="service-button" data-pass="prasukao238a">ระบบบันทึกผลการพัฒนาคุณภาพผู้เรียน</button>
-                <button class="service-button" data-pass="prasuk292853">ระบบข้อมูลอิเล็กทรอนิกส์ โรงเรียนบ้านประสุข</button>
-                <button class="service-button" data-pass="prasuk836875">ระบบ ข้อมูล 0,ร,มส,มผ นักเรียน (กานตพงศ์)</button>
-                <button class="service-button" data-pass="prasuk727428">sheet ข้อมูล 0,ร,มส,มผ นักเรียน (กานตพงศ์)</button>
-            </div>
-
-            <div class="service-column">
-                <h2 class="column-header">ระบบรายงานข้อมูล</h2>
-                <button class="service-button" data-pass="Yz3jxW^HsTrrEmq6">ระบบรายงานความเร็ว WiFi โรงเรียนบ้านประสุข</button>
-                <button class="service-button" data-pass="Yz3jxW^HsTrrEmq5">ระบบรายงานผลการทดสอบวัดระดับ CEFR ภาษาอังกฤษ</button>
-            </div>
-        </div>
-        
-        <form id="login-form">
+        <div class="service-container"></div>
+        <div class="login-form-section">
             <label for="password">หรือกรอกรหัสผ่าน:</label>
             <input type="password" id="password" required>
             <div id="error-message"></div>
-            <button type="submit">ยืนยัน</button>
-        </form>
+            <button id="submit-password">ยืนยัน</button>
+        </div>
     </div>
 
-    <div id="iframe-container">
-        <div id="loading">
-            <div class="loader"></div>
-            <p>กำลังโหลดข้อมูล...</p>
+    <!-- คอนเทนเนอร์สำหรับ 2FA -->
+    <div id="second-factor-container" class="main-container hidden">
+        <img src="https://lh3.googleusercontent.com/d/1_yLLFZQNGOLofnjgEeW-P9NFxKVVvgWk" alt="Logo" class="logo">
+        <h2>ยืนยันตัวตนขั้นที่สอง</h2>
+        <h5>กรุณากรอก PIN หรือวาดรหัสแพทเทิร์น</h5>
+        <div class="login-form-section">
+            <label>กรอกรหัส PIN:</label>
+            <div id="pin-container">
+                <input type="text" class="pin-input" maxlength="1"><input type="text" class="pin-input" maxlength="1"><input type="text" class="pin-input" maxlength="1"><input type="text" class="pin-input" maxlength="1"><input type="text" class="pin-input" maxlength="1"><input type="text" class="pin-input" maxlength="1">
+            </div>
         </div>
-        <iframe id="iframe"></iframe>
+        <div class="login-form-section">
+            <label>วาดรหัสแพทเทิร์น:</label>
+            <div id="pattern-container">
+                <canvas id="pattern-canvas" width="250" height="250"></canvas>
+                <button id="reset-pattern-btn">วาดใหม่</button>
+            </div>
+        </div>
+        <div id="error-message-2fa"></div>
+    </div>
+
+    <!-- คอนเทนเนอร์สำหรับ iframe -->
+    <div id="iframe-container" class="hidden">
+        <div class="loader"></div>
+        <iframe id="iframe" style="display:none;"></iframe>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const loginForm = document.getElementById('login-form');
-            const passwordInput = document.getElementById('password');
-            const errorMessage = document.getElementById('error-message');
-            const loginContainer = document.querySelector('.login-container');
+            const loginContainer = document.getElementById('login-container');
+            const secondFactorContainer = document.getElementById('second-factor-container');
             const iframeContainer = document.getElementById('iframe-container');
-            const loadingIndicator = document.getElementById('loading');
             const iframe = document.getElementById('iframe');
-            const serviceButtons = document.querySelectorAll('.service-button');
-            const searchBox = document.getElementById('search-box');
-            const serviceColumns = document.querySelectorAll('.service-column');
+            const passwordInput = document.getElementById('password');
+            const submitPasswordBtn = document.getElementById('submit-password');
+            const errorMessage = document.getElementById('error-message');
+            const errorMessage2FA = document.getElementById('error-message-2fa');
+            const pinInputs = document.querySelectorAll('.pin-input');
+            const canvas = document.getElementById('pattern-canvas');
+            const ctx = canvas.getContext('2d');
+            const resetBtn = document.getElementById('reset-pattern-btn');
+            const loadingOverlay = document.querySelector('#login-container .loading-overlay');
+            
+            let twoFactorData = {};
 
-            // ฟังก์ชันสำหรับส่งฟอร์ม
-            function submitLogin(password) {
-                errorMessage.textContent = '';
-                loginContainer.style.display = 'none';
+            function showIframe(encodedUrl) {
+                loginContainer.classList.add('hidden');
+                secondFactorContainer.classList.add('hidden');
+                iframeContainer.classList.remove('hidden');
                 iframeContainer.style.display = 'flex';
-                loadingIndicator.style.display = 'block';
-                iframe.style.display = 'none';
-
-                const hashedInputPassword = CryptoJS.SHA256(password).toString();
-
-                fetch('https://script.google.com/macros/s/AKfycbymITyEcnX2fWibMRJ9CYcEFQ1KWUlmpZsq99dYd1ep9SNLSMiRZy7SjNKyv37xt5CJiA/exec', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: `password=${hashedInputPassword}`
-                })
-                .then(response => response.text())
-                .then(encodedIframeUrl => {
-                    if (encodedIframeUrl === 'Invalid Password') {
-                        errorMessage.textContent = "รหัสผ่านไม่ถูกต้อง!";
-                        passwordInput.value = '';
-                        loginContainer.style.display = 'block';
-                        iframeContainer.style.display = 'none';
-                    } else {
-                        try {
-                            const iframeUrl = CryptoJS.enc.Base64.parse(encodedIframeUrl).toString(CryptoJS.enc.Utf8);
-                            if (iframeUrl) {
-                                iframe.src = iframeUrl;
-                                iframe.onload = function() {
-                                    loadingIndicator.style.display = 'none';
-                                    iframe.style.display = 'block';
-                                };
-                            } else {
-                                throw new Error("Decoded URL is empty.");
-                            }
-                        } catch (error) {
-                            console.error('Base64 Decode Error:', error);
-                            errorMessage.textContent = "เกิดข้อผิดพลาดในการรับข้อมูล";
-                            loginContainer.style.display = 'block';
-                            iframeContainer.style.display = 'none';
-                        }
-                    }
-                })
-                .catch(error => {
-                    console.error('Fetch Error:', error);
-                    errorMessage.textContent = "เกิดข้อผิดพลาดขณะเชื่อมต่อ";
-                    passwordInput.value = '';
-                    loginContainer.style.display = 'block';
-                    iframeContainer.style.display = 'none';
-                });
+                
+                try {
+                    const iframeUrl = CryptoJS.enc.Base64.parse(encodedUrl).toString(CryptoJS.enc.Utf8);
+                    if (iframeUrl) {
+                        iframe.style.display = 'none'; // ซ่อน iframe ไว้ก่อน
+                        iframe.onload = () => {
+                            iframeContainer.querySelector('.loader').style.display = 'none'; // ซ่อนตัวโหลด
+                            iframe.style.display = 'block'; // แสดง iframe
+                        };
+                        iframe.src = iframeUrl;
+                    } else { throw new Error("Decoded URL is empty."); }
+                } catch (e) { showLoginScreen("เกิดข้อผิดพลาดในการถอดรหัส URL"); }
             }
 
-            // จัดการการคลิกปุ่มบริการ
-            serviceButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const pass = this.getAttribute('data-pass');
-                    passwordInput.value = pass;
-                    submitLogin(pass);
-                });
-            });
+            function showLoginScreen(message) {
+                iframeContainer.classList.add('hidden');
+                secondFactorContainer.classList.add('hidden');
+                loginContainer.classList.remove('hidden');
+                errorMessage.textContent = message;
+                passwordInput.value = '';
+                window.scrollTo(0, 0);
+            }
 
-            // จัดการการส่งฟอร์มแบบปกติ
-            loginForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                submitLogin(passwordInput.value);
-            });
+            function showSecondFactorScreen(data) {
+                twoFactorData = data;
+                loginContainer.classList.add('hidden');
+                secondFactorContainer.classList.remove('hidden');
+                errorMessage2FA.textContent = '';
+                pinInputs.forEach(input => input.value = '');
+                path = [];
+                draw();
+            }
 
-            // จัดการการค้นหา
-            searchBox.addEventListener('input', function() {
-                const searchTerm = searchBox.value.toLowerCase();
+            function submitFirstFactor(password) {
+                loadingOverlay.classList.remove('hidden');
+                errorMessage.textContent = '';
+                const hashedInputPassword = CryptoJS.SHA256(password).toString();
+                
+                // !!! วาง URL ใหม่ล่าสุดของครูโหน่งที่นี่ !!!
+                const scriptUrl = 'https://script.google.com/macros/s/AKfycbzs3cenPz_5SpxySUIcuhorHPhrzrdlLVAMFPUal_Kq1OsmkoXMwHyjlaZz5OXSHNMTMg/exec';
 
-                serviceColumns.forEach(column => {
-                    let hasVisibleButton = false;
-                    const buttonsInColumn = column.querySelectorAll('.service-button');
-                    
-                    buttonsInColumn.forEach(button => {
-                        const buttonText = button.textContent.toLowerCase();
-                        if (buttonText.includes(searchTerm)) {
-                            button.style.display = 'block';
-                            hasVisibleButton = true;
-                        } else {
-                            button.style.display = 'none';
-                        }
-                    });
-
-                    // ซ่อนหรือแสดงหัวข้อของคอลัมน์
-                    const columnHeader = column.querySelector('.column-header');
-                    if (hasVisibleButton) {
-                        column.style.display = 'flex';
-                    } else {
-                        column.style.display = 'none';
+                fetch(scriptUrl, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: `password=${hashedInputPassword}` })
+                .then(response => response.json())
+                .then(result => {
+                    switch (result.status) {
+                        case 'success': showIframe(result.url); break;
+                        case '2fa_required': showSecondFactorScreen(result); break;
+                        case 'invalid': showLoginScreen("รหัสผ่านไม่ถูกต้อง!"); break;
+                        default: showLoginScreen(result.message || "เกิดข้อผิดพลาดไม่ทราบสาเหตุ"); break;
                     }
-                });
-            });
+                })
+                .catch(error => { showLoginScreen("เกิดข้อผิดพลาดในการเชื่อมต่อ"); })
+                .finally(() => { loadingOverlay.classList.add('hidden'); });
+            }
+
+            function submitSecondFactor(secondPassword) {
+                const hashedSecondPassword = CryptoJS.SHA256(secondPassword).toString();
+                if (hashedSecondPassword === twoFactorData.pin || hashedSecondPassword === twoFactorData.pattern) {
+                    showIframe(twoFactorData.url);
+                } else {
+                    errorMessage2FA.textContent = "PIN หรือรหัสแพทเทิร์นไม่ถูกต้อง!";
+                    pinInputs.forEach(input => input.value = '');
+                    path = [];
+                    draw();
+                }
+            }
+
+            submitPasswordBtn.addEventListener('click', () => { if (passwordInput.value) submitFirstFactor(passwordInput.value); });
+            passwordInput.addEventListener('keypress', (e) => { if (e.key === 'Enter' && passwordInput.value) submitFirstFactor(passwordInput.value); });
+            pinInputs.forEach((input, index) => { input.addEventListener('input', () => { if (input.value.length === 1 && index < pinInputs.length - 1) { pinInputs[index + 1].focus(); } if (Array.from(pinInputs).every(i => i.value.length === 1)) { const pin = Array.from(pinInputs).map(i => i.value).join(''); submitSecondFactor(pin); } }); });
+            
+            let isDrawing = false, path = [], dots = [], dotRadius = 10, patternSize = 3;
+            function setupCanvas() { dots.length = 0; const gapX = canvas.width / (patternSize + 1); const gapY = canvas.height / (patternSize + 1); for (let i = 0; i < patternSize; i++) { for (let j = 0; j < patternSize; j++) { dots.push({ x: gapX * (j + 1), y: gapY * (i + 1), id: i * patternSize + j + 1 }); } } draw(); }
+            function draw() { ctx.clearRect(0, 0, canvas.width, canvas.height); dots.forEach(dot => { ctx.beginPath(); ctx.arc(dot.x, dot.y, dotRadius, 0, Math.PI * 2); ctx.fillStyle = path.includes(dot) ? '#3498db' : '#ccc'; ctx.fill(); }); if (path.length > 1) { ctx.beginPath(); ctx.moveTo(path[0].x, path[0].y); for(let i = 1; i < path.length; i++) { ctx.lineTo(path[i].x, path[i].y); } ctx.strokeStyle = '#3498db'; ctx.lineWidth = 3; ctx.stroke(); } }
+            function getDotAt(x, y) { for (const dot of dots) { const dx = x - dot.x; const dy = y - dot.y; if (dx * dx + dy * dy < (dotRadius * 1.5) * (dotRadius * 1.5) ) { return dot; } } return null; }
+            function getMousePos(e) { const rect = canvas.getBoundingClientRect(); const clientX = e.touches ? e.touches[0].clientX : e.clientX; const clientY = e.touches ? e.touches[0].clientY : e.clientY; return { x: clientX - rect.left, y: clientY - rect.top }; }
+            function startDraw(e) { e.preventDefault(); isDrawing = true; const pos = getMousePos(e); const dot = getDotAt(pos.x, pos.y); if (dot && !path.includes(dot)) { path.push(dot); } draw(); }
+            function moveDraw(e) { if (!isDrawing) return; e.preventDefault(); const pos = getMousePos(e); const dot = getDotAt(pos.x, pos.y); if (dot && !path.includes(dot)) { path.push(dot); } draw(); }
+            function endDraw() { if (isDrawing) { isDrawing = false; if (path.length > 0) { const pattern = path.map(d => d.id).join(''); submitSecondFactor(pattern); } } }
+            canvas.addEventListener('mousedown', startDraw); canvas.addEventListener('mousemove', moveDraw); canvas.addEventListener('mouseup', endDraw); canvas.addEventListener('mouseleave', endDraw); canvas.addEventListener('touchstart', startDraw); canvas.addEventListener('touchmove', moveDraw); canvas.addEventListener('touchend', endDraw);
+            resetBtn.addEventListener('click', () => { path = []; draw(); });
+            setupCanvas();
+            
+            const serviceContainer = document.querySelector('.service-container');
+            
+            const services = {
+    "เครื่องมือและระบบทั่วไป": [
+        { name: "ระบบสร้าง QRCode", pass: "qr" },
+        { name: "ระบบย่อลิ้งเว็บไซต์", pass: "url" },
+        { name: "ระบบฝากรูป", pass: "pic" }
+    ],
+    "ระบบข้อมูลเฉพาะ": [
+        { name: "ระบบข้อมูลนักเรียน", pass: "prasuk565" },
+        { name: "ระบบข้อมูลครู", pass: "prasuk014723" },
+        { name: "ระบบแสดงข้อมูลหนังสือคำสั่ง (แบบใหม่)", pass: "Yz3jxW^HsTrrEmq7" },
+        { name: "ระบบบันทึกผลการพัฒนาคุณภาพผู้เรียน", pass: "prasukao238a" },
+        { name: "ระบบข้อมูลอิเล็กทรอนิกส์ โรงเรียนบ้านประสุข", pass: "prasuk292853" },
+        { name: "ระบบ ข้อมูล 0,ร,มส,มผ นักเรียน (กานตพงศ์)", pass: "prasuk836875" },
+        { name: "sheet ข้อมูล 0,ร,มส,มผ นักเรียน (กานตพงศ์)", pass: "prasuk727428" }
+    ],
+    "ระบบรายงานข้อมูล": [
+        { name: "ระบบรายงานความเร็ว WiFi โรงเรียนบ้านประสุข", pass: "Yz3jxW^HsTrrEmq6" },
+        { name: "ระบบรายงานผลการทดสอบวัดระดับ CEFR ภาษาอังกฤษ", pass: "Yz3jxW^HsTrrEmq5" }
+    ]
+};
+            Object.keys(services).forEach(category => { const column = document.createElement('div'); column.className = 'service-column'; const header = document.createElement('h2'); header.className = 'column-header'; header.textContent = category; column.appendChild(header); services[category].forEach(service => { const button = document.createElement('button'); button.className = 'service-button'; button.textContent = service.name; button.dataset.pass = service.pass; button.addEventListener('click', function() { submitFirstFactor(this.dataset.pass); }); column.appendChild(button); }); serviceContainer.appendChild(column); });
+            const searchBox = document.getElementById('search-box');
+            searchBox.addEventListener('input', function() { const searchTerm = this.value.toLowerCase(); document.querySelectorAll('.service-column').forEach(column => { let hasVisibleButton = false; column.querySelectorAll('.service-button').forEach(button => { const buttonText = button.textContent.toLowerCase(); if (buttonText.includes(searchTerm)) { button.style.display = 'block'; hasVisibleButton = true; } else { button.style.display = 'none'; } }); column.style.display = hasVisibleButton ? 'flex' : 'none'; }); });
         });
     </script>
 </body>
