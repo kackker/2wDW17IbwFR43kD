@@ -33,12 +33,6 @@
             opacity: 0;
             pointer-events: none;
         }
-        .app-screen {
-            display: none;
-        }
-        #welcome-screen {
-            display: block;
-        }
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-4">
@@ -47,7 +41,7 @@
         
         <button id="sound-toggle-btn" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 focus:outline-none z-10 hidden"></button>
         
-        <div id="welcome-screen" class="app-screen">
+        <div id="welcome-screen">
             <img src="https://lh3.googleusercontent.com/d/1hEck4UE4_MCadmAVdNQkrrdiFx97QfLX" alt="Logo" class="mx-auto mb-6 w-40 h-auto rounded-2xl shadow-md">
             <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-4 text-center">ระบบทำข้อสอบออนไลน์</h1>
             <p class="text-center text-gray-600 mb-8">พร้อมแล้วเริ่มทำข้อสอบกันเลย!</p>
@@ -59,7 +53,7 @@
             </div>
         </div>
 
-        <div id="login-type-screen" class="app-screen">
+        <div id="login-type-screen" class="hidden">
             <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6 text-center">ระบบทำข้อสอบออนไลน์</h1>
             <div class="space-y-4">
                 <button onclick="showInternalLogin()" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 px-4 rounded-lg transition-colors duration-300 text-lg">
@@ -74,7 +68,7 @@
             </div>
         </div>
 
-        <div id="internal-login-screen" class="app-screen">
+        <div id="internal-login-screen" class="hidden">
             <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6 text-center">สำหรับนักเรียนในโรงเรียน</h1>
             <form id="internal-login-form" class="space-y-4">
                 <div>
@@ -102,7 +96,7 @@
             </div>
         </div>
 
-        <div id="student-info-screen" class="app-screen">
+        <div id="student-info-screen" class="hidden">
             <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6 text-center">สำหรับนักเรียนภายนอก</h1>
             <form id="student-info-form" class="space-y-4">
                 <div>
@@ -126,7 +120,7 @@
             </form>
         </div>
 
-        <div id="subject-selection-screen" class="app-screen text-center">
+        <div id="subject-selection-screen" class="hidden text-center">
             <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-2">กรุณาเลือกวิชา</h1>
             <p id="student-display-name" class="text-gray-500 mb-6"></p>
             
@@ -147,7 +141,7 @@
             <div id="error-message" class="mt-6 text-red-500 font-semibold hidden"></div>
         </div>
 
-        <div id="quiz-screen" class="app-screen">
+        <div id="quiz-screen" class="hidden">
             <div class="flex justify-between items-center mb-4">
                 <h2 id="quiz-title" class="text-xl md:text-2xl font-bold text-blue-600"></h2>
                 <div id="score-tracker" class="text-lg font-semibold text-gray-700">คะแนน: 0</div>
@@ -190,7 +184,7 @@
             </div>
         </div>
 
-        <div id="result-screen" class="app-screen text-center">
+        <div id="result-screen" class="hidden text-center">
             <h1 class="text-3xl font-bold text-gray-800 mb-2">สรุปผลการทดสอบ</h1>
             <p id="result-subject" class="text-xl text-gray-600 mb-6"></p>
             <div class="bg-blue-100/80 border-l-4 border-blue-500 text-blue-700 p-6 rounded-lg mb-6">
@@ -230,7 +224,7 @@
             </button>
         </div>
 
-        <div id="teacher-dashboard-screen" class="app-screen">
+        <div id="teacher-dashboard-screen" class="hidden">
             <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6 text-center">สรุปและตั้งค่า (สำหรับครู)</h1>
             
             <!-- Score Filtering Section -->
@@ -324,7 +318,7 @@
         const soundToggleButton = document.getElementById('sound-toggle-btn');
         const speakerOnIcon = `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /></svg>`;
         const speakerOffIcon = `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14l2-2m0 0l2-2m-2 2l-2 2m2-2l2 2" /></svg>`;
-        const allScreens = document.querySelectorAll('.app-screen');
+        const allScreens = document.querySelectorAll('#app-container > div[id$="-screen"]');
         const subjectSearchInput = document.getElementById('subject-search-input');
         const noSubjectFound = document.getElementById('no-subject-found');
         
@@ -369,8 +363,8 @@
         }
         
         function switchScreen(screenElement) {
-            allScreens.forEach(screen => screen.style.display = 'none');
-            screenElement.style.display = 'block';
+            allScreens.forEach(screen => screen.classList.add('hidden'));
+            screenElement.classList.remove('hidden');
             screenElement.classList.add('fade-in');
         }
         
@@ -525,6 +519,7 @@
                 container.setAttribute('data-subject-name', subject);
                 
                 const infoDiv = document.createElement('div');
+                infoDiv.className = 'text-left';
                 infoDiv.innerHTML = `<span class="text-lg font-semibold text-gray-800">${subject}</span>`;
                 const highScoreInfo = highScores[subject];
                 infoDiv.innerHTML += highScoreInfo 
