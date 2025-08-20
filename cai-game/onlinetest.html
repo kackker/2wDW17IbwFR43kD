@@ -759,11 +759,17 @@
                 }
 
             } catch (error) {
-                 if(showAnswers){
-                     feedbackContainer.className = 'mt-4 p-4 rounded-lg min-h-[90px] bg-yellow-100 border-l-4 border-yellow-500';
-                     feedbackMessage.textContent = 'เกิดข้อผิดพลาดในการตรวจคำตอบ'; feedbackMessage.className = 'font-bold text-lg text-yellow-700';
+                console.error("เกิดข้อผิดพลาดระหว่างการตรวจคำตอบ แต่จะนับเป็นคำตอบที่ถูกต้อง:", error);
+                score++;
+                answerLog.push(1); // บันทึกเป็นตอบถูก (1)
+
+                if(showAnswers){
+                    playSound('correct');
+                    feedbackContainer.className = 'mt-4 p-4 rounded-lg min-h-[90px] bg-green-100 border-l-4 border-green-500';
+                    feedbackMessage.textContent = 'ถูกต้อง (เกิดข้อผิดพลาด)';
+                    feedbackMessage.className = 'font-bold text-lg text-green-700';
+                    reasonText.textContent = 'เกิดข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์ ระบบจึงนับคะแนนให้ในข้อนี้';
                 }
-                answerLog.push('error'); 
             } finally {
                 document.getElementById('score-tracker').textContent = `คะแนน: ${score}`;
                 if (!showAnswers) feedbackContainer.classList.add('hidden');
