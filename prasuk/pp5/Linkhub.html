@@ -225,11 +225,14 @@
                 });
             }
 
-            // Clear search box and filter on page load to counter browser autofill
-            searchBox.value = '';
-            filterServices(); 
-
             searchBox.addEventListener('input', filterServices);
+
+            // Use a timeout to ensure our reset runs AFTER the browser's aggressive autofill
+            setTimeout(() => {
+                searchBox.value = '';
+                filterServices();
+            }, 100); // A 100ms delay is usually enough to beat autofill
+
         });
     </script>
 </body>
