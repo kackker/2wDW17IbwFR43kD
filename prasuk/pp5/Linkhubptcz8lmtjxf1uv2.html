@@ -14,7 +14,9 @@
         h5 { margin-top: 5px; margin-bottom: 15px; color: #555; font-weight: 400; }
         .main-container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,0.3); text-align: center; width: 400px; max-width: 95%; z-index: 1; position: relative; }
         .hidden { display: none !important; }
-        #search-box { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; margin-bottom: 20px; box-sizing: border-box; font-family: 'Sarabun', sans-serif; font-size: 16px; }
+        .search-container { display: flex; gap: 10px; margin-bottom: 20px; }
+        #search-box { flex-grow: 1; padding: 12px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-family: 'Sarabun', sans-serif; font-size: 16px; }
+        #search-btn { flex-shrink: 0; padding: 12px 20px; }
         .service-container { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; }
         .service-column { display: flex; flex-direction: column; gap: 10px; }
         .column-header { font-size: 18px; font-weight: 600; color: #444; margin-bottom: 5px; text-align: left; }
@@ -23,13 +25,14 @@
         .login-form-section label { display: block; margin-bottom: 8px; color: #555; font-weight: bold; text-align: center; }
         #password { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; margin-bottom: 10px; box-sizing: border-box; }
         #error-message, #error-message-2fa { color: #e74c3c; font-size: 14px; margin-bottom: 15px; min-height: 20px; text-align: center; }
-        button { background-color: #3498db; color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; font-size: 16px; font-family: 'Sarabun', sans-serif; transition: background-color 0.3s, transform 0.2s; width: 100%; }
+        button { background-color: #3498db; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-family: 'Sarabun', sans-serif; transition: background-color 0.3s, transform 0.2s; }
         button:hover { background-color: #2980b9; transform: translateY(-2px); }
+        #submit-password { width: 100%; padding: 12px 20px; }
         #pin-container { display: flex; justify-content: center; gap: 10px; margin: 20px 0; }
         .pin-input { width: 45px; height: 50px; text-align: center; font-size: 24px; border: 1px solid #ccc; border-radius: 6px; }
         #pattern-container { display: flex; flex-direction: column; align-items: center; margin: 10px 0; }
         #pattern-canvas { border: 1px solid #ddd; border-radius: 8px; cursor: pointer; }
-        #reset-pattern-btn { margin-top: 15px; background-color: #e74c3c; }
+        #reset-pattern-btn { margin-top: 15px; background-color: #e74c3c; width: 100%; padding: 12px 20px;}
         #iframe-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.9); display: none; justify-content: center; align-items: center; z-index: 1000; }
         .loader { border: 16px solid #f3f3f3; border-top: 16px solid #3498db; border-radius: 50%; width: 120px; height: 120px; animation: spin 2s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -49,7 +52,10 @@
         <img src="https://lh3.googleusercontent.com/d/1_yLLFZQNGOLofnjgEeW-P9NFxKVVvgWk" alt="Logo" class="logo">
         <h2>เลือกบริการ</h2>
         <h5>(บริการฟรี ไม่มีค่าใช้จ่าย)</h5>
-        <input type="text" id="search-box" placeholder="ค้นหาบริการ...">
+        <div class="search-container">
+            <input type="text" id="search-box" placeholder="ค้นหาบริการ..." autocomplete="off">
+            <button id="search-btn">ค้นหา</button>
+        </div>
         <div class="service-container"></div>
         <div class="login-form-section">
             <label for="password">หรือกรอกรหัสผ่าน:</label>
@@ -147,7 +153,6 @@
                 errorMessage.textContent = '';
                 const hashedInputPassword = CryptoJS.SHA256(password).toString();
                 
-                // !!! วาง URL ใหม่ล่าสุดของครูโหน่งที่นี่ !!!
                 const scriptUrl = 'https://script.google.com/macros/s/AKfycbzs3cenPz_5SpxySUIcuhorHPhrzrdlLVAMFPUal_Kq1OsmkoXMwHyjlaZz5OXSHNMTMg/exec';
 
                 fetch(scriptUrl, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: `password=${hashedInputPassword}` })
@@ -193,30 +198,65 @@
             setupCanvas();
             
             const serviceContainer = document.querySelector('.service-container');
-            
-            const services = {
-    "เครื่องมือและระบบทั่วไป": [
-        { name: "ระบบสร้าง QRCode", pass: "qr" },
-        { name: "ระบบย่อลิ้งเว็บไซต์", pass: "url" },
-        { name: "ระบบฝากรูป", pass: "pic" }
-    ],
-    "ระบบข้อมูลเฉพาะ": [
-        { name: "ระบบข้อมูลนักเรียน", pass: "prasuk565" },
-        { name: "ระบบข้อมูลครู", pass: "prasuk014723" },
-        { name: "ระบบแสดงข้อมูลหนังสือคำสั่ง (แบบใหม่)", pass: "Yz3jxW^HsTrrEmq7" },
-        { name: "ระบบบันทึกผลการพัฒนาคุณภาพผู้เรียน", pass: "prasukao238a" },
-        { name: "ระบบข้อมูลอิเล็กทรอนิกส์ โรงเรียนบ้านประสุข", pass: "prasuk292853" },
-        { name: "ระบบ ข้อมูล 0,ร,มส,มผ นักเรียน (กานตพงศ์)", pass: "prasuk836875" },
-        { name: "sheet ข้อมูล 0,ร,มส,มผ นักเรียน (กานตพงศ์)", pass: "prasuk727428" }
-    ],
-    "ระบบรายงานข้อมูล": [
-        { name: "ระบบรายงานความเร็ว WiFi โรงเรียนบ้านประสุข", pass: "Yz3jxW^HsTrrEmq6" },
-        { name: "ระบบรายงานผลการทดสอบวัดระดับ CEFR ภาษาอังกฤษ", pass: "Yz3jxW^HsTrrEmq5" }
-    ]
-};
-            Object.keys(services).forEach(category => { const column = document.createElement('div'); column.className = 'service-column'; const header = document.createElement('h2'); header.className = 'column-header'; header.textContent = category; column.appendChild(header); services[category].forEach(service => { const button = document.createElement('button'); button.className = 'service-button'; button.textContent = service.name; button.dataset.pass = service.pass; button.addEventListener('click', function() { submitFirstFactor(this.dataset.pass); }); column.appendChild(button); }); serviceContainer.appendChild(column); });
             const searchBox = document.getElementById('search-box');
-            searchBox.addEventListener('input', function() { const searchTerm = this.value.toLowerCase(); document.querySelectorAll('.service-column').forEach(column => { let hasVisibleButton = false; column.querySelectorAll('.service-button').forEach(button => { const buttonText = button.textContent.toLowerCase(); if (buttonText.includes(searchTerm)) { button.style.display = 'block'; hasVisibleButton = true; } else { button.style.display = 'none'; } }); column.style.display = hasVisibleButton ? 'flex' : 'none'; }); });
+            const searchBtn = document.getElementById('search-btn');
+            
+                        const services = {
+                        "เครื่องมือและระบบทั่วไป": [
+                            { name: "ระบบสร้าง QRCode", pass: "qr" },
+                            { name: "ระบบย่อลิ้งเว็บไซต์", pass: "url" },
+                            { name: "ระบบฝากรูป", pass: "pic" }
+                        ],
+                        "ระบบข้อมูลเฉพาะ": [
+                            { name: "ระบบข้อมูลนักเรียน", pass: "prasuk565" },
+                            { name: "ระบบข้อมูลครู", pass: "prasuk014723" },
+                            { name: "ระบบแสดงข้อมูลหนังสือคำสั่ง (แบบใหม่)", pass: "Yz3jxW^HsTrrEmq7" },
+                            { name: "ระบบบันทึกผลการพัฒนาคุณภาพผู้เรียน", pass: "prasukao238a" },
+                            { name: "ระบบข้อมูลอิเล็กทรอนิกส์ โรงเรียนบ้านประสุข", pass: "prasuk292853" },
+                            { name: "ระบบ ข้อมูล 0,ร,มส,มผ นักเรียน (กานตพงศ์)", pass: "prasuk836875" },
+                            { name: "sheet ข้อมูล 0,ร,มส,มผ นักเรียน (กานตพงศ์)", pass: "prasuk727428" }
+                        ],
+                        "ระบบรายงานข้อมูล": [
+                            { name: "ระบบรายงานความเร็ว WiFi โรงเรียนบ้านประสุข", pass: "Yz3jxW^HsTrrEmq6" },
+                            { name: "ระบบรายงานผลการทดสอบวัดระดับ CEFR ภาษาอังกฤษ", pass: "Yz3jxW^HsTrrEmq5" }
+                        ]
+                    };
+
+            Object.keys(services).forEach(category => { const column = document.createElement('div'); column.className = 'service-column'; const header = document.createElement('h2'); header.className = 'column-header'; header.textContent = category; column.appendChild(header); services[category].forEach(service => { const button = document.createElement('button'); button.className = 'service-button'; button.textContent = service.name; button.dataset.pass = service.pass; button.addEventListener('click', function() { submitFirstFactor(this.dataset.pass); }); column.appendChild(button); }); serviceContainer.appendChild(column); });
+            
+            function filterServices() {
+                const searchTerm = searchBox.value.toLowerCase();
+                document.querySelectorAll('.service-column').forEach(column => {
+                    let hasVisibleButton = false;
+                    column.querySelectorAll('.service-button').forEach(button => {
+                        const buttonText = button.textContent.toLowerCase();
+                        if (buttonText.includes(searchTerm)) {
+                            button.style.display = 'block';
+                            hasVisibleButton = true;
+                        } else {
+                            button.style.display = 'none';
+                        }
+                    });
+                    column.style.display = hasVisibleButton ? 'flex' : 'none';
+                });
+            }
+
+            // --- Final Definitive Search Handling ---
+
+            // 1. Trigger search on button click.
+            searchBtn.addEventListener('click', filterServices);
+
+            // 2. Trigger search on pressing "Enter" in the search box.
+            searchBox.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    filterServices();
+                }
+            });
+
+            // 3. Set the initial state correctly on script load to show all services.
+            searchBox.value = '';
+            filterServices();
+
         });
     </script>
 </body>
