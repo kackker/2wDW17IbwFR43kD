@@ -193,20 +193,43 @@
             setupCanvas();
             
             const serviceContainer = document.querySelector('.service-container');
+            const searchBox = document.getElementById('search-box');
             
             const services = {
-    "เครื่องมือและระบบทั่วไป": [
-        { name: "ระบบสร้าง QRCode", pass: "qr" },
-        { name: "ระบบย่อลิ้งเว็บไซต์", pass: "url" },
-        { name: "ระบบฝากรูป", pass: "pic" }
-    ],
-    "ระบบข้อมูลเฉพาะ": [
-        { name: "ระบบข้อมูลนักเรียน", pass: "prasuk565565" }
-    ]
-};
+                "เครื่องมือและระบบทั่วไป": [
+                    { name: "ระบบสร้าง QRCode", pass: "qr" },
+                    { name: "ระบบย่อลิ้งเว็บไซต์", pass: "url" },
+                    { name: "ระบบฝากรูป", pass: "pic" }
+                ],
+                "ระบบข้อมูลเฉพาะ": [
+                    { name: "ระบบข้อมูลนักเรียน", pass: "prasuk565565" }
+                ]
+            };
+
             Object.keys(services).forEach(category => { const column = document.createElement('div'); column.className = 'service-column'; const header = document.createElement('h2'); header.className = 'column-header'; header.textContent = category; column.appendChild(header); services[category].forEach(service => { const button = document.createElement('button'); button.className = 'service-button'; button.textContent = service.name; button.dataset.pass = service.pass; button.addEventListener('click', function() { submitFirstFactor(this.dataset.pass); }); column.appendChild(button); }); serviceContainer.appendChild(column); });
-            const searchBox = document.getElementById('search-box');
-            searchBox.addEventListener('input', function() { const searchTerm = this.value.toLowerCase(); document.querySelectorAll('.service-column').forEach(column => { let hasVisibleButton = false; column.querySelectorAll('.service-button').forEach(button => { const buttonText = button.textContent.toLowerCase(); if (buttonText.includes(searchTerm)) { button.style.display = 'block'; hasVisibleButton = true; } else { button.style.display = 'none'; } }); column.style.display = hasVisibleButton ? 'flex' : 'none'; }); });
+            
+            function filterServices() {
+                const searchTerm = searchBox.value.toLowerCase();
+                document.querySelectorAll('.service-column').forEach(column => {
+                    let hasVisibleButton = false;
+                    column.querySelectorAll('.service-button').forEach(button => {
+                        const buttonText = button.textContent.toLowerCase();
+                        if (buttonText.includes(searchTerm)) {
+                            button.style.display = 'block';
+                            hasVisibleButton = true;
+                        } else {
+                            button.style.display = 'none';
+                        }
+                    });
+                    column.style.display = hasVisibleButton ? 'flex' : 'none';
+                });
+            }
+
+            // Clear search box and filter on page load to counter browser autofill
+            searchBox.value = '';
+            filterServices(); 
+
+            searchBox.addEventListener('input', filterServices);
         });
     </script>
 </body>
