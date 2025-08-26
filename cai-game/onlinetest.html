@@ -277,11 +277,11 @@
 
             <!-- Quiz Settings Section -->
             <div class="p-4 border rounded-lg">
-                <h2 class="text-xl font-semibold text-gray-700 mb-4">ตั้งค่าการเฉลยข้อสอบ</h2>
+                <h2 class="text-xl font-semibold text-gray-700 mb-4">ตั้งค่าแบบทดสอบ</h2>
                  <div id="teacher-loader-settings" class="text-center mb-4">
                     <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-500"></div>
                 </div>
-                <div id="quiz-settings-container" class="space-y-3">
+                <div id="quiz-settings-container" class="space-y-4">
                     <!-- Settings will be injected here -->
                 </div>
             </div>
@@ -311,7 +311,7 @@
         const API_URL = 'https://script.google.com/macros/s/AKfycbxA6iM_zihkKBJo8fb09ADVjy5qiKnwsWI-haEHxn-uynKzN2ZHjT49ygwn-RKzb0hO9Q/exec';
 
         // --- STATE MANAGEMENT ---
-        let studentInfo = {}, currentSubject = '', allSubjects = [], highScores = {}, currentQuestions = [], currentQuestionIndex = 0, score = 0, answerLog = [], currentShuffledOptions = [], quizSettings = {};
+        let studentInfo = {}, currentSubject = '', allSubjects = {}, highScores = {}, currentQuestions = [], currentQuestionIndex = 0, score = 0, answerLog = [], currentShuffledOptions = [], quizSettings = {};
         let sfx = {}, isSoundEnabled = true, audioInitialized = false; 
 
         // --- DOM ELEMENTS ---
@@ -469,24 +469,13 @@
             loader.classList.remove('hidden'); buttonsContainer.innerHTML = ''; errorMsg.classList.add('hidden');
 
             try {
-                const [subjectsRes, highScoresRes, settingsRes] = await Promise.all([
-                    fetch(API_URL),
-                    fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'getHighScores', studentInfo }), headers: { 'Content-Type': 'text/plain;charset=utf-8' } }),
-                    fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'getQuizSettings' }), headers: { 'Content-Type': 'text/plain;charset=utf-8' }})
-                ]);
-
-                allSubjects = await subjectsRes.json();
-                if (allSubjects.error) throw new Error(allSubjects.error);
+                const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'getHighScores', studentInfo }), headers: { 'Content-Type': 'text/plain;charset=utf-8' } });
+                const result = await response.json();
+                if (result.status !== 'success') throw new Error(result.message);
                 
-                const highScoresResult = await highScoresRes.json();
-                if (highScoresResult.status !== 'success') throw new Error(highScoresResult.message);
-                highScores = highScoresResult.data || {};
-
-                const settingsResult = await settingsRes.json();
-                if (settingsResult.status !== 'success') throw new Error(settingsResult.message);
-                quizSettings = settingsResult.data || {};
-                
+                allSubjects = result.data; // The data is now the combined subject data
                 displaySubjects();
+
             } catch (error) {
                 errorMsg.textContent = 'เกิดข้อผิดพลาด: ไม่สามารถเชื่อมต่อกับฐานข้อมูลได้'; errorMsg.classList.remove('hidden');
             } finally {
@@ -542,44 +531,95 @@
         }
         
         function displaySubjects() {
-             const buttonsContainer = document.getElementById('subject-buttons');
-             buttonsContainer.innerHTML = '';
-             allSubjects.forEach(subject => {
+            const buttonsContainer = document.getElementById('subject-buttons');
+            buttonsContainer.innerHTML = '';
+            
+            const parseLocalDate = (dateString) => {
+                if (!dateString) return null;
+                const [year, month, day] = dateString.split('-').map(Number);
+                return new Date(year, month - 1, day);
+            };
+
+            Object.keys(allSubjects).forEach(subjectName => {
+                const subject = allSubjects[subjectName];
+                const { settings, studentProgress } = subject;
+                const { highScore, attemptCount, certificateUrl } = studentProgress;
+                const { maxAttempts, startDate, endDate } = settings;
+
                 const container = document.createElement('div');
                 container.className = 'w-full bg-white hover:bg-gray-50 border border-gray-200 shadow-sm rounded-lg p-3 transition-all duration-300 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 subject-item';
-                container.setAttribute('data-subject-name', subject);
+                container.setAttribute('data-subject-name', subjectName);
                 
                 const infoDiv = document.createElement('div');
-                infoDiv.className = 'text-left';
-                infoDiv.innerHTML = `<span class="text-lg font-semibold text-gray-800">${subject}</span>`;
-                const highScoreInfo = highScores[subject];
-                infoDiv.innerHTML += highScoreInfo 
-                    ? `<span class="block text-sm font-normal text-blue-600 mt-1">คะแนนสูงสุด: ${highScoreInfo.score} / ${highScoreInfo.total}</span>`
-                    : `<span class="block text-sm font-normal text-gray-400 mt-1">ยังไม่มีประวัติการสอบ</span>`;
+                infoDiv.className = 'text-left flex-grow';
+                infoDiv.innerHTML = `<span class="text-lg font-semibold text-gray-800">${subjectName}</span>`;
+                
+                if (highScore) {
+                    infoDiv.innerHTML += `<span class="block text-sm font-normal text-blue-600 mt-1">คะแนนสูงสุด: ${highScore.score} / ${highScore.total}</span>`;
+                } else {
+                     infoDiv.innerHTML += `<span class="block text-sm font-normal text-gray-400 mt-1">ยังไม่มีประวัติการสอบ</span>`;
+                }
+                
+                let attemptText = `ทำไปแล้ว: ${attemptCount} ครั้ง`;
+                if(maxAttempts){
+                    attemptText += ` / ${maxAttempts} ครั้ง`;
+                }
+                infoDiv.innerHTML += `<span class="block text-sm font-normal text-gray-500 mt-1">${attemptText}</span>`;
+
+                if (startDate || endDate) {
+                    let dateText = 'ระยะเวลาสอบ: ';
+                    dateText += startDate ? parseLocalDate(startDate).toLocaleDateString('th-TH') : 'ไม่กำหนด';
+                    dateText += ' ถึง ';
+                    dateText += endDate ? parseLocalDate(endDate).toLocaleDateString('th-TH') : 'ไม่กำหนด';
+                    infoDiv.innerHTML += `<span class="block text-sm font-normal text-green-600 mt-1">${dateText}</span>`;
+                }
+
+                let isLocked = false;
+                let lockMessage = '';
+                const now = new Date();
+                now.setHours(0,0,0,0);
+                const start = parseLocalDate(startDate);
+                const end = parseLocalDate(endDate);
+                
+                if(end) end.setHours(23,59,59,999);
+
+
+                if (start && now < start) {
+                    isLocked = true;
+                    lockMessage = `ยังไม่ถึงเวลาสอบ (เริ่ม ${start.toLocaleDateString('th-TH')})`;
+                } else if (end && now > end) {
+                    isLocked = true;
+                    lockMessage = `หมดเวลาสอบแล้ว (สิ้นสุด ${end.toLocaleDateString('th-TH')})`;
+                } else if (maxAttempts && attemptCount >= maxAttempts) {
+                    isLocked = true;
+                    lockMessage = `ทำข้อสอบครบจำนวนครั้งที่กำหนดแล้ว`;
+                }
+
+                if(isLocked){
+                     infoDiv.innerHTML += `<span class="block text-sm font-bold text-red-500 mt-1">${lockMessage}</span>`;
+                }
+
+
                 container.appendChild(infoDiv);
 
                 const buttonsDiv = document.createElement('div');
                 buttonsDiv.className = 'flex items-center gap-2 flex-shrink-0 subject-buttons-div';
                 
-                if (highScoreInfo && highScoreInfo.certificateUrl) {
+                if (certificateUrl) {
                     const certButton = document.createElement('button');
                     certButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.685 2.126A1 1 0 0112.5 3.013V4h1.5a.5.5 0 010 1H12v1.5a.5.5 0 01-1 0V5H9.5a.5.5 0 010-1H11V3.013a1 1 0 01.685-.887zM4 6a2 2 0 012-2h8a2 2 0 012 2v1.586a1 1 0 00.293.707l1.414 1.414a1 1 0 010 1.414l-1.414 1.414A1 1 0 0014 12.414V17a1 1 0 01-1 1H7a1 1 0 01-1-1v-4.586a1 1 0 00-.293-.707L4.293 10.293a1 1 0 010-1.414L5.707 7.464A1 1 0 006 6.757V6zM7 6v.757a2 2 0 01-.586 1.414L5 9.586l1 1v5.414h6v-5.414l1-1-1.414-1.414A2 2 0 0113 6.757V6H7z" clip-rule="evenodd" /></svg> เกียรติบัตร`;
                     certButton.className = 'inline-flex items-center px-3 py-2 text-xs bg-yellow-400 hover:bg-yellow-500 text-yellow-900 font-semibold rounded-md transition transform hover:scale-105';
-                    certButton.onclick = (e) => { e.stopPropagation(); playSound('click'); window.open(highScoreInfo.certificateUrl, '_blank'); };
+                    certButton.onclick = (e) => { e.stopPropagation(); playSound('click'); window.open(certificateUrl, '_blank'); };
                     buttonsDiv.appendChild(certButton);
-                } else if (highScoreInfo && (highScoreInfo.score / highScoreInfo.total * 100) >= 50) {
-                     const generateCertButton = document.createElement('button');
-                    generateCertButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5" viewBox="0 0 20 20" fill="currentColor"><path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v1a1 1 0 01-2 0V4H7v1a1 1 0 11-2 0V4z" /><path fill-rule="evenodd" d="M3 7a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7zm2 0h10v8H5V7z" clip-rule="evenodd" /></svg> สร้างเกียรติบัตร`;
-                    generateCertButton.className = 'inline-flex items-center px-3 py-2 text-xs bg-green-500 hover:bg-green-600 text-white font-semibold rounded-md transition transform hover:scale-105';
-                    generateCertButton.onclick = (e) => { e.stopPropagation(); playSound('click'); generateCertificateFromSubjectsPage(subject, generateCertButton); };
-                    buttonsDiv.appendChild(generateCertButton);
                 }
 
-                const startButton = document.createElement('button');
-                startButton.innerHTML = `เริ่มสอบ <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 1.414L10.586 9H7a1 1 0 100 2h3.586l-1.293 1.293a1 1 0 101.414 1.414l3-3a1 1 0 000-1.414z" clip-rule="evenodd" /></svg>`;
-                startButton.className = 'inline-flex items-center px-4 py-2 text-xs bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-md transition transform hover:scale-105';
-                startButton.onclick = (e) => { e.stopPropagation(); handleSubjectSelection(subject, startButton); };
-                buttonsDiv.appendChild(startButton);
+                if(!isLocked){
+                    const startButton = document.createElement('button');
+                    startButton.innerHTML = `เริ่มสอบ <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 1.414L10.586 9H7a1 1 0 100 2h3.586l-1.293 1.293a1 1 0 101.414 1.414l3-3a1 1 0 000-1.414z" clip-rule="evenodd" /></svg>`;
+                    startButton.className = 'inline-flex items-center px-4 py-2 text-xs bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-md transition transform hover:scale-105';
+                    startButton.onclick = (e) => { e.stopPropagation(); handleSubjectSelection(subjectName, startButton); };
+                    buttonsDiv.appendChild(startButton);
+                }
 
                 container.appendChild(buttonsDiv);
                 buttonsContainer.appendChild(container);
@@ -703,7 +743,7 @@
             buttons.forEach(btn => { btn.disabled = true; btn.classList.add('is-checking'); });
             
             const feedbackContainer = document.getElementById('feedback-container'), feedbackMessage = document.getElementById('feedback-message'), reasonText = document.getElementById('reason-text');
-            const showAnswers = quizSettings[currentSubject] !== undefined ? quizSettings[currentSubject] : true;
+            const showAnswers = allSubjects[currentSubject].settings.showAnswers;
 
             feedbackContainer.classList.remove('hidden');
             reasonText.innerHTML = '';
@@ -719,6 +759,7 @@
 
             try {
                 const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload), headers: { 'Content-Type': 'text/plain;charset=utf-8' } });
+                if(!response.ok) throw new Error("Network response was not ok.");
                 const result = await response.json();
                 
                 if (result.isCorrect) {
@@ -913,61 +954,65 @@
 
         async function loadTeacherDashboard() {
             switchScreen(document.getElementById('teacher-dashboard-screen'));
-            const loaderScores = document.getElementById('teacher-loader-scores');
             const loaderSettings = document.getElementById('teacher-loader-settings');
             const settingsContainer = document.getElementById('quiz-settings-container');
             
-            loaderScores.classList.add('hidden');
+            document.getElementById('teacher-loader-scores').classList.add('hidden');
             loaderSettings.classList.remove('hidden');
-            settingsContainer.innerHTML = ''; // Clear previous content
+            settingsContainer.innerHTML = ''; 
             
             try {
-                const [teacherDataRes, settingsRes] = await Promise.all([
-                    fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'getTeacherData' }), headers: { 'Content-Type': 'text/plain;charset=utf-8' }}),
-                    fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'getQuizSettings' }), headers: { 'Content-Type': 'text/plain;charset=utf-8' }})
-                ]);
-                
-                const teacherDataResult = await teacherDataRes.json();
-                const settingsResult = await settingsRes.json();
+                const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'getQuizSettings' }), headers: { 'Content-Type': 'text/plain;charset=utf-8' }});
+                const result = await response.json();
+                if(result.status !== 'success') throw new Error(result.message || 'Could not fetch settings');
 
-                if(teacherDataResult.status !== 'success' || settingsResult.status !== 'success') {
-                     throw new Error(teacherDataResult.message || settingsResult.message || 'Could not fetch data');
-                }
+                const settings = result.data;
+                const subjects = Object.keys(settings);
 
-                const { subjects, classNames } = teacherDataResult.data;
-                const settings = settingsResult.data;
+                const classNamesResponse = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'getTeacherData' }), headers: { 'Content-Type': 'text/plain;charset=utf-8' }});
+                const classNamesResult = await classNamesResponse.json();
+                const classNames = classNamesResult.data.classNames;
+
                 const subjectSelect = document.getElementById('teacher-subject-select');
                 const classSelect = document.getElementById('teacher-class-select');
 
                 subjectSelect.innerHTML = subjects.map(s => `<option value="${s}">${s}</option>`).join('');
-                classSelect.innerHTML = `<option value="all">ทุกชั้นเรียน</option>` + classNames.filter(c => c !== 'ทุกชั้นเรียน').map(c => `<option value="${c}">${c}</option>`).join('');
+                classSelect.innerHTML = `<option value="all">ทุกชั้นเรียน</option>` + classNames.map(c => `<option value="${c}">${c}</option>`).join('');
                 
                 subjects.forEach(subject => {
-                    const isChecked = settings[subject] !== undefined ? settings[subject] : true;
+                    const setting = settings[subject];
                     const settingDiv = document.createElement('div');
-                    settingDiv.className = 'flex items-center justify-between p-2 bg-gray-50 rounded-lg';
+                    settingDiv.className = 'p-3 bg-gray-50 rounded-lg border';
                     settingDiv.innerHTML = `
-                        <span class="text-sm font-medium text-gray-900">${subject}</span>
-                        <label for="toggle-${subject.replace(/\s+/g, '-')}" class="inline-flex relative items-center cursor-pointer">
-                            <input type="checkbox" id="toggle-${subject.replace(/\s+/g, '-')}" class="sr-only peer" ${isChecked ? 'checked' : ''}>
-                            <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-blue-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                        </label>
+                        <h3 class="font-semibold text-gray-800 mb-3">${subject}</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="flex items-center justify-between">
+                                <label for="toggle-${subject}" class="text-sm font-medium text-gray-700">แสดงเฉลย</label>
+                                <label class="inline-flex relative items-center cursor-pointer">
+                                    <input type="checkbox" id="toggle-${subject}" class="sr-only peer" ${setting.showAnswers ? 'checked' : ''}>
+                                    <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-2 peer-focus:ring-blue-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                </label>
+                            </div>
+                            <div>
+                                <label for="attempts-${subject}" class="block text-sm font-medium text-gray-700">จำนวนครั้งที่สอบได้</label>
+                                <input type="number" id="attempts-${subject}" value="${setting.maxAttempts || ''}" placeholder="ไม่จำกัด" class="mt-1 block w-full px-3 py-1.5 text-sm bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label for="start-${subject}" class="block text-sm font-medium text-gray-700">วันเริ่มสอบ</label>
+                                <input type="date" id="start-${subject}" value="${setting.startDate || ''}" class="mt-1 block w-full px-3 py-1.5 text-sm bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label for="end-${subject}" class="block text-sm font-medium text-gray-700">วันสิ้นสุด</label>
+                                <input type="date" id="end-${subject}" value="${setting.endDate || ''}" class="mt-1 block w-full px-3 py-1.5 text-sm bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                        </div>
+                        <button onclick="updateQuizSetting('${subject}')" class="mt-3 w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg text-sm transition-colors duration-300">บันทึกการตั้งค่า</button>
                     `;
                     settingsContainer.appendChild(settingDiv);
-                    settingDiv.querySelector('input').addEventListener('change', (e) => updateQuizSetting(subject, e.target.checked));
                 });
 
             } catch (e) {
                 Swal.fire('เกิดข้อผิดพลาด', `ไม่สามารถโหลดข้อมูลสำหรับครูได้: ${e.message}`, 'error');
-                const dashboard = document.getElementById('teacher-dashboard-screen');
-                const existingError = dashboard.querySelector('.error-message-div');
-                if (existingError) {
-                    existingError.remove();
-                }
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'error-message-div text-red-500 text-center font-semibold p-4 bg-red-100 border border-red-300 rounded-lg';
-                errorDiv.textContent = 'เกิดข้อผิดพลาดในการโหลดข้อมูล กรุณาลองอีกครั้ง หรือออกจากระบบ';
-                dashboard.prepend(errorDiv);
             } finally {
                 loaderSettings.classList.add('hidden');
             }
@@ -1023,17 +1068,40 @@
              }
         }
         
-        async function updateQuizSetting(subject, showAnswers) {
+        async function updateQuizSetting(subject) {
             playSound('click');
-            const toggle = document.getElementById(`toggle-${subject.replace(/\s+/g, '-')}`);
-            toggle.disabled = true;
-             try {
-                await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'updateQuizSetting', subject, showAnswers }), headers: { 'Content-Type': 'text/plain;charset=utf-8' }});
+            const showAnswers = document.getElementById(`toggle-${subject}`).checked;
+            const maxAttempts = document.getElementById(`attempts-${subject}`).value;
+            const startDate = document.getElementById(`start-${subject}`).value;
+            const endDate = document.getElementById(`end-${subject}`).value;
+
+            const payload = {
+                action: 'updateQuizSetting',
+                subject,
+                settings: {
+                    showAnswers,
+                    maxAttempts: maxAttempts || null,
+                    startDate: startDate || null,
+                    endDate: endDate || null
+                }
+            };
+
+            Swal.fire({
+                title: 'กำลังบันทึก...',
+                text: 'กรุณารอสักครู่',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            try {
+                const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload), headers: { 'Content-Type': 'text/plain;charset=utf-8' }});
+                const result = await response.json();
+                if (result.status !== 'success') throw new Error(result.message);
+                Swal.fire('สำเร็จ!', 'บันทึกการตั้งค่าเรียบร้อยแล้ว', 'success');
              } catch(e) {
-                Swal.fire('เกิดข้อผิดพลาด', 'ไม่สามารถบันทึกการตั้งค่าได้', 'error');
-                toggle.checked = !showAnswers;
-             } finally {
-                toggle.disabled = false;
+                Swal.fire('เกิดข้อผิดพลาด', `ไม่สามารถบันทึกการตั้งค่าได้: ${e.message}`, 'error');
              }
         }
 
