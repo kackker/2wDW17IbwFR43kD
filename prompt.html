@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Prompt Sharer - ระบบแชร์ Prompt</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://static.cloudflareinsights.com/beacon.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700&display=swap" rel="stylesheet">
@@ -38,7 +37,7 @@
         <!-- Admin View: To fetch and copy prompt -->
         <div id="admin-view" class="bg-white p-4 sm:p-6 md:p-8 rounded-xl shadow-lg space-y-6">
             <h1 class="text-2xl md:text-3xl font-bold text-gray-800 text-center">ระบบดึงข้อมูล Prompt</h1>
-            <p class="text-center text-gray-500">ใส่รหัสเพื่อดึงข้อมูล Prompt </p>
+            <p class="text-center text-gray-500">ใส่รหัสเพื่อดึงข้อมูล Prompt</p>
             <div>
                 <label for="idInput" class="block text-sm font-medium text-gray-700 mb-2">รหัส Prompt</label>
                 <input type="text" id="idInput" autocomplete="username" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out" placeholder="เช่น 1001, 1002">
@@ -240,16 +239,23 @@
             const urlParams = new URLSearchParams(window.location.search);
             const codeId = urlParams.get('id');
 
+            // Always show the admin view and hide the user view on page load.
+            adminView.classList.remove('hidden');
+            userView.classList.add('hidden');
+
             if (codeId) {
-                // If an 'id' parameter exists in the URL, fetch and display the prompt directly for the user.
-                fetchCodeForUserView(codeId);
-            } else {
-                // If no 'id' parameter is found, show the admin view to manually enter an ID.
-                adminView.classList.remove('hidden');
-                userView.classList.add('hidden');
+                // If an 'id' parameter exists, pre-fill the input field.
+                idInput.value = codeId;
+                
+                // Add a small delay to ensure the value is rendered in the input field
+                // before the fetch process starts. This improves user experience.
+                setTimeout(() => {
+                    // And then automatically "click" the button to fetch the prompt.
+                    getCodeBtn.click();
+                }, 100); // A 100ms delay is usually enough for the UI to update.
             }
             
-            // A more robust way to set the link back to the base URL.
+            // Set the link on the error page to go back to the base URL.
             document.querySelector('#error-view a').href = window.location.origin + window.location.pathname;
         }
 
@@ -257,3 +263,4 @@
     </script>
 </body>
 </html>
+
