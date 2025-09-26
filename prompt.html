@@ -94,7 +94,7 @@
     </footer>
 
     <script>
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzkFZRlwWxHslIWrDrzV2E8E5O_vhP5pkvlosppHltMVefvJjGwTdfXIoJS-oOYOhdv/exec'; 
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzkFZRlwWxHslIWrDrzV2E8E5O_vhP5pkvlosppHltMVefvJjGwTdfXIoJS-oOYOhdv/exec';
 
         // DOM elements for Admin View
         const adminView = document.getElementById('admin-view');
@@ -135,17 +135,21 @@
 
         async function copyToClipboard(text) {
             try {
-                const textArea = document.createElement('textarea');
-                textArea.value = text;
-                textArea.style.position = 'fixed';
-                textArea.style.opacity = '0';
-                document.body.appendChild(textArea);
-                textArea.focus();
-                textArea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textArea);
-            } catch (err)
-                {
+                // Use the modern clipboard API if available, with a fallback
+                if (navigator.clipboard && window.isSecureContext) {
+                    await navigator.clipboard.writeText(text);
+                } else {
+                    const textArea = document.createElement('textarea');
+                    textArea.value = text;
+                    textArea.style.position = 'fixed';
+                    textArea.style.opacity = '0';
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                }
+            } catch (err) {
                 console.error('Failed to copy text: ', err);
                 showToast('เกิดข้อผิดพลาดในการคัดลอก');
             }
@@ -184,7 +188,7 @@
                 adminLoader.classList.add('hidden');
             }
         });
-        
+
         adminCopyCodeBtn.addEventListener('click', () => {
             const codeToCopy = adminCodeDisplay.textContent;
             copyToClipboard(codeToCopy).then(() => {
@@ -233,22 +237,26 @@
 
         function initializePage() {
             const urlParams = new URLSearchParams(window.location.search);
-            const codeId = urlParams.get('id');
-            const prefillId = urlParams.get('setid'); // New parameter for pre-filling
+            
+            // The user wants '?id=xxxx' to pre-fill the input field.
+            // To preserve the direct-view functionality, we can change its parameter to '?view=xxxx'.
+            const viewId = urlParams.get('view');
+            const prefillId = urlParams.get('id');
 
-            if (codeId) {
-                // If 'id' parameter exists, show user view
-                fetchCodeForUserView(codeId);
+            if (viewId) {
+                // If a 'view' parameter exists, show the user view directly.
+                fetchCodeForUserView(viewId);
             } else {
-                // If no 'id' parameter, show admin view
+                // Otherwise, default to the admin view.
                 adminView.classList.remove('hidden');
                 userView.classList.add('hidden');
 
-                // If 'setid' parameter exists, pre-fill the input field
+                // If an 'id' parameter exists, use it to pre-fill the input field.
                 if (prefillId) {
                     idInput.value = prefillId;
                 }
             }
+            // Set the href for the "back" button in the error view.
             document.querySelector('#error-view a').href = window.location.href.split('?')[0];
         }
 
