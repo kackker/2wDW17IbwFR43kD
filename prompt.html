@@ -248,8 +248,8 @@
                 userView.classList.add('hidden');
             }
             
-            // Ensure the link on the error page goes back to the base URL without parameters.
-            document.querySelector('#error-view a').href = window.location.href.split('?')[0];
+            // A more robust way to set the link back to the base URL.
+            document.querySelector('#error-view a').href = window.location.origin + window.location.pathname;
         }
 
         window.addEventListener('DOMContentLoaded', initializePage);
