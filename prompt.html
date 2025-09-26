@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prompt Sharer - ระบบแชร์ Prompt</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Sarabun', sans-serif;
+        }
+        pre::-webkit-scrollbar { height: 8px; }
+        pre::-webkit-scrollbar-track { background: #2d3748; }
+        pre::-webkit-scrollbar-thumb { background: #718096; border-radius: 4px; }
+        pre::-webkit-scrollbar-thumb:hover { background: #a0aec0; }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col items-center justify-center p-4">
+
+    <div class="w-full max-w-2xl mx-auto">
+        <!-- Admin View: To fetch and copy prompt -->
+        <div id="admin-view" class="bg-white p-4 sm:p-6 md:p-8 rounded-xl shadow-lg space-y-6">
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-800 text-center">ระบบดึงข้อมูล Prompt</h1>
+            <p class="text-center text-gray-500">ใส่รหัสเพื่อดึงข้อมูล Prompt</p>
+            <div>
+                <label for="idInput" class="block text-sm font-medium text-gray-700 mb-2">รหัส Prompt</label>
+                <input type="text" id="idInput" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out" placeholder="เช่น 1001, 1002">
+            </div>
+            <button id="get-code-btn" class="w-full bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-transform transform hover:scale-105">
+                ดึงข้อมูล Prompt
+            </button>
+            <!-- Admin Preview Section -->
+            <div id="admin-preview-container" class="hidden space-y-4 pt-4 border-t border-gray-200">
+                <div id="admin-loader" class="text-center hidden">
+                    <div class="loader"></div>
+                    <p class="text-gray-500">กำลังโหลด Prompt...</p>
+                </div>
+                <div id="admin-code-content" class="hidden space-y-2">
+                    <label class="block text-sm font-medium text-gray-700">ข้อมูล Prompt</label>
+                    <button id="admin-copy-code-btn" class="w-full mb-2 bg-green-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-transform transform hover:scale-105">
+                        คัดลอก Prompt
+                    </button>
+                    <pre class="bg-gray-800 text-white p-4 rounded-lg overflow-x-auto text-sm"><code id="admin-code-display" class="font-mono"></code></pre>
+                </div>
+                <div id="admin-error-view" class="hidden text-center text-red-600 bg-red-100 p-4 rounded-lg">
+                    <p id="admin-error-message"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- User View: To display and copy prompt from URL -->
+        <div id="user-view" class="bg-white p-4 sm:p-6 md:p-8 rounded-xl shadow-lg space-y-6 hidden">
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-800 text-center">Prompt สำหรับคัดลอก</h1>
+             <div id="loading-view" class="text-center">
+                <div class="loader"></div>
+                <p class="text-gray-500">กำลังโหลด Prompt...</p>
+            </div>
+            <div id="code-content" class="hidden">
+                 <button id="copy-code-btn" class="w-full mb-4 bg-green-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-transform transform hover:scale-105">
+                    คัดลอก Prompt
+                </button>
+                 <pre class="bg-gray-800 text-white p-4 rounded-lg overflow-x-auto text-sm"><code id="code-display" class="font-mono"></code></pre>
+            </div>
+            <div id="error-view" class="hidden text-center text-red-600 bg-red-100 p-4 rounded-lg">
+                <p id="error-message"></p>
+                <a href="" class="text-indigo-600 hover:underline mt-2 inline-block">กลับไปหน้าหลัก</a>
+            </div>
+        </div>
+
+        <!-- Notification Toast -->
+        <div id="toast" class="fixed bottom-5 right-5 bg-green-500 text-white py-2 px-4 rounded-lg shadow-xl opacity-0 translate-y-10 transition-all duration-300">
+            <span id="toast-message"></span>
+        </div>
+    </div>
+
+    <footer class="text-center text-gray-500 text-sm py-4 mt-4">
+        <a href="https://eduinthai.com/" target="_blank" rel="noopener noreferrer" class="hover:underline">ผู้พัฒนา นายกานตพงศ์ สุวรรณทา</a>
+    </footer>
+
+    <script>
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzkFZRlwWxHslIWrDrzV2E8E5O_vhP5pkvlosppHltMVefvJjGwTdfXIoJS-oOYOhdv/exec'; 
+
+        // DOM elements for Admin View
+        const adminView = document.getElementById('admin-view');
+        const idInput = document.getElementById('idInput');
+        const getCodeBtn = document.getElementById('get-code-btn');
+        const adminPreviewContainer = document.getElementById('admin-preview-container');
+        const adminLoader = document.getElementById('admin-loader');
+        const adminCodeContent = document.getElementById('admin-code-content');
+        const adminCodeDisplay = document.getElementById('admin-code-display');
+        const adminCopyCodeBtn = document.getElementById('admin-copy-code-btn');
+        const adminErrorView = document.getElementById('admin-error-view');
+        const adminErrorMessage = document.getElementById('admin-error-message');
+
+        // DOM elements for User View
+        const userView = document.getElementById('user-view');
+        const loadingView = document.getElementById('loading-view');
+        const codeContent = document.getElementById('code-content');
+        const errorView = document.getElementById('error-view');
+        const errorMessage = document.getElementById('error-message');
+        const codeDisplay = document.getElementById('code-display');
+        const copyCodeBtn = document.getElementById('copy-code-btn');
+        
+        // DOM elements for Toast Notification
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toast-message');
+        let toastTimeout;
+
+        function showToast(message) {
+            clearTimeout(toastTimeout);
+            toastMessage.textContent = message;
+            toast.classList.remove('opacity-0', 'translate-y-10');
+            toast.classList.add('opacity-100', 'translate-y-0');
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-0');
+                toast.classList.add('opacity-0', 'translate-y-10');
+            }, 3000);
+        }
+
+        async function copyToClipboard(text) {
+            try {
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                textArea.style.position = 'fixed';
+                textArea.style.opacity = '0';
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+            } catch (err)
+                {
+                console.error('Failed to copy text: ', err);
+                showToast('เกิดข้อผิดพลาดในการคัดลอก');
+            }
+        }
+
+        getCodeBtn.addEventListener('click', async () => {
+            const codeId = idInput.value.trim();
+            if (!codeId) {
+                showToast('กรุณาใส่รหัส Prompt');
+                return;
+            }
+
+            // Fetch and display code in admin view
+            adminPreviewContainer.classList.remove('hidden');
+            adminCodeContent.classList.add('hidden');
+            adminErrorView.classList.add('hidden');
+            adminLoader.classList.remove('hidden');
+
+            try {
+                const response = await fetch(`${GOOGLE_SCRIPT_URL}?id=${codeId}`);
+                if (!response.ok) throw new Error(`Network response was not ok: ${response.statusText}`);
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    adminCodeDisplay.textContent = data.code;
+                    adminCodeContent.classList.remove('hidden');
+                } else {
+                    adminErrorMessage.textContent = data.message || 'เกิดข้อผิดพลาดในการดึงข้อมูล';
+                    adminErrorView.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Fetch error:', error);
+                adminErrorMessage.textContent = 'ไม่สามารถเชื่อมต่อกับฐานข้อมูลได้';
+                adminErrorView.classList.remove('hidden');
+            } finally {
+                adminLoader.classList.add('hidden');
+            }
+        });
+        
+        adminCopyCodeBtn.addEventListener('click', () => {
+            const codeToCopy = adminCodeDisplay.textContent;
+            copyToClipboard(codeToCopy).then(() => {
+                showToast('คัดลอก Prompt สำเร็จ!');
+                adminCopyCodeBtn.textContent = 'คัดลอกแล้ว!';
+                setTimeout(() => adminCopyCodeBtn.textContent = 'คัดลอก Prompt', 2000);
+            });
+        });
+
+        copyCodeBtn.addEventListener('click', () => {
+            const codeToCopy = codeDisplay.textContent;
+            copyToClipboard(codeToCopy).then(() => {
+                showToast('คัดลอก Prompt สำเร็จ!');
+                copyCodeBtn.textContent = 'คัดลอกแล้ว!';
+                setTimeout(() => copyCodeBtn.textContent = 'คัดลอก Prompt', 2000);
+            });
+        });
+
+        async function fetchCodeForUserView(id) {
+            adminView.classList.add('hidden');
+            userView.classList.remove('hidden');
+            loadingView.classList.remove('hidden');
+            codeContent.classList.add('hidden');
+            errorView.classList.add('hidden');
+
+            try {
+                const response = await fetch(`${GOOGLE_SCRIPT_URL}?id=${id}`);
+                if (!response.ok) throw new Error(`Network response was not ok: ${response.statusText}`);
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    codeDisplay.textContent = data.code;
+                    codeContent.classList.remove('hidden');
+                } else {
+                    errorMessage.textContent = data.message || 'เกิดข้อผิดพลาดในการดึงข้อมูล';
+                    errorView.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Fetch error:', error);
+                errorMessage.textContent = 'ไม่สามารถเชื่อมต่อกับฐานข้อมูลได้ กรุณาตรวจสอบการตั้งค่า';
+                errorView.classList.remove('hidden');
+            } finally {
+                loadingView.classList.add('hidden');
+            }
+        }
+
+        function initializePage() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const codeId = urlParams.get('id');
+
+            if (codeId) {
+                fetchCodeForUserView(codeId);
+            } else {
+                // If no ID, we assume it's the admin view
+                adminView.classList.remove('hidden');
+                userView.classList.add('hidden');
+            }
+            document.querySelector('#error-view a').href = window.location.href.split('?')[0];
+        }
+
+        window.addEventListener('DOMContentLoaded', initializePage);
+    </script>
+</body>
+</html>
+
