@@ -75,7 +75,7 @@
                  <button id="copy-code-btn" class="w-full mb-4 bg-green-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-transform transform hover:scale-105">
                     คัดลอก Prompt
                 </button>
-                 <pre class="bg-gray-800 text-white p-4 rounded-lg overflow-x-auto text-sm"><code id="code-display" class="font-mono"></code></pre>
+                <pre class="bg-gray-800 text-white p-4 rounded-lg overflow-x-auto text-sm"><code id="code-display" class="font-mono"></code></pre>
             </div>
             <div id="error-view" class="hidden text-center text-red-600 bg-red-100 p-4 rounded-lg">
                 <p id="error-message"></p>
@@ -234,13 +234,20 @@
         function initializePage() {
             const urlParams = new URLSearchParams(window.location.search);
             const codeId = urlParams.get('id');
+            const prefillId = urlParams.get('setid'); // New parameter for pre-filling
 
             if (codeId) {
+                // If 'id' parameter exists, show user view
                 fetchCodeForUserView(codeId);
             } else {
-                // If no ID, we assume it's the admin view
+                // If no 'id' parameter, show admin view
                 adminView.classList.remove('hidden');
                 userView.classList.add('hidden');
+
+                // If 'setid' parameter exists, pre-fill the input field
+                if (prefillId) {
+                    idInput.value = prefillId;
+                }
             }
             document.querySelector('#error-view a').href = window.location.href.split('?')[0];
         }
@@ -249,4 +256,3 @@
     </script>
 </body>
 </html>
-
