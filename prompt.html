@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เครื่องมือสร้างภาพ By Karntapong 🍌</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Base styles and theme variables */
+        :root {
+            --bg-light: #F5F5F5;
+            --text-light: #111111;
+            --border-light: #111111;
+            --shadow-light: #111111;
+            --accent1-light: #FFD60A; /* Sunglow Yellow */
+            --accent2-light: #FF7B00; /* Safety Orange */
+            --accent3-light: #00C853; /* Emerald Green */
+            --error-light: #D50000;
+
+            --bg-dark: #111111;
+            --text-dark: #F5F5F5;
+            --border-dark: #F5F5F5;
+            --shadow-dark: #F5F5F5;
+            --accent1-dark: #FFD60A;
+            --accent2-dark: #FF7B00;
+            --accent3-dark: #00C853;
+            --error-dark: #FF5252;
+        }
+
+        .light-mode {
+            --bg-color: var(--bg-light);
+            --text-color: var(--text-light);
+            --border-color: var(--border-light);
+            --shadow-color: var(--shadow-light);
+            --accent1-color: var(--accent1-light);
+            --accent2-color: var(--accent2-light);
+            --accent3-color: var(--accent3-light);
+            --error-color: var(--error-light);
+        }
+
+        .dark-mode {
+            --bg-color: var(--bg-dark);
+            --text-color: var(--text-dark);
+            --border-color: var(--border-dark);
+            --shadow-color: var(--shadow-dark);
+            --accent1-color: var(--accent1-dark);
+            --accent2-color: var(--accent2-dark);
+            --accent3-color: var(--accent3-dark);
+            --error-color: var(--error-dark);
+        }
+
+        body {
+            font-family: 'Sarabun', 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        /* Neo-Brutalism Elements */
+        .neo-card {
+            background-color: var(--bg-color);
+            border: 3px solid var(--border-color);
+            border-radius: 1rem; /* 16px */
+            box-shadow: 5px 5px 0 0 var(--shadow-color);
+            transition: all 0.2s ease-in-out;
+        }
+
+        .neo-button {
+            border: 3px solid var(--border-color);
+            border-radius: 9999px; /* Fully rounded */
+            box-shadow: 3px 3px 0 0 var(--shadow-color);
+            transition: all 0.15s ease-out;
+            font-weight: 700;
+        }
+
+        .neo-button:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 5px 5px 0 0 var(--shadow-color);
+        }
+        
+        .neo-button:active {
+            transform: translate(2px, 2px);
+            box-shadow: 1px 1px 0 0 var(--shadow-color);
+        }
+        
+        /* Disabled button style */
+        .neo-button:disabled {
+            opacity: 0.5;
+            background-color: #888; /* Gray background */
+            transform: none;
+            box-shadow: 3px 3px 0 0 var(--shadow-color);
+            cursor: not-allowed;
+        }
+
+        .neo-input {
+            border: 3px solid var(--border-color);
+            border-radius: 0.75rem; /* 12px */
+            background-color: var(--bg-color);
+            transition: all 0.2s ease-in-out;
+        }
+        
+        .neo-input:focus {
+            outline: none;
+            box-shadow: 0 0 0 4px var(--accent1-color);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+
+        /* Animations */
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .spinner {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes pulse {
+            50% { opacity: .5; }
+        }
+        .pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- AESTHETIC FIXES --- */
+
+        /* Hover effect for remove upload button */
+        .remove-upload-btn {
+            transition: all 0.2s ease;
+        }
+        .remove-upload-btn:hover {
+            background-color: var(--error-color);
+            color: var(--bg-color);
+            transform: scale(1.1) rotate(90deg);
+        }
+
+        /* Colors for result buttons */
+        .preview-btn { 
+            background-color: var(--accent1-color) !important; 
+            color: var(--text-light) !important; /* Force black text for yellow bg */
+        }
+        .download-btn { background-color: var(--accent2-color) !important; }
+        
+        /* Default regenerate button */
+        .regenerate-btn { background-color: var(--accent3-color) !important; }
+        
+        /* Regenerate button when in error state */
+        .regenerate-error-btn { background-color: var(--error-color) !important; }
+        
+    </style>
+</head>
+
+<body class="light-mode antialiased">
+    <div id="app" class="max-w-7xl mx-auto p-4 space-y-6">
+
+        <!-- Header Organism -->
+        <header class="flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl" style="letter-spacing: -1.5px;">
+                    <span class="font-bold">เครื่องมือสร้างภาพ</span><span class="font-light"> By Karntapong</span> 🍌
+                </h1>
+                <p class="text-sm opacity-70">สร้างภาพ AI ด้วย Gemini Banana</p>
+            </div>
+            <button id="theme-toggle" class="neo-button p-2 text-xl w-10 h-10 flex items-center justify-center flex-shrink-0">
+                <span class="light-mode-icon">🌙</span>
+                <span class="dark-mode-icon hidden">☀️</span>
+            </button>
+        </header>
+
+        <!-- Main Content Grid for Desktop -->
+        <main class="grid grid-cols-1 lg:grid-cols-2 lg:gap-6 space-y-6 lg:space-y-0">
+
+            <!-- Left Column -->
+            <div class="space-y-6">
+           
+                <!-- Upload Organism -->
+                <div class="neo-card p-4">
+                    <h2 class="text-lg font-bold mb-4">1. อัปโหลดรูปใบหน้า</h2>
+                    
+                    <!-- Female Upload -->
+                    <div class="mb-6">
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="font-semibold">รูปผู้หญิง</h3>
+                            <button id="clear-female-upload-btn" class="text-sm font-semibold hover:text-[var(--error-color)] transition-colors hidden">ล้าง</button>
+                        </div>
+                        <div id="female-upload-grid" class="grid grid-cols-3 sm:grid-cols-4 gap-3 mb-4">
+                            <!-- Uploaded female image thumbnail will be injected here -->
+                        </div>
+                        <label for="female-file-upload" class="neo-button w-full text-center block py-3 cursor-pointer" style="background-color: var(--accent2-color);">
+                            + เพิ่มรูปผู้หญิง
+                        </label>
+                        <input type="file" id="female-file-upload" class="hidden" accept="image/*">
+                        <p class="text-xs text-center mt-2 opacity-70">อัปโหลดภาพใบหน้าผู้หญิง 1 ภาพ</p>
+                    </div>
+
+                    <!-- Male Upload -->
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="font-semibold">รูปผู้ชาย</h3>
+                            <button id="clear-male-upload-btn" class="text-sm font-semibold hover:text-[var(--error-color)] transition-colors hidden">ล้าง</button>
+                        </div>
+                        <div id="male-upload-grid" class="grid grid-cols-3 sm:grid-cols-4 gap-3 mb-4">
+                            <!-- Uploaded male image thumbnail will be injected here -->
+                        </div>
+                        <label for="male-file-upload" class="neo-button w-full text-center block py-3 cursor-pointer" style="background-color: var(--accent2-color);">
+                            + เพิ่มรูปผู้ชาย
+                        </label>
+                        <input type="file" id="male-file-upload" class="hidden" accept="image/*">
+                        <p class="text-xs text-center mt-2 opacity-70">อัปโหลดภาพใบหน้าผู้ชาย 1 ภาพ</p>
+                    </div>
+                </div>
+           
+                <!-- Prompt Organism -->
+                <div class="neo-card p-4">
+                    <h2 class="text-lg font-bold mb-2">2. รหัส Prompt</h2>
+                    
+                    <!-- API Fetch Section -->
+                    <div class="mb-3">
+                        <label for="prompt-id-input" class="block text-sm font-semibold mb-2">ดึง Prompt จาก คลังข้อมูล (จำเป็น)</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="prompt-id-input" class="neo-input w-full p-2" placeholder="กรอกรหัส Prompt...">
+                        </div>
+                        <div id="api-status-message" class="text-sm text-center mt-3"></div>
+                        <div class="text-xs text-center mt-3 opacity-70 space-y-2">
+                             <p>ดูรหัสและตัวอย่างภาพได้ที่:</p>
+                             <a href="https://www.facebook.com/groups/1910488303217734/" target="_blank" rel="noopener noreferrer" class="neo-button w-full block text-center py-2" style="background-color: var(--accent1-color); color: var(--text-light);">
+                                กลุ่มคลังเก็บ Prompt
+                             </a>
+                            <a href="https://www.facebook.com/Karn.Crypto/" target="_blank" rel="noopener noreferrer" class="neo-button w-full block text-center py-2" style="background-color: var(--accent1-color); color: var(--text-light);">
+                                Facebook Karntapong
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Watermark Organism -->
+                <div class="neo-card p-4">
+                    <h2 class="text-lg font-bold mb-2">3. ใส่ลายน้ำ (ไม่จำเป็น)</h2>
+                    <input type="text" id="watermark-text" class="neo-input w-full p-2" placeholder="กรอกข้อความลายน้ำ...">
+                    <p class="text-xs text-center mt-2 opacity-70">ข้อความนี้จะถูกเพิ่มต่อท้าย "#ภาพaiไม่ใช่ภาพจริง"</p>
+                </div>
+
+                <!-- Action Button Container -->
+                <div id="action-button-container" class="mt-6">
+                    <button id="generate-btn" class="neo-button w-full text-center py-4 text-xl" style="background-color: var(--accent3-color);">
+                        สร้างภาพ
+                    </button>
+                </div>
+            </div>
+
+            <!-- Right Column (Results) -->
+            <div class="space-y-4">
+                <div class="flex justify-between items-center pt-4 lg:pt-0">
+                    <h2 class="text-xl font-bold">4. ผลลัพธ์</h2>
+                    <div id="download-all-container">
+                        <!-- Download all button will be injected here by render() -->
+                    </div>
+                </div>
+                <div id="results-placeholder" class="text-sm opacity-60 text-center lg:text-left">ผลลัพธ์จะแสดงที่นี่...</div>
+                <div id="output-section" class="space-y-4">
+                    <!-- Output images will be injected here -->
+                </div>
+            </div>
+
+        </main>
+        
+        <!-- Footer Organism -->
+        <footer class="text-center pt-8">
+            <a href="https://www.facebook.com/Karn.Crypto/" target="_blank" rel="noopener noreferrer" class="neo-button inline-flex items-center gap-2 px-4 py-2 mb-4">
+                <span>☕</span> สนับสนุน
+            </a>
+            <p class="text-xs">
+                <a href="https://www.facebook.com/Karn.Crypto/" target="_blank" rel="noopener noreferrer" class="underline hover:text-[var(--accent1-color)]">
+                    พัฒนาโดย Karntapong
+                </a>
+            </p>
+        </footer>
+
+        <!-- Modal Structure (moved inside #app) -->
+        <div id="image-modal" class="fixed inset-0 bg-[var(--bg-color)] bg-opacity-90 flex items-center justify-center p-4 z-50 hidden fade-in">
+            <div class="neo-card p-4 rounded-lg max-w-3xl w-full max-h-[90vh] flex flex-col">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-bold">ดูตัวอย่าง</h3>
+                    <button id="modal-close-btn" class="text-2xl font-bold hover:text-[var(--error-color)] transition-colors">&times;</button>
+                </div>
+                <div class="overflow-auto">
+                    <img id="modal-image" src="" class="w-full h-full object-cover rounded-lg" alt="Generated preview">
+                </div>
+            </div>
+        </div>
+
+        <!-- Custom Alert Modal -->
+        <div id="custom-alert-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden fade-in">
+            <div class="neo-card p-6 rounded-lg max-w-sm w-full">
+                <h3 class="text-lg font-bold mb-4" id="custom-alert-title">ข้อความ</h3>
+                <p id="custom-alert-message" class="mb-6">นี่คือข้อความแจ้งเตือน</p>
+                <button id="custom-alert-close-btn" class="neo-button w-full text-center py-2" style="background-color: var(--accent1-color);">
+                    ตกลง
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <script type="module">
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- State Management ---
+        const AppState = {
+            theme: 'dark',
+            femaleImage: null, // { id, file, base64Data }
+            maleImage: null,   // { id, file, base64Data }
+            outputs: [], // { id, title, imageUrl, status ('pending', 'generating', 'complete', 'error'), error, parts }
+            isGenerating: false,
+            nextId: 0
+        };
+
+        // --- API & Core Logic ---
+        const API_CONCURRENCY_LIMIT = 2;
+        const API_RETRY_LIMIT = 3;
+        const GOOGLE_SCRIPT_API_URL = "https://script.google.com/macros/s/AKfycbzkFZRlwWxHslIWrDrzV2E8E5O_vhP5pkvlosppHltMVefvJjGwTdfXIoJS-oOYOhdv/exec";
+        const requestQueue = [];
+        let activeRequests = 0;
+        let generationAbortController;
+
+        // --- Static prompt suffix ---
+        const PROMPT_SUFFIX = `
+
+รูปแบบการสร้างภาพ
+A naturally lit, close-up portrait with a shallow depth of field, rendering the background significantly out of focus with a pleasing bokeh effect. The image has a standard digital photograph quality, likely taken with a modern camera or smartphone. The color palette is composed of cool tones, predominantly various shades of blue in the foreground and natural greens and whites in the soft-focus background, suggesting an indoor setting near a window during daylight. The lighting is soft and even on the subject, highlighting facial features without harsh shadows, and the overall contrast is moderate. The composition is a medium-close shot, centered on the subject. The atmosphere is professional and calm, conveyed by the clear focus on the subject against a blurry backdrop.`;
+
+        /**
+         * Fetches a prompt from the Google Script API using a prompt ID.
+         */
+        async function fetchPromptFromAPI(promptId) {
+            const apiStatusMsg = getEl('api-status-message');
+            apiStatusMsg.textContent = "กำลังค้นหา...";
+            apiStatusMsg.className = "text-sm text-center mt-3 text-[var(--accent1-color)]"; // Yellow
+
+            try {
+                const response = await fetch(`${GOOGLE_SCRIPT_API_URL}?id=${encodeURIComponent(promptId)}`);
+                if (!response.ok) {
+                    throw new Error(`API returned status: ${response.status}`);
+                }
+                const data = await response.json();
+                if (data.status === "success" && data.code) {
+                    apiStatusMsg.textContent = "ดึง Prompt สำเร็จ!";
+                    apiStatusMsg.className = "text-sm text-center mt-3 text-[var(--accent3-color)]"; // Green
+                    return data.code; // Return the fetched prompt
+                } else {
+                    throw new Error(data.message || "ไม่พบรหัสนี้ในระบบ");
+                }
+            } catch (error) {
+                console.error("Fetch API error:", error);
+                apiStatusMsg.textContent = `ข้อผิดพลาด: ${error.message}`;
+                apiStatusMsg.className = "text-sm text-center mt-3 text-[var(--error-color)]"; // Red
+                return null; // Return null on failure
+            }
+        }
+
+        async function generateApiRequest(parts, signal, retryCount = 0) {
+            const apiKey = ""; // API key is handled by the execution environment
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=${apiKey}`;
+            
+            const payload = {
+                contents: [{
+                    parts: parts
+                }],
+                generationConfig: {
+                    responseModalities: ['IMAGE'] // Fixed typo: MODALITIES
+                },
+            };
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                    signal: signal
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API Error: ${response.statusText}`);
+                }
+
+                const result = await response.json();
+                
+                const candidate = result?.candidates?.[0];
+
+                if (!candidate) {
+                    throw new Error('API returned no candidates.');
+                }
+
+                if (candidate.finishReason && candidate.finishReason !== 'STOP') {
+                     if (candidate.safetyRatings) {
+                         console.error("Safety Ratings:", candidate.safetyRatings);
+                    }
+                    throw new Error(`Generation failed: ${candidate.finishReason}`);
+                }
+
+                const imageData = candidate?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
+                
+                if (!imageData) {
+                    throw new Error('No image data in API response.');
+                }
+                
+                return `data:image/png;base64,${imageData}`;
+
+            } catch (error) {
+                if (error.name === 'AbortError') {
+                    console.log('Fetch aborted by user.');
+                    throw error;
+                }
+
+                console.error(`Attempt ${retryCount + 1} failed:`, error);
+                if (retryCount < API_RETRY_LIMIT - 1) {
+                    const delay = Math.pow(2, retryCount) * 1000;
+                    await new Promise(res => setTimeout(res, delay));
+                    return generateApiRequest(parts, signal, retryCount + 1);
+                } else {
+                    throw error;
+                }
+            }
+        }
+
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result.split(',')[1]);
+                reader.onerror = error => reject(error);
+            });
+        }
+        
+        /**
+         * Adds a watermark to a base64 image URL.
+         * Returns a new base64 image URL with the watermark.
+         */
+        function addWatermark(base64Url, text) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    
+                    // 1. Draw the original image
+                    ctx.drawImage(img, 0, 0);
+                    
+                    // 2. Set up watermark style
+                    const fontSize = Math.max(18, Math.min(canvas.width * 0.02, canvas.height * 0.02)); // Dynamic font size
+                    ctx.font = `bold ${fontSize}px 'Sarabun', 'Inter', sans-serif`;
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.7)'; // Semi-transparent white
+                    ctx.textAlign = 'right';
+                    ctx.textBaseline = 'bottom';
+
+                    const padding = fontSize; // Padding from edge
+
+                    // 3. Draw shadow/outline for visibility
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                    ctx.fillText(text, canvas.width - padding + 1, canvas.height - padding + 1);
+
+                    // 4. Draw the main watermark text
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+                    ctx.fillText(text, canvas.width - padding, canvas.height - padding);
+                    
+                    // 5. Export canvas to base64 URL
+                    resolve(canvas.toDataURL('image/png'));
+                };
+                img.onerror = (err) => {
+                    console.error("Image load error for watermarking:", err);
+                    reject(new Error("Failed to load image for watermarking."));
+                };
+                img.src = base64Url;
+            });
+        }
+
+
+        async function processQueue() {
+            if (activeRequests >= API_CONCURRENCY_LIMIT || requestQueue.length === 0) {
+                return;
+            }
+
+            activeRequests++;
+            // --- MODIFIED: Get userInputWatermark from queue item ---
+            const { outputId, parts, userInputWatermark } = requestQueue.shift(); 
+            
+            const output = AppState.outputs.find(o => o.id === outputId);
+
+            if (!output || !parts) {
+                console.error("Could not find output or parts for processing.");
+                activeRequests--;
+                processQueue();
+                return;
+            }
+            
+            try {
+                output.status = 'generating';
+                output.parts = parts; // Store parts for regeneration
+                render();
+
+                let imageUrl = await generateApiRequest(parts, generationAbortController.signal);
+                
+                // --- MODIFIED: Watermark Logic ---
+                let finalWatermarkText = "#ภาพaiไม่ใช่ภาพจริง"; // Default watermark
+                if (userInputWatermark) {
+                    finalWatermarkText += ` ${userInputWatermark}`; // Add user text if provided
+                }
+                
+                // Apply the final watermark
+                imageUrl = await addWatermark(imageUrl, finalWatermarkText);
+                // --- END ---
+                
+                output.imageUrl = imageUrl;
+                output.status = 'complete';
+
+            } catch (error) {
+                if (error.name === 'AbortError') {
+                    output.status = 'error';
+                    output.error = 'ถูกยกเลิก';
+                } else {
+                    console.error(`Failed to generate image for output ${outputId}:`, error);
+                    output.status = 'error';
+                    output.error = error.message;
+                }
+            } finally {
+                activeRequests--;
+                
+                if (requestQueue.length === 0 && activeRequests === 0) {
+                    AppState.isGenerating = false;
+                }
+                
+                render();
+                // Check if generation is still active before processing next
+                if (AppState.isGenerating) {
+                    processQueue();
+                }
+            }
+        }
+
+
+        // --- DOM Selectors ---
+        let app, themeToggle,
+            femaleFileUpload, femaleUploadGrid, clearFemaleUploadBtn,
+            maleFileUpload, maleUploadGrid, clearMaleUploadBtn,
+            promptIdInput, apiStatusMsg, watermarkTextInput,
+            actionButtonContainer, outputSection, downloadAllContainer,
+            imageModal, modalImage, resultsPlaceholder, customAlertModal,
+            customAlertMessage, generateBtn;
+            
+        const getEl = (id) => document.getElementById(id);
+
+
+        // --- Render Functions ---
+        function render() {
+            // Render theme
+            themeToggle.querySelector('.light-mode-icon').classList.toggle('hidden', AppState.theme === 'dark');
+            themeToggle.querySelector('.dark-mode-icon').classList.toggle('hidden', AppState.theme === 'light');
+            document.body.className = `${AppState.theme}-mode antialiased`;
+
+
+            // Render female upload
+            femaleUploadGrid.innerHTML = AppState.femaleImage ? `
+                <div class="relative aspect-square rounded-lg overflow-hidden border-2 border-[var(--border-color)]">
+                    <img src="data:image/png;base64,${AppState.femaleImage.base64Data}" class="w-full h-full object-cover">
+                </div>
+            ` : '';
+            clearFemaleUploadBtn.classList.toggle('hidden', !AppState.femaleImage);
+
+            // Render male upload
+            maleUploadGrid.innerHTML = AppState.maleImage ? `
+                <div class="relative aspect-square rounded-lg overflow-hidden border-2 border-[var(--border-color)]">
+                    <img src="data:image/png;base64,${AppState.maleImage.base64Data}" class="w-full h-full object-cover">
+                </div>
+            ` : '';
+            clearMaleUploadBtn.classList.toggle('hidden', !AppState.maleImage);
+
+            // Render generate/cancel button
+            if (AppState.isGenerating) {
+                const completed = AppState.outputs.filter(o => o.status === 'complete' || o.status === 'error').length;
+                const total = AppState.outputs.length;
+                actionButtonContainer.innerHTML = `
+                    <div class="neo-card p-4 text-center">
+                        <div class="flex items-center justify-center gap-2 mb-3">
+                            <svg class="spinner w-6 h-6" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                            <span>กำลังสร้าง... (${completed}/${total})</span>
+                        </div>
+                        <button id="cancel-btn" class="neo-button w-full text-center py-2" style="background-color: var(--error-color);">
+                            ยกเลิก
+                        </button>
+                    </div>
+                `;
+            } else {
+                actionButtonContainer.innerHTML = `
+                    <button id="generate-btn" class="neo-button w-full text-center py-4 text-xl" style="background-color: var(--accent3-color);">
+                        สร้างภาพ
+                    </button>
+                `;
+            }
+            
+            // Render outputs
+            const hasOutputs = AppState.outputs.length > 0;
+            resultsPlaceholder.classList.toggle('hidden', hasOutputs);
+
+            // Render Download All button
+            const hasCompletedDownloads = !AppState.isGenerating && AppState.outputs.some(o => o.status === 'complete');
+            downloadAllContainer.innerHTML = hasCompletedDownloads ? 
+                `<button id="download-all-btn" class="neo-button px-4 py-2 text-sm" style="background-color: var(--accent1-color);">ดาวน์โหลดทั้งหมด</button>` 
+                : '';
+
+            outputSection.innerHTML = hasOutputs ? AppState.outputs.map(o => {
+                let promptTitle = o.title || "ผลลัพธ์";
+
+                let content = '';
+                switch (o.status) {
+                    case 'pending': content = `<p class="text-sm opacity-50">กำลังรอคิว...</p>`; break;
+                    case 'generating': content = `<div class="flex items-center gap-2"><svg class="spinner w-5 h-5" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span class="pulse">กำลังประมวลผล...</span></div>`; break;
+                    case 'complete': content = `<img src="${o.imageUrl}" class="w-full h-full object-cover rounded-lg">`; break;
+                    case 'error': content = `<div class="p-2 text-center text-sm text-[var(--error-color)]"><p><strong>เกิดข้อผิดพลาด</strong></p><p class="text-xs break-all">${o.error}</p></div>`; break;
+                }
+                
+                return `
+                    <div class="neo-card p-4 space-y-3 fade-in">
+                        <p class="font-bold text-center">${promptTitle}</p>
+                        <div class="aspect-square rounded-lg flex items-center justify-center bg-gray-200/50 dark:bg-gray-800/50 border-2 border-dashed border-[var(--border-color)] overflow-hidden">
+                            ${content}
+                        </div>
+                        <div class="grid grid-cols-3 gap-2 text-sm">
+                            ${o.status === 'complete' ? `
+                                <button data-url="${o.imageUrl}" class="preview-btn neo-button py-2">ดูตัวอย่าง</button>
+                                <button data-url="${o.imageUrl}" class="download-btn neo-button py-2">ดาวน์โหลด</button>
+                                <button data-id="${o.id}" class="regenerate-btn neo-button py-2">สร้างใหม่</button>
+                            ` : ''}
+                            ${o.status === 'error' ? `<div class="col-span-3"><button data-id="${o.id}" class="regenerate-btn regenerate-error-btn neo-button py-2 w-full">ลองอีกครั้ง</button></div>` : ''}
+                            ${(o.status === 'pending' || o.status === 'generating') ? `<div class="col-span-3 h-[36px]"></div>` : ''}
+                        </div>
+                    </div>`;
+            }).join('') : '';
+        }
+        
+        // --- Modal & Alert ---
+        function showImageModal(imageUrl) {
+            modalImage.src = imageUrl;
+            imageModal.classList.remove('hidden');
+        }
+
+        function hideImageModal() {
+            imageModal.classList.add('hidden');
+            modalImage.src = '';
+        }
+
+        function showModalAlert(message, title = "ข้อความแจ้งเตือน") {
+            customAlertMessage.textContent = message;
+            getEl('custom-alert-title').textContent = title;
+            customAlertModal.classList.remove('hidden');
+        }
+
+        function hideModalAlert() {
+             customAlertModal.classList.add('hidden');
+        }
+
+
+        // --- Event Handlers ---
+        function handleThemeToggle() {
+            AppState.theme = AppState.theme === 'light' ? 'dark' : 'light';
+            localStorage.setItem('azelbanana-theme', AppState.theme);
+            render();
+        }
+
+        async function handleFemaleFileUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            AppState.femaleImage = { id: AppState.nextId++, file, base64Data: await fileToBase64(file) };
+            e.target.value = ''; // Reset file input
+            render();
+        }
+
+        async function handleMaleFileUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            AppState.maleImage = { id: AppState.nextId++, file, base64Data: await fileToBase64(file) };
+            e.target.value = ''; // Reset file input
+            render();
+        }
+        
+        function handleClearFemaleUpload() {
+            AppState.femaleImage = null;
+            AppState.outputs = []; // Clear results if an image is removed
+            render();
+        }
+
+        function handleClearMaleUpload() {
+            AppState.maleImage = null;
+            AppState.outputs = []; // Clear results if an image is removed
+            render();
+        }
+
+        function handleCancelGeneration() {
+            console.log("Generation cancelled by user.");
+            if (generationAbortController) {
+                generationAbortController.abort();
+            }
+            requestQueue.length = 0;
+            
+            AppState.outputs.forEach(o => {
+                if (o.status === 'pending' || o.status === 'generating') {
+                    o.status = 'error';
+                    o.error = 'ถูกยกเลิก';
+                }
+            });
+            
+            AppState.isGenerating = false;
+            activeRequests = 0;
+            render();
+        }
+
+        async function handleGenerate() {
+            if (AppState.isGenerating) return;
+
+            const hasFemale = AppState.femaleImage !== null;
+            const hasMale = AppState.maleImage !== null;
+            const promptId = promptIdInput.value.trim();
+            const watermarkText = watermarkTextInput.value.trim(); // Get user-input watermark text
+
+            if (!promptId) {
+                showModalAlert("กรุณากรอก 'รหัส Prompt' ในขั้นตอนที่ 2 ก่อนค่ะ");
+                return;
+            }
+
+            if (!hasFemale && !hasMale) {
+                showModalAlert("กรุณาอัปโหลดรูปใบหน้าอย่างน้อย 1 รูป (ผู้หญิง หรือ ผู้ชาย) ในขั้นตอนที่ 1 ก่อนค่ะ");
+                return;
+            }
+            
+            // --- 1. Fetch Prompt from API ---
+            AppState.isGenerating = true; // Set generating true to show spinner
+            render(); // Render loading state for button
+            
+            const mainPrompt = await fetchPromptFromAPI(promptId);
+            
+            // If prompt fetching fails, stop generation
+            if (!mainPrompt) {
+                AppState.isGenerating = false;
+                render(); // Render back to normal button
+                showModalAlert("ไม่สามารถดึง Prompt ได้ กรุณาตรวจสอบรหัส หรือลองอีกครั้งค่ะ");
+                return;
+            }
+
+            // --- Combine fetched prompt with the suffix ---
+            const finalPrompt = mainPrompt + PROMPT_SUFFIX;
+
+            // --- 2. If Prompt fetch is successful, proceed to image generation ---
+            generationAbortController = new AbortController();
+            AppState.outputs = []; 
+            requestQueue.length = 0;
+            AppState.nextId = 0; // Reset nextId for new generation batch
+
+            // --- Generation Logic based on uploaded images ---
+            
+            // 1. Generate Female (if female image is present)
+            if (hasFemale) {
+                const femaleParts = [
+                    { text: `${finalPrompt}\n\nสร้างภาพผู้หญิงเดี่ยว (ใช้รูปผู้หญิง)` },
+                    { inlineData: { mimeType: "image/png", data: AppState.femaleImage.base64Data } }
+                ];
+                const femaleOutput = {
+                    id: AppState.nextId++,
+                    imageUrl: null, status: 'pending', error: null,
+                    parts: femaleParts, title: "ผลลัพธ์: ผู้หญิงเดี่ยว"
+                };
+                AppState.outputs.push(femaleOutput);
+                // --- MODIFIED: Pass userInputWatermark to queue ---
+                requestQueue.push({ outputId: femaleOutput.id, parts: femaleParts, userInputWatermark: watermarkText });
+            }
+
+            // 2. Generate Male (if male image is present)
+            if (hasMale) {
+                const maleParts = [
+                    { text: `${finalPrompt}\n\nสร้างภาพผู้ชายเดี่ยว (ใช้รูปผู้ชาย)` },
+                    { inlineData: { mimeType: "image/png", data: AppState.maleImage.base64Data } }
+                ];
+                const maleOutput = {
+                    id: AppState.nextId++,
+                    imageUrl: null, status: 'pending', error: null,
+                    parts: maleParts, title: "ผลลัพธ์: ผู้ชายเดี่ยว"
+                };
+                AppState.outputs.push(maleOutput);
+                // --- MODIFIED: Pass userInputWatermark to queue ---
+                requestQueue.push({ outputId: maleOutput.id, parts: maleParts, userInputWatermark: watermarkText });
+            }
+
+            // 3. Generate Couple (if both female and male images are present)
+            if (hasFemale && hasMale) {
+                const coupleParts = [
+                    { text: `${finalPrompt}\n\nสร้างภาพคู่ (ใช้รูปผู้หญิงและผู้ชาย)` },
+                    { inlineData: { mimeType: "image/png", data: AppState.femaleImage.base64Data } },
+                    { inlineData: { mimeType: "image/png", data: AppState.maleImage.base64Data } }
+                ];
+                const coupleOutput = {
+                    id: AppState.nextId++,
+                    imageUrl: null, status: 'pending', error: null,
+                    parts: coupleParts, title: "ผลลัพธ์: ภาพคู่"
+                };
+                AppState.outputs.push(coupleOutput);
+                // --- MODIFIED: Pass userInputWatermark to queue ---
+                requestQueue.push({ outputId: coupleOutput.id, parts: coupleParts, userInputWatermark: watermarkText });
+            }
+            
+            render(); // Re-render to show "Generating..." and pending cards
+            
+            // Start queue processing
+            for(let i = 0; i < API_CONCURRENCY_LIMIT; i++) {
+                processQueue();
+            }
+        }
+
+        function handleAppClick(e) {
+            const target = e.target.closest('button');
+            if (!target) return;
+
+            // Check for buttons that should work even when disabled (like cancel)
+            if (target.id === 'cancel-btn') {
+                 handleCancelGeneration();
+                 return; // Stop further processing
+            }
+
+            // Prevent clicks on other buttons if generating
+            if (AppState.isGenerating && target.id !== 'cancel-btn') {
+                 // Allow modal close buttons
+                 if(target.id === 'custom-alert-close-btn') hideModalAlert();
+                 if(target.id === 'modal-close-btn') hideImageModal();
+                 return;
+            }
+
+            // --- Handle Clicks (when not generating) ---
+            if (target.id === 'theme-toggle') handleThemeToggle();
+            if (target.id === 'generate-btn') handleGenerate();
+            if (target.id === 'custom-alert-close-btn') hideModalAlert();
+
+            if (target.id === 'clear-female-upload-btn') handleClearFemaleUpload();
+            if (target.id === 'clear-male-upload-btn') handleClearMaleUpload();
+            
+            if (target.id === 'download-all-btn') {
+                 AppState.outputs.forEach((output, index) => {
+                     if (output.status === 'complete') {
+                         setTimeout(() => {
+                             const a = document.createElement('a');
+                             a.href = output.imageUrl;
+                             a.download = `KarntapongPhotoGen_${output.title.replace("ผลลัพธ์: ", "")}_${output.id}.png`;
+                             a.click();
+                         }, index * 300);
+                     }
+                 });
+            }
+            if (target.id === 'modal-close-btn') {
+                hideImageModal();
+            }
+
+            if (target.dataset.id) {
+                const id = parseInt(target.dataset.id);
+                
+                if (target.classList.contains('regenerate-btn')) {
+                    const output = AppState.outputs.find(o => o.id === id);
+                    if (output && output.parts) { 
+                        output.status = 'pending'; output.imageUrl = null; output.error = null;
+                        
+                        // Also re-fetch the watermark text from the input field
+                        const watermarkText = watermarkTextInput.value.trim();
+
+                        // Add to front of queue
+                        // --- MODIFIED: Pass userInputWatermark to queue ---
+                        requestQueue.unshift({ outputId: output.id, parts: output.parts, userInputWatermark: watermarkText });
+                        
+                        if (!AppState.isGenerating) {
+                           generationAbortController = new AbortController();
+                           AppState.isGenerating = true;
+                        }
+                        processQueue(); // Start processing immediately
+                        render();
+                    } else {
+                        console.error("Could not regenerate: parts not found in output.");
+                        showModalAlert("ไม่สามารถสร้างใหม่ได้: ไม่พบข้อมูล Prompt เดิม");
+                    }
+                }
+            }
+            
+            if (target.dataset.url) {
+                if (target.classList.contains('download-btn')) {
+                    const a = document.createElement('a');
+                    a.href = target.dataset.url;
+                    const output = AppState.outputs.find(o => o.imageUrl === target.dataset.url);
+                    const title = output ? output.title.replace("ผลลัพธ์: ", "") : "image";
+                    a.download = `KarntapongPhotoGen_${title}_${Date.now()}.png`;
+                    a.click();
+                }
+                if (target.classList.contains('preview-btn')) {
+                    showImageModal(target.dataset.url);
+                }
+            }
+        }
+        
+        // --- Initialization ---
+        function init() {
+            // --- Assign DOM Selectors ---
+            app = getEl('app');
+            themeToggle = getEl('theme-toggle');
+            femaleFileUpload = getEl('female-file-upload');
+            femaleUploadGrid = getEl('female-upload-grid');
+            clearFemaleUploadBtn = getEl('clear-female-upload-btn');
+            maleFileUpload = getEl('male-file-upload');
+            maleUploadGrid = getEl('male-upload-grid');
+            clearMaleUploadBtn = getEl('clear-male-upload-btn');
+            promptIdInput = getEl('prompt-id-input');
+            apiStatusMsg = getEl('api-status-message');
+            watermarkTextInput = getEl('watermark-text'); // Added watermark input
+            actionButtonContainer = getEl('action-button-container');
+            outputSection = getEl('output-section');
+            downloadAllContainer = getEl('download-all-container');
+            imageModal = getEl('image-modal');
+            modalImage = getEl('modal-image');
+            resultsPlaceholder = getEl('results-placeholder');
+            customAlertModal = getEl('custom-alert-modal');
+            customAlertMessage = getEl('custom-alert-message');
+
+            // --- Attach Listeners ---
+            const savedTheme = localStorage.getItem('azelbanana-theme');
+            if (savedTheme) AppState.theme = savedTheme;
+            else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                AppState.theme = 'dark';
+            }
+            
+            femaleFileUpload.addEventListener('change', handleFemaleFileUpload);
+            maleFileUpload.addEventListener('change', handleMaleFileUpload);
+            app.addEventListener('click', handleAppClick);
+
+            render();
+
+            // --- Show Privacy Alert on Load ---
+            showModalAlert(
+                "เว็บไซต์นี้เป็นตัวกลางในการช่วยส่งชุดข้อมูล Prompt ไปให้ AI ของ Google สร้างภาพ จะไม่เก็บข้อมูลใดๆ ของท่านเอาไว้ที่เซอร์เวอร์ของเราโดยเด็ดขาด",
+                "ข้อความแจ้งเตือน"
+            );
+        }
+
+        init();
+    });
+    </script>
+</body>
+</html>
+
