@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>วิเคราะห์ Prompt อัจฉริยะ</title>
+    
+
+<script src="https://cdn.tailwindcss.com"></script>
+    
+    
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        // ตั้งค่า Tailwind ให้ใช้ฟอนต์ Sarabun เป็นหลัก
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Sarabun', 'sans-serif'],
+                    },
+                },
+            },
+        };
+    </script>
+    <style>
+        /* ... (style เดิมทั้งหมด) ... */
+        body {
+            font-family: 'Sarabun', sans-serif;
+        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+        .spinner {
+            border-top-color: #a855f7;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .result-card {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+        @media (min-width: 768px) { .result-card { flex-direction: row; } }
+        .result-card-thumbnail {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            flex-shrink: 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        @media (min-width: 768px) {
+            .result-card-thumbnail {
+                width: 200px;
+                height: 100%;
+                min-height: 250px;
+                border-bottom: 0;
+                border-right: 1px solid #e5e7eb;
+            }
+        }
+        .result-card-content {
+            flex-grow: 1;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            overflow: hidden;
+        }
+        .result-card-json {
+            font-size: 0.875rem;
+            color: #374151;
+            overflow-x: auto;
+            background: #ffffff;
+            padding: 1rem;
+            border-radius: 0.375rem;
+            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
+            min-height: 250px;
+            flex-grow: 1;
+        }
+        .result-card-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 250px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #555;
+            background: #ffffff;
+            border-radius: 0.375rem;
+            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
+            flex-grow: 1;
+        }
+        .btn-icon {
+            width: 1rem;
+            height: 1rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto bg-white shadow-2xl rounded-xl overflow-hidden">
+        
+
+<header class="bg-gradient-to-r from-purple-600 to-blue-500 p-6 shadow-md">
+            <h1 class="text-3xl md:text-4xl font-bold text-white text-center">
+                วิเคราะห์ Prompt อัจฉริยะ
+            </h1>
+            <p class="text-center text-white/90 mt-2">อัปโหลดภาพ (ได้ทีละหลายภาพ) หรือ วางภาพ (Ctrl+V) เพื่อเริ่มการวิเคราะห์อัตโนมัติ</p>
+        </header>
+
+        
+
+<main class="grid grid-cols-1 lg:grid-cols-5 gap-8 p-6 md:p-10">
+            
+            
+
+<section class="flex flex-col space-y-4 lg:col-span-2">
+                <h2 class="text-2xl font-semibold text-gray-800 border-b-2 border-purple-300 pb-2">
+                    อัปโหลดภาพต้นฉบับ
+                </h2>
+                
+                
+
+<div class="relative w-full h-auto min-h-[250px] rounded-lg bg-gray-50 border-2 border-dashed border-gray-300 hover:border-purple-400 transition-colors">
+                    
+
+<input type="file" id="imageUpload" class="hidden" accept="image/*" multiple>
+                    
+                    
+
+<label for="imageUpload" class="absolute inset-0 cursor-pointer flex flex-col items-center justify-center p-4 text-center">
+                        <svg class="w-16 h-16 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                        <p class="text-xl mt-4 font-semibold text-gray-700">คลิกเพื่ออัปโหลด หรือ วางภาพ (Ctrl+V)</p>
+                        <p class="text-sm text-gray-500">สามารถเลือกได้ทีละหลายภาพ หรือ วางจากคลิปบอร์ด</p>
+                    </label>
+                </div>
+
+                
+
+<div id="uploadInfo" class="mt-4 p-4 bg-blue-50 text-blue-700 border border-blue-200 rounded-lg hidden">
+                    <p class="font-bold">อัปโหลดสำเร็จ!</p>
+                    <p id="uploadInfoText" class="text-sm"></p>
+                </div>
+
+            </section>
+
+            
+
+<section class="flex flex-col space-y-6 lg:col-span-3">
+                <h2 class="text-2xl font-semibold text-gray-800 border-b-2 border-blue-300 pb-2">
+                    รายละเอียด Prompt ที่สร้าง
+                </h2>
+
+                
+
+<div id="errorDisplay" class="relative hidden p-4 bg-red-100 text-red-700 border border-red-300 rounded-lg">
+                    <h4 class="font-bold">เกิดข้อผิดพลาด</h4>
+                    <p id="errorMessageText"></p>
+                </div>
+
+                
+
+<div id="analysisContainer" class="h-full max-h-[1200px] overflow-y-auto space-y-6 pr-2">
+                    <p id="analysisPlaceholder" class="text-gray-500 text-center py-20">รอการอัปโหลดภาพเพื่อเริ่มวิเคราะห์...</p>
+                    
+
+</div>
+            </section>
+        </main>
+    </div>
+
+    
+
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            let fileQueue = []; // Array to store the actual File objects
+
+            const imageUpload = document.getElementById('imageUpload');
+            const analysisContainer = document.getElementById('analysisContainer');
+            const analysisPlaceholder = document.getElementById('analysisPlaceholder');
+            const errorDisplay = document.getElementById('errorDisplay');
+            const errorMessageText = document.getElementById('errorMessageText');
+            const uploadInfo = document.getElementById('uploadInfo');
+            const uploadInfoText = document.getElementById('uploadInfoText');
+
+            // --- Google Apps Script (GS) API Configuration ---
+            const GOOGLE_SCRIPT_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyae1_KTdlu_CgammFzvUcxI_D9KNiLctMa85tEuKrdOZdLggYdHzkAu-5M5agY_YszWQ/exec"; // <--- URL ของครูโหน่ง
+
+            // --- Gemini API Configuration ---
+            // (เราจะไม่ใช้ apiUrl และ apiKey ที่นี่อีกต่อไป เพราะ GS จะเป็นคนจัดการ)
+            // const apiKey = ""; 
+            // const apiUrl = `...`;
+
+            // --- The Master Prompt from User ---
+            const analysisInstructions = `คำสั่งพิเศษ:
+ให้เขียนพร้อมตามที่กำหนดไว้ตามคำสั่งเพื่อสร้างภาพที่สมจริงที่สุด ที่มีเงื่อนไข สามารถแนบรูปเพื่อใช้ใบหน้าได้ทั้งผู้หญิงและผู้ชาย ถ้าแนบรูปผู้ชายให้แต่งตัวเป็นสไตล์ผู้ชาย ถ้าแนบรูปผู้หญิงให้แต่งตัวเป็นสไตล์ผู้หญิง ถ้าแนบรูปทั้งผู้หญิงผู้ชายให้ทำเป็นสไตล์เป็นแฟนกันถ่ายรูปด้วยกัน การแต่งกายของทั้ง 2 คนต้องเหมาะสมกับภาพ(โดยให้อ้างอิงจากภาพที่แนบให้) และรายละเอียดต่างๆของทั้ง2คนต้องครบถ้วนที่สุด ทั้ง2คนกำลังโพสท่าที่เหมาะสมภาพและดูดีที่สุด ดูเป็นธรรมชาติ และเหมาะกับสถานการณ์ในภาพที่สุด ส่วนประกอบของฉากทั้งสิ่งของ สัตว์ และคนที่เป็นตัวประกอบต้องอยู่ในฉากอย่างครบถ้วน ผู้ชายห้ามถอดเสื้อ ต้องถ่ายให้เห็นหน้าทั้ง 2 คนตามหลักองค์ประกอบภาพที่สวยงาม ห้ามมีอะไรปิดบังใบหน้า ไม่เอาตัวหนังสือ ห้ามกำหนดทรงผมของผู้ชาย ถ้ามีการใส่แว่นหรือใส่หน้ากากให้เปลี่ยนเป็นเอาคาดไว้บนหัวหรือถือเอาไว้หรือตามความเหมาะสม   
+
+ไม่อ้างอิงถึงบุคคลมีชือเสียง(ถ้ามีให้ระบุถึงลักษณะเอา)   
+
+ในส่วนของรายละเอียดโดยรวมของภาพ: อย่าเขียนกำหนดเพศเพราะต้องใช้ได้ทั้งผู้หญิงและผู้ชายและเขียนให้ละเอียดที่สุด   มีการกำหนดมุมกล้องให้ชัดเจนที่สุด
+
+รายละเอียดในทุกส่วนของพร้อมห้ามมีการพนัน ห้ามมียาเสพติดผิดกฏหมาย ห้ามมีท่าทางที่สื่อถึงเรื่องทางเพศ ห้ามมีคนมีชื่อเสียงในภาพ ห้ามมีแบรนสินค้าดัง ห้ามมีเหล้าและบุหรี่ทุกชนิด ห้ามกล่าวถึงสถาบันพระมหากษัตริย์ ห้ามกล่าวถึงเรื่องศาสนาหรือลบหลู่ศาสนา ห้ามมีความรุนแรง ห้ามมีอาวุธ ห้ามกล่าวถึงการเมือง ห้ามกล่าวถึงเหตุรุนแรงต่างๆ ห้ามกล่าวถึงเรื่องการเมืองต่างๆ   ห้ามมีการทรมานสัตว์หรือเสี่ยงต่อการผิดกฎชุมชนของ facebook เด็ดขาด
+
+คำสั่งหลัก:
+(ให้ทำตามคำสั่งเสมอ) ให้แกะพร้อมจากรูปที่แนบให้ แล้วบอกรายละเอียดมา ตัวอย่างด้านล่างนี้มาโดยให้เก็บละเอียดทุกอย่างในภาพให้มากที่สุด โดยเฉพาะ ท่าโพส โทนสีของภาพ สีหน้า อารมณ์ รายละเอียดเครื่องแต่งกายให้ชัดเจนที่สุดโดยเฉพาะลักษณะของแต่ละชิ้นส่วนและสี ต้องตรงตามต้นแบบ 100%   เพื่อให้ภาพที่ออกมาดูเป็นภาพที่มีชีวิตจริงๆ   ต้องเป็นภาพแบบสมจริงที่สุดเท่านั้น ห้ามทำเป็น ภาพวาด หรือ ภาพวาดดิจิตอล เด็ดขาด
+
+(ห้ามใส่ข้อความตอบรับแบบนี้มาเด็ดขาด "แน่นอนค่ะ นี่คือรายละเอียดพร้อม (Prompt) จากภาพที่แนบมาค่ะ")
+
+ตัวอย่างการเขียนพร้อม:
+ข้อกำหนดในการใส่ข้อมูล:
+- prompt_details (ส่วนนี้ต้องเขียนให้สามารถใช้ได้กับตัวละครทั้งผู้หญิงและผู้ชาย และเขียนให้ละเอียดที่สุด   และมีการกำหนดมุมกล้องให้ชัดเจนและละเอียดที่สุด)
+- subject_details ไม่ต้องระบุลักษณะบนใบหน้าของตัวแบบเพราะจะให้ใช้ตามภาพที่แนบ   ห้ามมีอะไรปิดบังใบหน้า ถ้ามีการใส่แว่นหรือใส่หน้ากากหรือหมวกกันน้อกที่ปิดทั้งหน้าให้เปลี่ยนเป็นเอาคาดไว้บนหัวหรือถือเอาไว้หรือตามความเหมาะสม
+- face_reference   ให้ใช้ภาพคนตามภาพที่แนบมาให้แล้ววิเคราะห์แบบละเอียดที่สุดเฉพาะส่วน ใบหน้า ดวงตา โครงหน้า คิ้ว จมูก ปาก เท่านั้นแล้วสร้างภาพส่วน ใบหน้า ดวงตา โครงหน้า คิ้ว จมูก ปาก ให้เหมือนต้นฉบับ 100% ห้ามแก้ไข   (ให้ใช้ข้อความนี้เท่านั้น)
+- appearance ,hair ,skin_tone   ทำให้ตรงกับภาพหน้าใบที่แนบมาให้ (ให้ใช้ข้อความนี้เท่านั้น)
+- ส่วนที่ผมเขียนว่าให้ AI กำหนดให้ ให้คุณกำหนดให้ผมเลยตามความเหมาะสมทั้งหมดเลย ทั้งใน subject_details และ conditional_instructions
+- ให้ทำในหัวข้อที่กำหนดให้เท่านั้น
+
+{
+  "prompt_details": {
+    "overall_details": {
+      "description": "ภาพถ่ายบุคคลเกือบเต็มตัว (Medium-full shot), ถ่ายด้วยมุมกล้องระดับสายตา (Eye-level shot) จากด้านหลังเล็กน้อย, แสดงบุคคลกำลังยืนนิ่งอย่างสง่างามท่ามกลางสวนกุหลาบที่กำลังเบ่งบาน.",
+      "focus": "มุมกล้องเน้นให้เห็นท่าทางที่หันกลับมามองข้ามไหล่, สร้างความรู้สึกที่อ่อนโยน, โรแมนติก, และชวนฝัน.",
+      "background_context": "ฉากหลังเป็นดงกุหลาบสีชมพูและสีครีมที่เบลอเล็กน้อย (Bokeh), ภายใต้แสงแดดยามเย็น (Golden Hour) ที่นุ่มนวล, ทำให้ภาพดูงดงาม, อบอุ่น, และสมจริงอย่างยิ่ง."
+    },
+    "subject_details": {
+      "female_subject_A": {
+        "face_reference": "ให้ใช้ภาพคนตามภาพที่แนบมาให้แล้ววิเคราะห์แบบละเอียดที่สุดเฉพาะส่วน ใบหน้า ดวงตา โครงหน้า คิ้ว จมูก ปาก เท่านั้นแล้วสร้างภาพส่วน ใบหน้า ดวงตา โครงหน้า คิ้ว จมูก ปาก ให้เหมือนต้นฉบับ 100% ห้ามแก้ไข",
+        "appearance": "ทำให้ตรงกับภาพหน้าใบที่แนบมาให้",
+        "attire": "(ให้ AI กำหนดตามความเหมาะสม)",
+        "accessories": "(ให้ AI กำหนดตามความเหมาะสม)",
+        "hair": "ทำให้ตรงกับภาพหน้าใบที่แนบมาให้",
+        "skin_tone": "ทำให้ตรงกับภาพหน้าใบที่แนบมาให้",
+        "makeup": "(ให้ AI กำหนดตามความเหมาะสม)",
+        "emotion": "(ให้ AI กำหนดตามความเหมาะสม)"
+      },
+      "male_subject_B": {
+        "face_reference": "(ให้ใช้ภาพคนตามภาพที่แนบมาให้แล้ววิเคราะห์แบบละเอียดที่สุดเฉพาะส่วน ใบหน้า ดวงตา โครงหน้า คิ้ว จมูก ปาก เท่านั้นแล้วสร้างภาพส่วน ใบหน้า ดวงตา โครงหน้า คิ้ว จมูก ปาก ให้เหมือนต้นฉบับ 100% ห้ามแก้ไข)",
+        "appearance": "ทำให้ตรงกับภาพหน้าใบที่แนบมาให้",
+        "attire": "(ให้ AI กำหนดตามความเหมาะสม)",
+        "accessories": "(ให้ AI กำหนดตามความเหมาะสม)",
+        "hair": "ทำให้ตรงกับภาพหน้าใบที่แนบมาให้",
+        "skin_tone": "ทำให้ตรงกับภาพหน้าใบที่แนบมาให้",
+        "makeup": "(ให้ AI กำหนดตามความเหมาะสม)",
+        "emotion": "(ให้ AI กำหนดตามความเหมาะสม)"
+      }
+    },
+    "conditional_instructions": {
+      "generate_single_female": "สร้างภาพผู้หญิงเดี่ยว (ถ้ารูปที่แนบมามีเฉพาะใบหน้าผู้หญิง) : ให้ทำเฉพาะรายละเอียดในส่วน (female_subject_A) เท่านั้น (สีหน้าและท่าทาง: ให้ AI กำหนดตามความเหมาะสม)",
+      "generate_single_male": "สร้างภาพผู้ชายเดี่ยว (ถ้ารูปที่แนบมามีเฉพาะใบหน้าผู้ชาย) : ให้ทำเฉพาะรายละเอียดในส่วน (male_subject_B) เท่านั้น (สีหน้าและท่าทาง: ให้ AI กำหนดตามความเหมาะสมให้ทำคล้ายกับแบบเดียวกันกับ generate_single_female)",
+      "generate_couple": "สร้างภาพคู่รัก (ถ้ารูปที่แนบมามีทั้งใบหน้าผู้ชายและผู้หญิง): ให้ใช้รายละเอียดในส่วน (female_subject_A) และ male_subject_B) (สีหน้าและท่าทางทั้ง 2 คน: ให้ AI กำหนดตามความเหมาะสม)"
+    },
+    "scene_and_composition": {
+      "location": "สวนกุหลาบ (Rose garden) ที่กำลังเบ่งบานเต็มที่.",
+      "background": "ฉากหลังเต็มไปด้วยพุ่มกุหลาบหนาแน่น, ดอกกุหลาบสีชมพูอ่อน, สีครีม, และสีชมพูเข้ม, เบลอเล็กน้อย (Bokeh).",
+      "atmosphere": "โรแมนติก, อบอุ่น, เงียบสงบ, และชวนฝัน (Dreamy)."
+    },
+    "lighting_and_color": {
+      "light_source": "แสงธรรมชาติยามเย็น (Golden Hour), แสงแดดสีทองส่องมาจากด้านหลังและด้านข้าง (Backlight/Rim light), ทำให้เกิดขอบแสงที่นุ่มนวลรอบเส้นผมและลำตัว.",
+      "color_palette": "โทนสีอบอุ่น (Warm tone). เน้นสีขาวจากชุด, สีชมพู/ครีมจากดอกกุหลาบ, และสีเขียวของใบไม้."
+    },
+    "image_mood": "ภาพนี้สื่อถึงความงามที่อ่อนโยน, ความโรแมนติก, และความสง่างามที่บริสุทธิ์ท่ากลางธรรมชาติ.",
+    "flash_lighting": {
+      "flash_effect": "มี แสงแฟลชสว่างสวยงามส่องตรงมาที่ตัวบุคคล ทำให้ตัวบุคคลดูโดดเด่น สว่างใส และมีมิติมากขึ้น แสงแฟลชจะช่วยขับเน้นผิวพรรณ และรายละเอียดของชุดให้ชัดเจนยิ่งขึ้น โดยอาจจะเห็นแสงเงาที่เกิดจากแสงแฟลชเล็กน้อย",
+      "rim_light_note": "เส้นผม(Rim light)ต้องเป็นแสง Rim light ที่เกิดจากธรรมชาติเท่านั้นห้ามใช้อุปกรณ์ช่วย และต้องดูเป็นธรรมชาติ"
+    },
+    "photography_style": {
+      "camera": "กล้องมือถือรุ่น Vivo X200Pro",
+      "lens": "เลนส์ 85 มม. f/2.8",
+      "focus": "โฟกัสที่ใบหน้าและเส้นผมของตัวบุคคลให้ชัดที่สุดแบบกล้องมือโปรคุณภาพสูงที่สุด"
+    },
+    "quality_settings": {
+      "quality": "ภาพถ่ายคุณภาพสูง (High-quality photograph)",
+      "resolution": "ขนาดภาพ 4000x3000px หรือ 32k",
+      "rendering_features": [
+        "super ray tracing",
+        "high dynamic range"
+      ]
+    },
+    "negative_prompt": [
+      "(low quality, bad quality, worst quality, low res, low detail, low light, overexposed): หลีกเกี่ยงภาพที่คุณภาพต่ำ, รายละเอียดน้อย, และแสงไม่พอดี",
+      "bad anatomy, bad hands, bad legs, bad eyes: หลีกเลี่ยงความผิดปกติของสรีระ, มือ, ขา และดวงตา",
+      "deformed, disfigured, malformed: หลีกเลี่ยงภาพที่ผิดรูปผิดร่าง",
+      "extra limbs, extra fingers: หลีกเลี่ยงการมีแขนหรือนิ้วเกิน",
+      "missing limbs, missing fingers: หลีกเลี่ยงการขาดหายไปของอวัยวะ",
+      "ugly, blurry, deformed face: หลีกเลี่ยงใบหน้าที่น่าเกลียด, เบลอ หรือผิดรูป",
+      "cartoon, anime, 3d render, illustration, painting, drawing: ไม่ต้องการภาพการ์ตูน, อนิเมะ, 3 มิติ หรือภาพวาด",
+      "text, watermark, signature: ไม่ต้องการตัวอักษร, ลายน้ำ หรือลายเซ็น",
+      "jpeg artifacts, duplicate: ไม่ต้องการภาพที่มีรอยแตกของไฟล์ หรือภาพซ้ำซ้อน",
+      "oversaturation, grainy: ไม่ต้องการสีที่สดเกินไป หรือภาพที่เป็นเม็ด ๆ"
+    ],
+    "hashtags": [
+      "(ส่วนนี้ให้ใส่ hashtag ที่เกี่ยวข้องกับภาพทั้งภาษาไทยและภาษาอังกฤษมาอย่างน้อยอย่างละ 10 hashtag)",
+      "#สวนกุหลาบ",
+      "#ถ่ายแบบ",
+      "#พอร์เทรต",
+      "#ชุดขาว",
+      "#ชุดเดรส",
+      "#เปิดหลัง",
+      "#สวยหวาน",
+      "#โรแมนติก",
+      "#แสงสีทอง",
+      "#ธรรมชาติ",
+      "#สง่างาม",
+      "#RoseGarden",
+      "#Portrait",
+      "#Photoshoot",
+      "#WhiteDress",
+      "#BacklessDress",
+      "#Elegant",
+      "#Romantic",
+      "#GoldenHour",
+      "#Nature",
+      "#Beauty",
+      "#SoftLight",
+      "#Dreamy"
+    ]
+  }
+}
+จงวิเคราะห์ภาพที่แนบมา และเติมข้อมูลในช่อง "..." และ "(ให้ AI กำหนดตามความเหมาะสม)" และ "(ส่วนนี้ให้ใส่ hashtag...)" ให้ครบถ้วนตามกฎข้างบน แล้วส่งคำตอบกลับมาเป็น JSON object ที่สมบูรณ์เท่านั้น ห้ามมีข้อความอื่นใดนอกเหนือจาก JSON object นั้น`;
+
+            
+            // --- UI Helper Functions ---
+            function showError(message) {
+                errorMessageText.textContent = message;
+                errorDisplay.classList.remove('hidden');
+                console.error("Error Displayed:", message);
+            }
+
+            // --- Central File Handling Function ---
+            function handleNewFiles(files) {
+                if (!files || files.length === 0) {
+                    return;
+                }
+                // ... (โค้ดส่วนนี้เหมือนเดิม) ...
+                fileQueue = [];
+                analysisContainer.innerHTML = '';
+                analysisPlaceholder.classList.add('hidden');
+                errorDisplay.classList.add('hidden');
+                
+                let validFiles = Array.from(files).filter(file => {
+                    if (!file.type.startsWith('image/')) {
+                        console.warn('Skipping non-image file:', file.name);
+                        return false;
+                    }
+                    return true;
+                });
+
+                if (validFiles.length === 0) {
+                    analysisPlaceholder.classList.remove('hidden');
+                    showError("ไม่พบไฟล์ภาพที่ถูกต้อง (จากที่วาง หรือ ที่อัปโหลด) กรุณาเลือกไฟล์ .jpg, .png, หรือ .webp");
+                    return;
+                }
+
+                fileQueue = validFiles;
+
+                uploadInfoText.textContent = `รับ ${fileQueue.length} ภาพสำเร็จ กำลังเริ่มการวิเคราะห์...`;
+                uploadInfo.classList.remove('hidden');
+
+                fileQueue.forEach((file, index) => {
+                    const fileId = `result-card-${index}-${Date.now()}`;
+                    const objectUrl = URL.createObjectURL(file);
+                    const fileName = file.name || `Pasted Image ${index + 1} (${file.type.split('/')[1] || 'png'})`;
+                    createResultCard(fileName, objectUrl, fileId);
+                });
+
+                processQueue();
+            }
+
+            // --- File Upload Listener ---
+            imageUpload.addEventListener('change', function(event) {
+                handleNewFiles(event.target.files);
+            });
+
+            // --- Clipboard Paste Listener ---
+            window.addEventListener('paste', (event) => {
+                const items = (event.clipboardData || event.originalEvent.clipboardData)?.items;
+                if (!items) return;
+
+                const pastedFiles = [];
+                for (let i = 0; i < items.length; i++) {
+                    if (items[i].kind === 'file' && items[i].type.startsWith('image/')) {
+                        const file = items[i].getAsFile();
+                        pastedFiles.push(file);
+                    }
+                }
+
+                if (pastedFiles.length > 0) {
+                    handleNewFiles(pastedFiles);
+                    event.preventDefault(); 
+                }
+            });
+
+
+            // --- Create Result Card ---
+            function createResultCard(fileName, thumbnailUrl, cardId) {
+                // ... (โค้ดส่วนนี้เหมือนเดิม) ...
+                const card = document.createElement('div');
+                card.className = 'result-card';
+                card.id = cardId;
+
+                card.innerHTML = `
+                    <img src="${thumbnailUrl}" alt="${fileName}" class="result-card-thumbnail">
+                    <div class="result-card-content">
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="text-lg font-bold text-purple-700 truncate" title="${fileName}">${fileName}</h3>
+                            <div class="flex space-x-2">
+                                <button class="save-button bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-sm transition-all flex items-center space-x-2 text-base active:scale-95 hidden" disabled>
+                                    <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V3" />
+                                    </svg>
+                                    <span>Save</span>
+                                </button>
+                                <button class="copy-button bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded-lg shadow-sm transition-all flex items-center space-x-2 text-base active:scale-95 hidden" disabled>
+                                    <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2V10a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                    </svg>
+                                    <span>คัดลอก</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="result-card-status" id="status-${cardId}">
+                            <span class="text-gray-500">รอในคิว...</span>
+                        </div>
+                        <pre class="result-card-json hidden" id="json-${cardId}"></pre>
+                    </div>
+                `;
+                
+                analysisContainer.appendChild(card);
+
+                card.querySelector('.copy-button').addEventListener('click', (e) => {
+                    const jsonElement = document.getElementById(`json-${cardId}`);
+                    copyTextToClipboard(jsonElement.textContent, e.currentTarget);
+                });
+
+                card.querySelector('.save-button').addEventListener('click', (e) => {
+                    const jsonElement = document.getElementById(`json-${cardId}`);
+                    saveToGoogleSheet(jsonElement.textContent, e.currentTarget);
+                });
+            }
+
+            // --- Queue Processing ---
+            async function processQueue() {
+                // ... (โค้ดส่วนนี้เหมือนเดิม) ...
+                for (let i = 0; i < fileQueue.length; i++) {
+                    const file = fileQueue[i];
+                    const card = analysisContainer.children[i];
+                    const cardId = card.id;
+                    const statusEl = document.getElementById(`status-${cardId}`);
+                    const jsonEl = document.getElementById(`json-${cardId}`);
+                    const copyBtn = card.querySelector('.copy-button');
+                    const saveBtn = card.querySelector('.save-button');
+
+                    statusEl.innerHTML = `
+                        <div class="flex items-center">
+                            <div class="spinner w-5 h-5 mr-2 rounded-full border-2 border-gray-200 border-t-purple-600"></div>
+                            <span>กำลังวิเคราะห์...</span>
+                        </div>
+                    `;
+                    statusEl.classList.remove("hidden");
+                    jsonEl.classList.add("hidden");
+                    copyBtn.classList.add("hidden");
+                    saveBtn.classList.add("hidden");
+
+                    try {
+                        const analysisData = await analyzeImage(file);
+                        const formattedJson = JSON.stringify(analysisData, null, 2);
+                        
+                        jsonEl.textContent = formattedJson;
+                        jsonEl.classList.remove("hidden");
+                        statusEl.classList.add("hidden");
+                        
+                        copyBtn.disabled = false;
+                        copyBtn.classList.remove("hidden");
+                        saveBtn.disabled = false;
+                        saveBtn.classList.remove("hidden");
+
+                    } catch (error) {
+                        console.error('Analysis failed for', file.name, error);
+                        statusEl.innerHTML = `<span class="text-red-500 font-bold">วิเคราะห์ล้มเหลว: ${error.message}</span>`;
+                        statusEl.classList.remove("hidden");
+                        jsonEl.classList.add("hidden");
+                        copyBtn.classList.add("hidden");
+                        saveBtn.classList.add("hidden");
+                    }
+                }
+                uploadInfoText.textContent = `วิเคราะห์เสร็จสิ้น ${fileQueue.length} ภาพ`;
+            }
+
+            // --- Image Analysis Function (*** MODIFIED ***) ---
+            async function analyzeImage(file) {
+                let base64Data;
+                try {
+                    base64Data = await fileToBase64(file);
+                    base64Data = base64Data.split(',')[1];
+                } catch (error) {
+                    console.error('Error converting file to Base64:', error);
+                    throw new Error('เกิดข้อผิดพลาดในการแปลงไฟล์ภาพ');
+                }
+
+                // --- Payload สำหรับส่งไปที่ Google Script API ของเรา ---
+                const payload = {
+                    imageData: base64Data,
+                    mimeType: file.type,
+                    instructions: analysisInstructions // ส่งชุดคำสั่งไปด้วย
+                };
+
+                try {
+                    // --- เรียก API ของเราเอง (GS) ไม่ใช่ Gemini API โดยตรง ---
+                    const response = await exponentialBackoffFetch(GOOGLE_SCRIPT_WEB_APP_URL, {
+                        method: 'POST',
+                        mode: 'cors',
+                        cache: 'no-cache',
+                        headers: {
+                            'Content-Type': 'text/plain;charset=utf-8',
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        throw new Error(`Google Script API error: ${response.status} ${errorText}`);
+                    }
+
+                    const result = await response.json();
+                    
+                    // ตรวจสอบว่า GS API ของเราส่ง error กลับมาหรือไม่
+                    if (result.status === 'error') {
+                        throw new Error("Error from GS API: " + result.message);
+                    }
+
+                    // ถ้าสำเร็จ 'result' คือผลลัพธ์จาก Gemini ที่ GS ส่งต่อมา
+                    const candidate = result.candidates?.[0];
+                    if (!candidate || !candidate.content?.parts?.[0]?.text) {
+                        console.error('Unexpected API response structure:', result);
+                        throw new Error('ไม่พบข้อมูลการวิเคราะห์ในคำตอบจาก AI');
+                    }
+
+                    const rawText = candidate.content.parts[0].text;
+                    const jsonText = rawText.replace(/```json|```/g, '').trim();
+                    const analysisData = JSON.parse(jsonText);
+                    return analysisData; // ส่งข้อมูลกลับไปแสดงผล
+
+                } catch (error) {
+                    console.error('Analysis API call failed:', error);
+                    throw error; // ส่ง error กลับไปให้ processQueue
+                }
+            }
+            
+            // --- Helper to convert file to Base64 ---
+            function fileToBase64(file) {
+                // ... (โค้ดส่วนนี้เหมือนเดิม) ...
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.readAsDataURL(file);
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = error => reject(error);
+                });
+            }
+            
+            // --- Helper for API retries with exponential backoff ---
+            async function exponentialBackoffFetch(url, options, retries = 3, delay = 1000) {
+                // ... (โค้ดส่วนนี้เหมือนเดิม) ...
+                try {
+                    const response = await fetch(url, options);
+                    if (!response.ok && response.status === 429 && retries > 0) {
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        return exponentialBackoffFetch(url, options, retries - 1, delay * 2);
+                    }
+                    return response;
+                } catch (error) {
+                    if (retries > 0) {
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        return exponentialBackoffFetch(url, options, retries - 1, delay * 2);
+                    }
+                    throw error;
+                }
+            }
+
+            // --- Copy Button Function ---
+            function copyTextToClipboard(textToCopy, buttonElement) {
+                // ... (โค้ดส่วนนี้เหมือนเดิม) ...
+                const tempTextArea = document.createElement('textarea');
+                tempTextArea.value = textToCopy;
+                tempTextArea.style.position = 'absolute';
+                tempTextArea.style.left = '-9999px';
+                document.body.appendChild(tempTextArea);
+                
+                tempTextArea.select();
+                tempTextArea.setSelectionRange(0, 99999);
+                
+                try {
+                    document.execCommand('copy');
+                    
+                    const originalIcon = buttonElement.innerHTML;
+                    buttonElement.innerHTML = `
+                        <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span>คัดลอกแล้ว!</span>
+                    `;
+                    buttonElement.classList.add('bg-green-500', 'hover:bg-green-600');
+                    buttonElement.classList.remove('bg-purple-600', 'hover:bg-purple-700');
+                    
+                    setTimeout(() => {
+                        buttonElement.innerHTML = originalIcon;
+                        buttonElement.classList.remove('bg-green-500', 'hover:bg-green-600');
+                        buttonElement.classList.add('bg-purple-600', 'hover:bg-purple-700');
+                    }, 2000);
+                    
+                } catch (err) {
+                    console.error('Failed to copy text: ', err);
+                    const originalIcon = buttonElement.innerHTML;
+                    buttonElement.innerHTML = `<span>ล้มเหลว!</span>`;
+                    buttonElement.classList.add('bg-red-500', 'hover:bg-red-600');
+                    buttonElement.classList.remove('bg-purple-600', 'hover:bg-purple-700');
+
+                    setTimeout(() => {
+                        buttonElement.innerHTML = originalIcon;
+                        buttonElement.classList.remove('bg-red-500', 'hover:bg-red-600');
+                        buttonElement.classList.add('bg-purple-600', 'hover:bg-purple-700');
+                    }, 2000);
+                } finally {
+                    document.body.removeChild(tempTextArea);
+                }
+            }
+
+            // --- Save to Google Sheet Function ---
+            async function saveToGoogleSheet(promptText, buttonElement) {
+                // ... (โค้ดส่วนนี้เหมือนเดิม) ...
+                if (!GOOGLE_SCRIPT_WEB_APP_URL) {
+                    showError("ไม่ได้ตั้งค่า Google Script URL! กรุณาดู instructions.md");
+                    console.error("GOOGLE_SCRIPT_WEB_APP_URL is not set.");
+                    return;
+                }
+
+                const originalIcon = buttonElement.innerHTML;
+                buttonElement.innerHTML = `
+                    <div class="spinner btn-icon rounded-full border-2 border-gray-200 border-t-white" style="width: 1rem; height: 1rem; border-width: 2px;"></div>
+                    <span>กำลังบันทึก...</span>
+                `;
+                buttonElement.disabled = true;
+
+                try {
+                    const response = await fetch(GOOGLE_SCRIPT_WEB_APP_URL, {
+                        method: 'POST',
+                        mode: 'cors',
+                        cache: 'no-cache',
+                        headers: {
+                            'Content-Type': 'text/plain;charset=utf-8',
+                        },
+                        body: JSON.stringify({ prompt: promptText }), // ส่ง {"prompt": "..."}
+                    });
+                    
+                    let result;
+                    try {
+                        result = await response.json();
+                    } catch (jsonError) {
+                        if (response.type === 'opaque') {
+                           result = { status: 'success', message: 'บันทึกสำเร็จ (Opaque)' };
+                        } else {
+                            throw new Error("API ไม่ได้ตอบกลับเป็น JSON: (" + jsonError.message + ")");
+                        }
+                    }
+
+                    if (result.status === 'success') {
+                        buttonElement.innerHTML = `
+                            <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span>บันทึกแล้ว!</span>
+                        `;
+                        buttonElement.classList.add('bg-green-500', 'hover:bg-green-600');
+                        buttonElement.classList.remove('bg-blue-500', 'hover:bg-blue-600');
+                        buttonElement.disabled = true;
+                    } else {
+                        throw new Error(result.message || 'API ตอบกลับว่าล้มเหลว');
+                    }
+
+                } catch (error) {
+                    console.error('Failed to save to sheet:', error);
+                    buttonElement.innerHTML = `<span>ล้มเหลว!</span>`;
+                    buttonElement.classList.add('bg-red-500', 'hover:bg-red-600');
+                    buttonElement.classList.remove('bg-blue-500', 'hover:bg-blue-600');
+                    showError("บันทึกล้มเหลว: " + error.message);
+
+                    setTimeout(() => {
+                        buttonElement.innerHTML = originalIcon;
+                        buttonElement.classList.remove('bg-red-500', 'hover:bg-red-600');
+                        buttonElement.classList.add('bg-blue-500', 'hover:bg-blue-600');
+                        buttonElement.disabled = false;
+                    }, 2000);
+                }
+            }
+
+        });
+    </script>
+
+</body>
+</html>
