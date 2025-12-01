@@ -153,7 +153,7 @@
                 errorMessage.textContent = '';
                 const hashedInputPassword = CryptoJS.SHA256(password).toString();
                 
-                const scriptUrl = 'https://script.google.com/macros/s/AKfycbzs3cenPz_5SpxySUIcuhorHPhrzrdlLVAMFPUal_Kq1OsmkoXMwHyjlaZz5OXSHNMTMg/exec';
+                const scriptUrl = 'https://script.google.com/macros/s/AKfycbw5hrJGxlcX_c8q0gnmFH2GYT7z1ryYWwOPfdwW9iw5BnvRFBb2KjoHCfJzeXPoKt_L/exec';
 
                 fetch(scriptUrl, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: `password=${hashedInputPassword}` })
                 .then(response => response.json())
